@@ -5,7 +5,13 @@
   "scripts": {
     "client": "cd client && yarn start",
     "server": "nodemon server.js",
-    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
+    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
+    
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "lint": "eslint src",
+    "eject": "react-scripts eject"
   },
   "dependencies": {
     "dotenv": "^16.0.3",
@@ -17,6 +23,37 @@
     "yarn": "^1.22.19"
   },
   "devDependencies": {
-    "concurrently": "^8.0.1"
-  }
+    "concurrently": "^8.0.1",
+
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "cypress": "9.6.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-plugin-cypress": "2.12.1",
+    "eslint-plugin-prettier": "4.0.0",
+    "prettier": "2.6.2"
+  },
+
+  "eslintConfig": {
+    "extends": [
+    "react-app",
+    "react-app/jest",
+    "prettier"
+    ],
+    "plugins": [
+    "prettier",
+    "cypress"
+    ],
+    "env": {
+    "cypress/globals": true
+    },
+    "rules": {
+    "prettier/prettier": "warn"
+    }
+    },
+    "prettier": {
+      "arrowParens": "avoid",
+      "bracketSpacing": false,
+      "singleQuote": true,
+      "trailingComma": "all"
+      }
 }
