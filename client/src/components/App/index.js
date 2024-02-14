@@ -1,14 +1,12 @@
 import React from 'react';
-import Home from './Home';
-import Profile from './Profile';
-import People from './People';
-import Matches from './Matches';
+import Review from './Review';
+
 
 function App() {
-  return <Home />;
-  return <Profile />;
+  return <Review />;
+  {/*return <Profile />;
   return <People />;
-  return <Matches />;
+return <Matches />;*/}
 
 }
 
