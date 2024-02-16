@@ -1,14 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import mysql from 'mysql';
-import cors from 'cors'; // Import cors module
 import config from './config'; // Assuming config.js is in the same directory
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors()); // Enable CORS for all routes
 
 const connection = mysql.createConnection(config); // Use the configuration from config.js
 
@@ -16,18 +13,10 @@ connection.connect();
 
 // Register route
 app.post('/register', (req, res) => {
-    const {
-        username,
-        email,
-        password,
-        full_name,
-        university_name,
-        program_of_study,
-        age,
-        bio
-    } = req.body;
+    // Extract user details from request body
+    const { username, email, password, full_name, university_name, program_of_study, age, bio } = req.body;
 
-    // Hash password
+    // Hash the password
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     // Construct user object
@@ -42,8 +31,8 @@ app.post('/register', (req, res) => {
         bio
     };
 
-    // Insert user into database
-    connection.query('INSERT INTO users SET ?', newUser, (error, results) => {
+    // Insert user into the twliew.user table
+    connection.query('INSERT INTO twliew.user SET ?', newUser, (error, results) => {
         if (error) {
             console.error(error);
             return res.status(500).json({ success: false, message: 'Failed to register user.' });
@@ -54,24 +43,31 @@ app.post('/register', (req, res) => {
 
 // Login route
 app.post('/login', (req, res) => {
+    // Extract email and password from request body
     const { email, password } = req.body;
-    connection.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
-        if (error) throw error;
-        if (results.length > 0) {
-            const user = results[0];
-            if (bcrypt.compareSync(password, user.password)) {
-                const token = jwt.sign({ userId: user.id }, 'your_secret_key');
-                res.json({ success: true, token });
-            } else {
-                res.status(401).json({ success: false, message: 'Invalid email or password' });
-            }
-        } else {
-            res.status(401).json({ success: false, message: 'User not found' });
+
+    // Query the twliew.user table to find the user with the provided email
+    connection.query('SELECT * FROM twliew.user WHERE email = ?', [email], (error, results) => {
+        if (error) {
+            console.error(error);
+            return res.status(500).json({ success: false, message: 'Internal server error' });
         }
+
+        // Check if a user with the provided email exists
+        if (results.length === 0) {
+            return res.status(401).json({ success: false, message: 'User not found' });
+        }
+
+        // Compare the provided password with the hashed password from the database
+        const user = results[0];
+        if (!bcrypt.compareSync(password, user.password)) {
+            return res.status(401).json({ success: false, message: 'Invalid password' });
+        }
+
+        // Authentication successful
+        res.json({ success: true, message: 'Login successful', user });
     });
 });
-
-const port = process.env.PORT || 3000;
-
-// Listen on the specified port
-app.listen(port, () => console.log(`Listening on port ${port}`));
+// Start the server
+const port = process.env.PORT || 5000;
+app.listen(port, () => console.log(`Server listening on port ${port}`));

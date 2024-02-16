@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Grid, Typography, Button } from '@mui/material';
 
-const serverURL = ""; // Set your server URL here
-
 function Register() {
   const [formData, setFormData] = useState({
     username: '',
@@ -25,7 +23,7 @@ function Register() {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch(serverURL + '/register', {
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,7 +34,15 @@ function Register() {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Registration failed');
       }
-      setSuccess(true);
+      const responseData = await response.json();
+      if (responseData.success) {
+        setSuccess(true);
+        // Store session ID securely (e.g., localStorage)
+        localStorage.setItem('sessionId', responseData.sessionId);
+        // Redirect to a logged-in page or display appropriate message
+      } else {
+        setError(responseData.message || 'Registration failed');
+      }
     } catch (error) {
       console.error('Registration Error:', error.message);
       setError(error.message);
