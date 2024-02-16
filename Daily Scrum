@@ -15,11 +15,22 @@ reviewed the lab 5 and figuring out how to add to project repo (taylor)
 What was in my way
 some objects in the package.json file were not the same as the lab (taylor)
 What will I do today
-add folders for each page in the components folder, add directories in the App index.ks file, set up project repo (taylor)
+add folders for each page in the components folder, add directories in the App index.js file, set up project repo (taylor)
 
-
-
-
+Feb 14
 What did I do yesterday
+reviewed d3 from msci 245 and reviewed lab6 (taylor)
 What was in my way
+setting up project configuration on repository, errors running yarn start and yarn dev (taylor)
 What will I do today
+try running commands on codespaces rather than locally (taylor)
+
+Feb 15
+What did I do yesterday
+set up codespaces for project repo (taylor)
+What was in my way
+was setting it up locally before, missing dependencies (taylor)
+What will I do today
+set up routing, navigating between pages, basis for Profile page (taylor)
+
+
