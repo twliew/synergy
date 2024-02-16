@@ -1,4 +1,5 @@
 import React from 'react';
+import HomePage from '../HomePage';
 import Profile from '../Profile';
 import People from '../People';
 import Matches from '../Matches';
@@ -11,7 +12,8 @@ function App() {
       <Router>
         <div>
         <Routes>
-          <Route path="/" element={<Profile />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="Profile" element={<Profile />} />
           <Route path="/People" element={<People />} />
           <Route path="/Matches" element={<Matches />} />
         </Routes>

@@ -15,7 +15,7 @@ const theme = createTheme({
     },
 });
 
-const Matches = () => {
+const HomePage = () => {
 
     const navigate = useNavigate();
 
@@ -42,9 +42,9 @@ const Matches = () => {
                     </Toolbar>
                 </Container>
             </AppBar>
-      <Typography>matches</Typography>
+      <Typography>home</Typography>
     </ThemeProvider>
   );
 }
 
-export default Matches;
+export default HomePage;
