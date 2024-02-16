@@ -1,59 +1,74 @@
-import mysql from 'mysql';
-import config from './config.js';
-import fetch from 'node-fetch';
 import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import bodyParser from 'body-parser';
-import response from 'express';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import mysql from 'mysql';
+import config from './config'; // Assuming config.js is in the same directory
 
 const app = express();
-const port = process.env.PORT || 5000;
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.json());
 
-app.use(express.static(path.join(__dirname, "client/build")));
+const connection = mysql.createConnection(config); // Use the configuration from config.js
 
-// API to read movies from the database
-app.post('/api/getMovies', (req, res) => {
-	let connection = mysql.createConnection(config);
+connection.connect();
 
-	const sql = `SELECT id, name, year, quality FROM movies`;
-
-	connection.query(sql, (error, results, fields) => {
-		if (error) {
-			return console.error(error.message);
-		}
-		let string = JSON.stringify(results);
-		res.send({ express: string });
+// Register route
+app.post('/register', (req, res) => {
+	const {
+	  username,
+	  email,
+	  password,
+	  full_name,
+	  university_name,
+	  program_of_study,
+	  age,
+	  bio
+	} = req.body;
+	
+	// Hash password
+	const hashedPassword = bcrypt.hashSync(password, 10);
+	
+	// Construct user object
+	const newUser = {
+	  username,
+	  email,
+	  password: hashedPassword,
+	  full_name,
+	  university_name,
+	  program_of_study,
+	  age,
+	  bio
+	};
+  
+	// Insert user into database
+	connection.query('INSERT INTO users SET ?', newUser, (error, results) => {
+	  if (error) {
+		console.error(error);
+		return res.status(500).json({ success: false, message: 'Failed to register user.' });
+	  }
+	  res.status(201).json({ success: true, message: 'User registered successfully' });
 	});
-	connection.end();
+  });
+
+// Login route
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  connection.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
+    if (error) throw error;
+    if (results.length > 0) {
+      const user = results[0];
+      if (bcrypt.compareSync(password, user.password)) {
+        const token = jwt.sign({ userId: user.id }, 'your_secret_key');
+        res.json({ success: true, token });
+      } else {
+        res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+    } else {
+      res.status(401).json({ success: false, message: 'User not found' });
+    }
+  });
 });
 
-// API to add a review to the database
-app.post('/api/addReview', (req, res) => {
-	const { userID, movieID, reviewTitle, reviewContent, reviewScore } = req.body;
-
-	let connection = mysql.createConnection(config);
-
-	const sql = `INSERT INTO Review (userID, movieID, reviewTitle, reviewContent, reviewScore) 
-				 VALUES (?, ?, ?, ?, ?)`;
-
-	const data = [userID, movieID, reviewTitle, reviewContent, reviewScore];
-
-	connection.query(sql, data, (error, results, fields) => {
-		if (error) {
-			console.error("Error adding review:", error.message);
-			return res.status(500).json({ error: "Error adding review to the database" });
-		}
-
-		return res.status(200).json({ success: true });
-	});
-	connection.end();
+app.listen(5000, () => {
+  console.log('Server is running on port 5000');
 });
-
-
-app.listen(port, () => console.log(`Listening on port ${port}`)); //for the dev version
