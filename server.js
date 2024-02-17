@@ -44,6 +44,53 @@ app.post('/api/register', (req, res) => {
   });
 });
 
+// Login Route
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  const sql = 'SELECT * FROM twliew.user WHERE username = ? AND password = ?';
+  const values = [username, password];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      res.status(500).json({ success: false, message: 'Internal server error' });
+      throw err;
+    }
+
+    if (result.length === 0) {
+      res.status(401).json({ success: false, message: 'Invalid username or password' });
+    } else {
+      res.status(200).json({ success: true, message: 'Login successful' });
+    }
+  });
+});
+
+// Profile Route
+app.get('/api/profile', (req, res) => {
+  // Check if user is authenticated (you can implement your authentication logic here)
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+
+  const username = req.user.username; // Assuming you store username in the user object after authentication
+
+  // Query the database to fetch the user's profile data based on the username
+  const sql = 'SELECT * FROM users WHERE username = ?';
+
+  db.query(sql, [username], (err, result) => {
+    if (err) {
+      console.error('Error fetching profile data:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, message: 'User profile not found' });
+    }
+
+    const userProfile = result[0];
+    return res.status(200).json({ success: true, userProfile });
+  });
+});
+
 // Root Route
 app.get('/', (req, res) => {
   res.send('Server is running');
