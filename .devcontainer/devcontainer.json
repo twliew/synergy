@@ -3,5 +3,5 @@
   "features": {
   },
   "postCreateCommand": "bash ./install-dependencies.sh",
-  "forwardPorts": [3000]
+  "forwardPorts": [3000
 }

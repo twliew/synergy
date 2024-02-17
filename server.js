@@ -1,29 +1,48 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import bcrypt from 'bcrypt';
+// import bcrypt from 'bcrypt';
+import cors from 'cors';
 import mysql from 'mysql';
-import config from './config'; // Assuming config.js is in the same directory
+// import { configuration } from './config';
+
+const config = {
+    host    : 'ec2-3-137-65-169.us-east-2.compute.amazonaws.com',
+    user    : 'twliew',
+    password: 'MSCI342',
+    database: 'twliew'
+  };
+  
+  
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 const connection = mysql.createConnection(config); // Use the configuration from config.js
 
 connection.connect();
 
+app.get('/', (req, res) => {
+    res.send('Hello, World!');
+}
+);
+
 // Register route
-app.post('/register', (req, res) => {
+app.post('/api/register', (req, res) => {
     // Extract user details from request body
+    console.log(req.body);
     const { username, email, password, full_name, university_name, program_of_study, age, bio } = req.body;
 
     // Hash the password
-    const hashedPassword = bcrypt.hashSync(password, 10);
+    // const hashedPassword = bcrypt.hashSync(password, 10);
+
+    console.log("I am here");
 
     // Construct user object
     const newUser = {
         username,
         email,
-        password: hashedPassword,
+        password: password,
         full_name,
         university_name,
         program_of_study,
