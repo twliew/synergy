@@ -59,7 +59,13 @@ app.post('/api/login', (req, res) => {
     if (result.length === 0) {
       res.status(401).json({ success: false, message: 'Invalid username or password' });
     } else {
-      res.status(200).json({ success: true, message: 'Login successful' });
+      // Assuming result contains the user's information
+      const user = result[0];
+      
+      // Attach user information to req.user
+      req.user = user;
+      
+      res.status(200).json({ success: true, message: 'Login successful', user });
     }
   });
 });
@@ -74,7 +80,7 @@ app.get('/api/profile', (req, res) => {
   const username = req.user.username; // Assuming you store username in the user object after authentication
 
   // Query the database to fetch the user's profile data based on the username
-  const sql = 'SELECT * FROM users WHERE username = ?';
+  const sql = 'SELECT * FROM twliew.user WHERE username = ?';
 
   db.query(sql, [username], (err, result) => {
     if (err) {
@@ -90,6 +96,7 @@ app.get('/api/profile', (req, res) => {
     return res.status(200).json({ success: true, userProfile });
   });
 });
+
 
 // Root Route
 app.get('/', (req, res) => {
