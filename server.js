@@ -34,6 +34,18 @@ db.connect((err) => {
 app.post('/api/register', (req, res) => {
   const userData = req.body;
 
+const userDataWithoutConfirm = { ...userData };
+delete userDataWithoutConfirm.confirmEmail;
+
+// If all validations pass, proceed with user registration
+const sql = 'INSERT INTO twliew.user SET ?';
+db.query(sql, userDataWithoutConfirm, (err, result) => {
+  if (err) {
+    return res.status(400).send('Failed to register user');
+  }
+  res.status(200).send('User registered successfully');
+});
+
   // Check if username already exists
   const checkUsernameQuery = 'SELECT * FROM twliew.user WHERE username = ?';
   db.query(checkUsernameQuery, [userData.username], (err, usernameResults) => {
@@ -55,6 +67,8 @@ app.post('/api/register', (req, res) => {
 
         if (emailResults.length > 0) {
           res.status(400).send('Email already exists');
+        } else if (!isUniversityEmail(userData.email)) {
+          res.status(400).send('Only university email addresses with valid university domains are allowed');
         } else {
           // Implement password strength criteria validation
           const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
@@ -76,6 +90,13 @@ app.post('/api/register', (req, res) => {
     }
   });
 });
+
+// Check if email is from an accepted university domain
+const isUniversityEmail = (email) => {
+  const universityDomains = ['uwaterloo.ca', 'mail.utoronto.ca', 'mcmaster.ca', 'wlu.ca'];
+  const domain = email.split('@')[1];
+  return universityDomains.includes(domain);
+};
 
 
 // Login Route
