@@ -92,6 +92,29 @@ app.get('/api/profile/:username', (req, res) => {
   });
 });
 
+// Profile Update Route
+app.put('/api/profile/:username', (req, res) => {
+  const username = req.params.username;
+  const updatedProfileData = req.body;
+
+  // Update the user's profile data in the database
+  const sql = 'UPDATE twliew.user SET ? WHERE username = ?';
+
+  db.query(sql, [updatedProfileData, username], (err, result) => {
+      if (err) {
+          console.error('Error updating profile data:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (result.affectedRows === 0) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      return res.status(200).json({ success: true, message: 'Profile data updated successfully' });
+  });
+});
+
+
 
 // Root Route
 app.get('/', (req, res) => {
