@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, TextField, Button } from '@mui/material';
+import Interests from './Interests'; // Assuming Interests component is in a separate file
 
 const Profile = () => {
     const [editedProfileData, setEditedProfileData] = useState({
@@ -12,6 +13,8 @@ const Profile = () => {
         age: '',
         bio: ''
     });
+    const [hobbies, setHobbies] = useState([]);
+    const [selectedHobbies, setSelectedHobbies] = useState([]);
     const username = localStorage.getItem('username');
 
     useEffect(() => {
@@ -29,8 +32,23 @@ const Profile = () => {
             }
         };
 
+        const fetchHobbies = async () => {
+            try {
+                const response = await fetch('/api/hobbies');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch hobbies');
+                }
+                const data = await response.json();
+                setHobbies(data.hobbies);
+            } catch (error) {
+                console.error('Error:', error.message);
+                // Handle error fetching hobbies
+            }
+        };
+
         if (username) {
             fetchProfileData();
+            fetchHobbies();
         }
     }, [username]);
 
@@ -61,6 +79,29 @@ const Profile = () => {
         } catch (error) {
             console.error('Error saving changes:', error.message);
             // Handle error saving changes
+        }
+    };
+
+    const handleHobbyChange = (e) => {
+        setSelectedHobbies(e.target.value);
+    };
+
+    const handleSaveInterests = async () => {
+        try {
+            const response = await fetch(`/api/profile/${username}/hobbies`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ interests: selectedHobbies })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to save interests');
+            }
+            // Handle success message or any other action
+        } catch (error) {
+            console.error('Error saving interests:', error.message);
+            // Handle error saving interests
         }
     };
 
@@ -132,6 +173,12 @@ const Profile = () => {
                     </Button>
                 </div>
             )}
+            <Interests
+                hobbies={hobbies}
+                selectedHobbies={selectedHobbies}
+                handleHobbyChange={handleHobbyChange}
+                handleSaveInterests={handleSaveInterests}
+            />
         </div>
     );
 };

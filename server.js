@@ -169,7 +169,58 @@ app.put('/api/profile/:username', (req, res) => {
   });
 });
 
+// Get all hobbies
+app.get('/api/hobbies', (req, res) => {
+  const getHobbiesQuery = 'SELECT * FROM twliew.hobbies';
+  db.query(getHobbiesQuery, (err, results) => {
+    if (err) {
+      console.error('Error fetching hobbies:', err);
+      return res.status(500).send('Internal server error');
+    }
+    res.status(200).json({ hobbies: results });
+  });
+});
 
+// Update user hobbies
+app.put('/api/profile/:username/hobbies', (req, res) => {
+  const { username } = req.params;
+  const { interests } = req.body;
+
+  // Retrieve user ID based on username
+  const getUserIdQuery = 'SELECT id FROM twliew.user WHERE username = ?';
+  db.query(getUserIdQuery, [username], (err, results) => {
+    if (err) {
+      res.status(500).send('Internal server error');
+      throw err;
+    }
+
+    if (results.length === 0) {
+      res.status(404).send('User not found');
+    } else {
+      const userId = results[0].id;
+
+      // Delete existing user hobbies
+      const deleteQuery = 'DELETE FROM twliew.user_hobbies WHERE user_id = ?';
+      db.query(deleteQuery, [userId], (err) => {
+        if (err) {
+          res.status(500).send('Internal server error');
+          throw err;
+        }
+
+        // Insert new user hobbies
+        const insertQuery = 'INSERT INTO twliew.user_hobbies (user_id, hobby_id) VALUES ?';
+        const values = interests.map((hobbyId) => [userId, hobbyId]);
+        db.query(insertQuery, [values], (err) => {
+          if (err) {
+            res.status(500).send('Internal server error');
+            throw err;
+          }
+          res.status(200).send('User hobbies updated successfully');
+        });
+      });
+    }
+  });
+});
 
 // Root Route
 app.get('/', (req, res) => {
