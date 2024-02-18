@@ -15,23 +15,33 @@ const Profile = () => {
     });
     const [hobbies, setHobbies] = useState([]);
     const [selectedHobbies, setSelectedHobbies] = useState([]);
+    const [selectedInterests, setSelectedInterests] = useState([]); // State to store selected interests
+    const [editInterests, setEditInterests] = useState(false); // State to toggle editing interests
     const username = localStorage.getItem('username');
 
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                const response = await fetch(`/api/profile/${username}`);
-                if (!response.ok) {
+                const profileResponse = await fetch(`/api/profile/${username}`);
+                const interestsResponse = await fetch(`/api/profile/${username}/interests`);
+        
+                if (!profileResponse.ok || !interestsResponse.ok) {
                     throw new Error('Failed to fetch profile data');
                 }
-                const data = await response.json();
-                setEditedProfileData(data.userProfile);
+        
+                const profileData = await profileResponse.json();
+                const interestsData = await interestsResponse.json();
+        
+                setEditedProfileData(profileData.userProfile);
+                setSelectedInterests(interestsData.selectedInterests);
+                // Pre-select interests for editing
+                setSelectedHobbies(interestsData.selectedInterests.map(interest => interest.id));
             } catch (error) {
                 console.error('Error:', error.message);
                 // Handle error fetching profile data
             }
         };
-
+    
         const fetchHobbies = async () => {
             try {
                 const response = await fetch('/api/hobbies');
@@ -45,7 +55,7 @@ const Profile = () => {
                 // Handle error fetching hobbies
             }
         };
-
+    
         if (username) {
             fetchProfileData();
             fetchHobbies();
@@ -98,7 +108,17 @@ const Profile = () => {
             if (!response.ok) {
                 throw new Error('Failed to save interests');
             }
+            
+            // Update selectedInterests state immediately after saving
+            setSelectedInterests(hobbies.filter(hobby => selectedHobbies.includes(hobby.id)));
+            
+            // If no interests are selected, set selectedInterests to an empty array
+            if (selectedHobbies.length === 0) {
+                setSelectedInterests([]);
+            }
+            
             // Handle success message or any other action
+            setEditInterests(false); // Exit edit interests mode after saving
         } catch (error) {
             console.error('Error saving interests:', error.message);
             // Handle error saving interests
@@ -173,12 +193,35 @@ const Profile = () => {
                     </Button>
                 </div>
             )}
-            <Interests
-                hobbies={hobbies}
-                selectedHobbies={selectedHobbies}
-                handleHobbyChange={handleHobbyChange}
-                handleSaveInterests={handleSaveInterests}
-            />
+            <Typography variant="h5" gutterBottom>
+                Interests/Hobbies
+            </Typography>
+            {!editInterests ? (
+                <div>
+                    <ul>
+                    {selectedInterests && selectedInterests.length > 0 ? (
+                        <ul>
+                            {selectedInterests.map((interest) => (
+                                <li key={interest.id}>{interest.hobby_name}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <Typography variant="body1">No interests selected</Typography>
+                    )}
+                    </ul>
+                    <Button onClick={() => setEditInterests(true)} variant="contained" color="primary">
+                        Edit Interests
+                    </Button>
+                </div>
+            ) : (
+                <Interests
+                    hobbies={hobbies}
+                    selectedHobbies={selectedHobbies}
+                    handleHobbyChange={handleHobbyChange}
+                    handleSaveInterests={handleSaveInterests}
+                    selectedInterests={selectedInterests}
+                />
+            )}
         </div>
     );
 };

@@ -222,6 +222,30 @@ app.put('/api/profile/:username/hobbies', (req, res) => {
   });
 });
 
+// Get selected interests for a user
+app.get('/api/profile/:username/interests', (req, res) => {
+  const username = req.params.username;
+
+  // Query the database to fetch the user's selected interests based on the username
+  const sql = `
+      SELECT h.id, h.hobby_name 
+      FROM twliew.hobbies AS h
+      JOIN twliew.user_hobbies AS uh ON h.id = uh.hobby_id
+      JOIN twliew.user AS u ON u.id = uh.user_id
+      WHERE u.username = ?;
+  `;
+
+  db.query(sql, [username], (err, results) => {
+      if (err) {
+          console.error('Error fetching selected interests:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      return res.status(200).json({ success: true, selectedInterests: results });
+  });
+});
+
+
 // Root Route
 app.get('/', (req, res) => {
   res.send('Server is running');
