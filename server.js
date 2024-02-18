@@ -33,16 +33,50 @@ db.connect((err) => {
 // Register Route
 app.post('/api/register', (req, res) => {
   const userData = req.body;
-  const sql = 'INSERT INTO twliew.user SET ?';
 
-  db.query(sql, userData, (err, result) => {
+  // Check if username already exists
+  const checkUsernameQuery = 'SELECT * FROM twliew.user WHERE username = ?';
+  db.query(checkUsernameQuery, [userData.username], (err, usernameResults) => {
     if (err) {
-      res.status(400).json({ success: false, message: 'Failed to register user' });
+      res.status(500).send('Internal server error');
       throw err;
     }
-    res.status(200).json({ success: true, message: 'User registered successfully' });
+
+    if (usernameResults.length > 0) {
+      res.status(400).send('Username already exists');
+    } else {
+      // Check if email already exists
+      const checkEmailQuery = 'SELECT * FROM twliew.user WHERE email = ?';
+      db.query(checkEmailQuery, [userData.email], (err, emailResults) => {
+        if (err) {
+          res.status(500).send('Internal server error');
+          throw err;
+        }
+
+        if (emailResults.length > 0) {
+          res.status(400).send('Email already exists');
+        } else {
+          // Implement password strength criteria validation
+          const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+          if (!passwordRegex.test(userData.password)) {
+            return res.status(400).send('Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character');
+          }
+
+          // If all validations pass, proceed with user registration
+          const sql = 'INSERT INTO twliew.user SET ?';
+          db.query(sql, userData, (err, result) => {
+            if (err) {
+              res.status(400).send('Failed to register user');
+              throw err;
+            }
+            res.status(200).send('User registered successfully');
+          });
+        }
+      });
+    }
   });
 });
+
 
 // Login Route
 app.post('/api/login', (req, res) => {

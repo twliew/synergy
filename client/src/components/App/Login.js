@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button } from '@mui/material';
+import { TextField, Button, Typography } from '@mui/material';
 
 const Login = ({ onLogin }) => {
     const [formData, setFormData] = useState({
@@ -44,11 +44,16 @@ const Login = ({ onLogin }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <TextField type="text" name="username" label="Username" value={formData.username} onChange={handleChange} required fullWidth />
-            <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth />
-            <Button type="submit" variant="contained" color="primary">Login</Button>
-        </form>
+        <div>
+            <Typography variant="h4" gutterBottom>
+                Login
+            </Typography>
+            <form onSubmit={handleSubmit}>
+                <TextField type="text" name="username" label="Username" value={formData.username} onChange={handleChange} required fullWidth />
+                <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth />
+                <Button type="submit" variant="contained" color="primary">Login</Button>
+            </form>
+        </div>
     );
 };
 
