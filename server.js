@@ -245,6 +245,40 @@ app.get('/api/profile/:username/interests', (req, res) => {
   });
 });
 
+// POST request to create a new hobby
+app.post('/api/hobbies', (req, res) => {
+  const { hobbyName } = req.body;
+
+  // Check if the hobby name is provided
+  if (!hobbyName) {
+      return res.status(400).json({ success: false, message: 'Hobby name is required' });
+  }
+
+  // Check if the hobby already exists
+  const sqlCheckExistingHobby = 'SELECT id FROM hobbies WHERE hobby_name = ?';
+  db.query(sqlCheckExistingHobby, [hobbyName], (err, results) => {
+      if (err) {
+          console.error('Error checking existing hobby:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (results.length > 0) {
+          return res.status(400).json({ success: false, message: 'Hobby already exists' });
+      }
+
+      // Insert the new hobby into the database
+      const sqlInsertHobby = 'INSERT INTO hobbies (hobby_name) VALUES (?)';
+      db.query(sqlInsertHobby, [hobbyName], (err, results) => {
+          if (err) {
+              console.error('Error inserting new hobby:', err);
+              return res.status(500).json({ success: false, message: 'Internal server error' });
+          }
+
+          return res.status(201).json({ success: true, message: 'Hobby created successfully' });
+      });
+  });
+});
+
 
 // Root Route
 app.get('/', (req, res) => {

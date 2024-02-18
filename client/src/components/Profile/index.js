@@ -17,6 +17,7 @@ const Profile = () => {
     const [selectedHobbies, setSelectedHobbies] = useState([]);
     const [selectedInterests, setSelectedInterests] = useState([]); // State to store selected interests
     const [editInterests, setEditInterests] = useState(false); // State to toggle editing interests
+    const [newHobbyName, setNewHobbyName] = useState(''); // State to store new hobby name
     const username = localStorage.getItem('username');
 
     useEffect(() => {
@@ -125,6 +126,42 @@ const Profile = () => {
         }
     };
 
+    const handleNewHobbyChange = (e) => {
+        setNewHobbyName(e.target.value);
+    };
+
+    const handleAddHobby = async () => {
+        try {
+            const response = await fetch('/api/hobbies', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ hobbyName: newHobbyName })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add hobby');
+            }
+    
+            // Fetch updated list of hobbies after adding the new hobby
+            const updatedHobbiesResponse = await fetch('/api/hobbies');
+            const updatedHobbiesData = await updatedHobbiesResponse.json();
+            setHobbies(updatedHobbiesData.hobbies);
+    
+            // Update selectedHobbies with the newly created hobby ID
+            const newHobby = updatedHobbiesData.hobbies.find(hobby => hobby.hobby_name === newHobbyName);
+            if (newHobby) {
+                setSelectedHobbies(prevHobbies => [...prevHobbies, newHobby.id]);
+            }
+    
+            // Clear the new hobby input field
+            setNewHobbyName('');
+        } catch (error) {
+            console.error('Error adding hobby:', error.message);
+            // Handle error adding hobby
+        }
+    };
+
     return (
         <div>
             <Typography variant="h4" gutterBottom>
@@ -214,13 +251,26 @@ const Profile = () => {
                     </Button>
                 </div>
             ) : (
-                <Interests
-                    hobbies={hobbies}
-                    selectedHobbies={selectedHobbies}
-                    handleHobbyChange={handleHobbyChange}
-                    handleSaveInterests={handleSaveInterests}
-                    selectedInterests={selectedInterests}
-                />
+                <div>
+                    <Interests
+                        hobbies={hobbies}
+                        selectedHobbies={selectedHobbies}
+                        handleHobbyChange={handleHobbyChange}
+                        handleSaveInterests={handleSaveInterests}
+                        selectedInterests={selectedInterests}
+                    />
+                    <div>
+                        <TextField
+                            label="New Hobby Name"
+                            value={newHobbyName}
+                            onChange={handleNewHobbyChange}
+                            fullWidth
+                        />
+                        <Button onClick={handleAddHobby} variant="contained" color="primary">
+                            Add Hobby
+                        </Button>
+                    </div>
+                </div>
             )}
         </div>
     );
