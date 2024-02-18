@@ -65,19 +65,14 @@ app.post('/api/login', (req, res) => {
       // Attach user information to req.user
       req.user = user;
       
-      res.status(200).json({ success: true, message: 'Login successful', user });
+      res.status(200).json({ success: true, message: 'Login successful', username });
     }
   });
 });
 
 // Profile Route
-app.get('/api/profile', (req, res) => {
-  // Check if user is authenticated (you can implement your authentication logic here)
-  if (!req.user) {
-    return res.status(401).json({ success: false, message: 'Unauthorized' });
-  }
-
-  const username = req.user.username; // Assuming you store username in the user object after authentication
+app.get('/api/profile/:username', (req, res) => {
+  const username = req.params.username;
 
   // Query the database to fetch the user's profile data based on the username
   const sql = 'SELECT * FROM twliew.user WHERE username = ?';
