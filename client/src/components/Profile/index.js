@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, TextField, Button } from '@mui/material';
+import { Typography, TextField, Button, Paper, Grid, Snackbar } from '@mui/material';
 import Interests from './Interests'; // Assuming Interests component is in a separate file
 
 const Profile = () => {
@@ -18,6 +18,8 @@ const Profile = () => {
     const [selectedInterests, setSelectedInterests] = useState([]); // State to store selected interests
     const [editInterests, setEditInterests] = useState(false); // State to toggle editing interests
     const [newHobbyName, setNewHobbyName] = useState(''); // State to store new hobby name
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
     const username = localStorage.getItem('username');
 
     useEffect(() => {
@@ -86,10 +88,13 @@ const Profile = () => {
             if (!response.ok) {
                 throw new Error('Failed to save changes');
             }
-            // Handle success message or any other action
+            setSnackbarMessage('Changes saved successfully');
+            setSnackbarOpen(true);
         } catch (error) {
             console.error('Error saving changes:', error.message);
             // Handle error saving changes
+            setSnackbarMessage('Error saving changes');
+            setSnackbarOpen(true);
         }
     };
 
@@ -120,9 +125,13 @@ const Profile = () => {
             
             // Handle success message or any other action
             setEditInterests(false); // Exit edit interests mode after saving
+            setSnackbarMessage('Interests saved successfully');
+            setSnackbarOpen(true);
         } catch (error) {
             console.error('Error saving interests:', error.message);
             // Handle error saving interests
+            setSnackbarMessage('Error saving interests');
+            setSnackbarOpen(true);
         }
     };
 
@@ -156,10 +165,18 @@ const Profile = () => {
     
             // Clear the new hobby input field
             setNewHobbyName('');
+            setSnackbarMessage('Hobby added successfully');
+            setSnackbarOpen(true);
         } catch (error) {
             console.error('Error adding hobby:', error.message);
             // Handle error adding hobby
+            setSnackbarMessage('Error adding hobby');
+            setSnackbarOpen(true);
         }
+    };
+
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
     };
 
     return (
@@ -167,69 +184,87 @@ const Profile = () => {
             <Typography variant="h4" gutterBottom>
                 Profile
             </Typography>
-            {editedProfileData && (
-                <div>
-                    <TextField
-                        label="Full Name"
-                        name="full_name"
-                        value={editedProfileData.full_name}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label="Username"
-                        name="username"
-                        value={editedProfileData.username}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label="Email"
-                        name="email"
-                        value={editedProfileData.email}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label="Password"
-                        name="password"
-                        value={editedProfileData.password}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label="University Name"
-                        name="university_name"
-                        value={editedProfileData.university_name}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label="Program of Study"
-                        name="program_of_study"
-                        value={editedProfileData.program_of_study}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label="Age"
-                        name="age"
-                        value={editedProfileData.age}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <TextField
-                        label="Bio"
-                        name="bio"
-                        value={editedProfileData.bio}
-                        onChange={handleChange}
-                        fullWidth
-                    />
-                    <Button onClick={handleSaveChanges} variant="contained" color="primary">
-                        Save Changes
-                    </Button>
-                </div>
-            )}
+            <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            label="Full Name"
+                            name="full_name"
+                            value={editedProfileData.full_name}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            label="Username"
+                            name="username"
+                            value={editedProfileData.username}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Email"
+                            name="email"
+                            value={editedProfileData.email}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Password"
+                            name="password"
+                            value={editedProfileData.password}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="University Name"
+                            name="university_name"
+                            value={editedProfileData.university_name}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Program of Study"
+                            name="program_of_study"
+                            value={editedProfileData.program_of_study}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            label="Age"
+                            name="age"
+                            value={editedProfileData.age}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            label="Bio"
+                            name="bio"
+                            value={editedProfileData.bio}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button onClick={handleSaveChanges} variant="contained" color="primary">
+                            Save Changes
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Paper>
             <Typography variant="h5" gutterBottom>
                 Interests/Hobbies
             </Typography>
@@ -269,9 +304,18 @@ const Profile = () => {
                         <Button onClick={handleAddHobby} variant="contained" color="primary">
                             Add Hobby
                         </Button>
+                        <Button onClick={() => setEditInterests(false)} variant="contained" color="secondary">
+                            Cancel
+                        </Button>
                     </div>
                 </div>
             )}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                message={snackbarMessage}
+            />
         </div>
     );
 };

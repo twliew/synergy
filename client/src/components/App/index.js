@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom'; // Import Link from react-router-dom
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import HomePage from '../HomePage';
 import Profile from '../Profile';
 import People from '../People';
@@ -30,31 +31,44 @@ function App() {
     return (
         <Router>
             <div>
-                {/* Navigation bar */}
-                {isLoggedIn && (
-                    <nav>
-                        <button onClick={handleLogout}>Logout</button>
-                        <ul>
-                            {/* Use Link components instead of anchor tags */}
-                            <li><Link to="/">Home</Link></li>
-                            <li><Link to="/Profile">Profile</Link></li>
-                            <li><Link to="/People">People</Link></li>
-                            <li><Link to="/Matches">Matches</Link></li>
-                        </ul>
-                    </nav>
-                )}
+                <AppBar position="static">
+                    <Toolbar>
+                        {/* Conditional rendering for navigation links */}
+                        {isLoggedIn && (
+                            <>
+                                {/* Home Link */}
+                                <Typography variant="h6" component="div">
+                                    <Link to="/" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Home</Link>
+                                </Typography>
+                                {/* Profile Link */}
+                                <Typography variant="h6" component="div">
+                                    <Link to="/Profile" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Profile</Link>
+                                </Typography>
+                                {/* People Link */}
+                                <Typography variant="h6" component="div">
+                                    <Link to="/People" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>People</Link>
+                                </Typography>
+                                {/* Matches Link */}
+                                <Typography variant="h6" component="div">
+                                    <Link to="/Matches" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Matches</Link>
+                                </Typography>
+                            </>
+                        )}
+                        {/* Conditional rendering for logout button when logged in */}
+                        {isLoggedIn ? (
+                            <Box sx={{ marginLeft: 'auto' }}>
+                                <Button color="inherit" onClick={handleLogout}>Logout</Button>
+                            </Box>
+                        ) : (
+                            <>
+                                {/* Render Register and Login links only when logged out */}
+                                <Button color="inherit"><Link to="/Register" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Register</Link></Button>
+                                <Button color="inherit"><Link to="/Login" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Login</Link></Button>
+                            </>
+                        )}
+                    </Toolbar>
+                </AppBar>
 
-                {/* Login/register links */}
-                {!isLoggedIn && (
-                    <nav>
-                        <ul>
-                            <li><Link to="/Register">Register</Link></li>
-                            <li><Link to="/Login">Login</Link></li>
-                        </ul>
-                    </nav>
-                )}
-
-                {/* Routes */}
                 <Routes>
                     {isLoggedIn ? (
                         <>
