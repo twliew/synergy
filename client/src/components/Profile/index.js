@@ -29,7 +29,7 @@ const Profile = () => {
     const handleSMSaveChanges = async () => {
         setAddSM(false);
         setEditSocialMedia(false);
-    
+        //call api
     }
 
     useEffect(() => {
@@ -280,29 +280,14 @@ const Profile = () => {
                 <Typography variant="h5" gutterBottom>
                     Social Media
                 </Typography>
-
-               {editSocialMedia ? (
-                    <div>
-                        <SocialMedia
-                            socialMedia={socialMedia}
-                            setEditSocialMedia={setEditSocialMedia}
-                            addSM={addSM}
-                            setAddSM={setAddSM}
-                            handleSMSaveChanges={handleSMSaveChanges}
-                        />
-
-                        
-                    </div>
-                ):(
-                <Button onClick={() => setEditSocialMedia(true)} variant="contained" color="primary">
-                    Edit Social Media
-                </Button>
-               )}
-
-
-
-                
-
+               
+                <SocialMedia
+                    socialMedia={socialMedia}
+                    setEditSocialMedia={setEditSocialMedia}
+                    addSM={addSM}
+                    setAddSM={setAddSM}
+                    handleSMSaveChanges={handleSMSaveChanges}
+                />
             </Paper>
 
             <Paper>
