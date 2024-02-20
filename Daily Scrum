@@ -1,21 +1,36 @@
 Feb 7th
 What did I do yesterday
 I worked on setting up my computer to run the app on VSCode (Omar)
+set up cypress, netlify, and completed the rest of the lab5 (taylor)
 What was in my way
 I had a few errors trying to download the NVM (Omar)
+not having certain packages installed, setting netlify through github (taylor)
 What will I do today
 I will get all the technical errors sorted out on my local machine (Omar)
+review the lab5, rerun yarn start to confirm functionality and submit (taylor)
 
-Taylor:
+Feb 11
 What did I do yesterday
-set up cypress, netlify, and completed the rest of the lab5
+reviewed the lab 5 and figuring out how to add to project repo (taylor)
 What was in my way
-not having certain packages installed, setting netlify through github
+some objects in the package.json file were not the same as the lab (taylor)
 What will I do today
-review the lab5, rerun yarn start to confirm functionality and submit
+add folders for each page in the components folder, add directories in the App index.js file, set up project repo (taylor)
 
-
-
+Feb 14
 What did I do yesterday
+reviewed d3 from msci 245 and reviewed lab6 (taylor)
 What was in my way
+setting up project configuration on repository, errors running yarn start and yarn dev (taylor)
 What will I do today
+try running commands on codespaces rather than locally (taylor)
+
+Feb 15
+What did I do yesterday
+set up codespaces for project repo (taylor)
+What was in my way
+was setting it up locally before, missing dependencies (taylor)
+What will I do today
+set up routing, navigating between pages, basis for Profile page (taylor)
+
+

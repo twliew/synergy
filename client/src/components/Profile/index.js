@@ -1,97 +1,323 @@
-import * as React from 'react';
-import Typography from "@mui/material/Typography";
-import { createTheme, ThemeProvider, styled } from '@mui/material/styles'; 
-import Grid from "@mui/material/Grid";
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Container from '@mui/material/Container';
-import { useNavigate } from 'react-router-dom';
-import TextField from '@mui/material/TextField';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: '#8d75ba',
-            light: '#8d75ba',
-            background: '#eeeeee'
-        },
-    },
-});
-
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.primary.background,
-    padding: theme.spacing(3),
-    textAlign: 'center',
-    marginTop: theme.spacing(3),
-}));
+import React, { useState, useEffect } from 'react';
+import { Typography, TextField, Button, Paper, Grid, Snackbar } from '@mui/material';
+import Interests from './Interests'; // Assuming Interests component is in a separate file
 
 const Profile = () => {
+    const [editedProfileData, setEditedProfileData] = useState({
+        full_name: '',
+        username: '',
+        email: '',
+        password: '',
+        university_name: '',
+        program_of_study: '',
+        age: '',
+        bio: ''
+    });
+    const [hobbies, setHobbies] = useState([]);
+    const [selectedHobbies, setSelectedHobbies] = useState([]);
+    const [selectedInterests, setSelectedInterests] = useState([]); // State to store selected interests
+    const [editInterests, setEditInterests] = useState(false); // State to toggle editing interests
+    const [newHobbyName, setNewHobbyName] = useState(''); // State to store new hobby name
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const username = localStorage.getItem('username');
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                const profileResponse = await fetch(`/api/profile/${username}`);
+                const interestsResponse = await fetch(`/api/profile/${username}/interests`);
+        
+                if (!profileResponse.ok || !interestsResponse.ok) {
+                    throw new Error('Failed to fetch profile data');
+                }
+        
+                const profileData = await profileResponse.json();
+                const interestsData = await interestsResponse.json();
+        
+                setEditedProfileData(profileData.userProfile);
+                setSelectedInterests(interestsData.selectedInterests);
+                // Pre-select interests for editing
+                setSelectedHobbies(interestsData.selectedInterests.map(interest => interest.id));
+            } catch (error) {
+                console.error('Error:', error.message);
+                // Handle error fetching profile data
+            }
+        };
+    
+        const fetchHobbies = async () => {
+            try {
+                const response = await fetch('/api/hobbies');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch hobbies');
+                }
+                const data = await response.json();
+                setHobbies(data.hobbies);
+            } catch (error) {
+                console.error('Error:', error.message);
+                // Handle error fetching hobbies
+            }
+        };
+    
+        if (username) {
+            fetchProfileData();
+            fetchHobbies();
+        }
+    }, [username]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setEditedProfileData({
+            ...editedProfileData,
+            [name]: value
+        });
+    };
+
+    const handleSaveChanges = async () => {
+        try {
+            // Exclude the 'created_at' property from the editedProfileData object
+            const { created_at, ...requestData } = editedProfileData;
+
+            const response = await fetch(`/api/profile/${username}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+            if (!response.ok) {
+                throw new Error('Failed to save changes');
+            }
+            setSnackbarMessage('Changes saved successfully');
+            setSnackbarOpen(true);
+        } catch (error) {
+            console.error('Error saving changes:', error.message);
+            // Handle error saving changes
+            setSnackbarMessage('Error saving changes');
+            setSnackbarOpen(true);
+        }
+    };
+
+    const handleHobbyChange = (e) => {
+        setSelectedHobbies(e.target.value);
+    };
+
+    const handleSaveInterests = async () => {
+        try {
+            const response = await fetch(`/api/profile/${username}/hobbies`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ interests: selectedHobbies })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to save interests');
+            }
+            
+            // Update selectedInterests state immediately after saving
+            setSelectedInterests(hobbies.filter(hobby => selectedHobbies.includes(hobby.id)));
+            
+            // If no interests are selected, set selectedInterests to an empty array
+            if (selectedHobbies.length === 0) {
+                setSelectedInterests([]);
+            }
+            
+            // Handle success message or any other action
+            setEditInterests(false); // Exit edit interests mode after saving
+            setSnackbarMessage('Interests saved successfully');
+            setSnackbarOpen(true);
+        } catch (error) {
+            console.error('Error saving interests:', error.message);
+            // Handle error saving interests
+            setSnackbarMessage('Error saving interests');
+            setSnackbarOpen(true);
+        }
+    };
+
+    const handleNewHobbyChange = (e) => {
+        setNewHobbyName(e.target.value);
+    };
+
+    const handleAddHobby = async () => {
+        try {
+            const response = await fetch('/api/hobbies', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ hobbyName: newHobbyName })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add hobby');
+            }
+    
+            // Fetch updated list of hobbies after adding the new hobby
+            const updatedHobbiesResponse = await fetch('/api/hobbies');
+            const updatedHobbiesData = await updatedHobbiesResponse.json();
+            setHobbies(updatedHobbiesData.hobbies);
+    
+            // Update selectedHobbies with the newly created hobby ID
+            const newHobby = updatedHobbiesData.hobbies.find(hobby => hobby.hobby_name === newHobbyName);
+            if (newHobby) {
+                setSelectedHobbies(prevHobbies => [...prevHobbies, newHobby.id]);
+            }
+    
+            // Clear the new hobby input field
+            setNewHobbyName('');
+            setSnackbarMessage('Hobby added successfully');
+            setSnackbarOpen(true);
+        } catch (error) {
+            console.error('Error adding hobby:', error.message);
+            // Handle error adding hobby
+            setSnackbarMessage('Error adding hobby');
+            setSnackbarOpen(true);
+        }
+    };
+
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+    };
 
     return (
-        <ThemeProvider theme={theme}>
-            {/*overhead bar*/}
-            <AppBar position="static">
-                <Container maxWidth="xl">
-                        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                            <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>navigate('/')}>
-                                Home
-                            </Button>
-                            <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>navigate('/Profile')}>
-                                Profile
-                            </Button>
-                            <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>navigate('/People')}>
-                                People
-                            </Button>
-                            <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>navigate('/Matches')}>
-                                Matches
-                            </Button>
-                        </Box>
-                </Container>
-            </AppBar>
-
-            {/*profile*/}
-            <Stack direction="row" spacing={5}>
-                <Item>
-                    <Box component="form" noValidate autoComplete='off' sx={{'& > :not(style)': { m: 0, width: '50ch' }}}>
-                        <Typography variant="h6" component="h6">Personal Information: visible on your profile</Typography>
-                        <Stack direction="column" spacing={3}>
-                            <TextField id="first-name" label="First Name" variant="outlined"/>
-                            <TextField id="last-name" label="Last Name" variant="outlined"/>
-                            <TextField id="year" label="Year" variant="outlined"/>
-                            <TextField id="program" label="Program" variant="outlined"/>
-                            <TextField id="gender" label="Gender" variant="outlined"/> {/*dropdown?*/}
-                            <Button variant="contained"> Save Changes</Button>
-                        </Stack>
-                    </Box>
-                </Item>
-                <Item>
-                    <Box component="form" noValidate autoComplete='off' sx={{'& > :not(style)': { m: 0, width: '50ch' }}}>
-                        <Typography variant="h6" component="h6">Private Information: shared when matched</Typography>
-                        <Stack direction="column" spacing={3}>
-                            <TextField id="instagram" label="Instagram" variant="outlined"/>
-                            <TextField id="facebook" label="Facebook" variant="outlined"/>
-                            <TextField id="snapchat" label="Snapchat" variant="outlined"/>
-                            <TextField id="phone-number" label="Phone Number" variant="outlined"/>
-                            <TextField id="note" label="Note to your Match" variant="outlined" multiline inputProps={{maxlength: 200}}/>
-                            <Button variant="contained"> Save Changes</Button>
-                        </Stack>
-                    </Box>
-                </Item>
-                <Item>
-                    <Box component="form" noValidate autoComplete='off' sx={{'& > :not(style)': { m: 0, width: '50ch' }}}>
-                        <Typography variant="h6" component="h6">Hobbies</Typography>
-                    </Box>
-                </Item>
-            </Stack>
-
-        </ThemeProvider>
-  );
-}
+        <div>
+            <Typography variant="h4" gutterBottom>
+                Profile
+            </Typography>
+            <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            label="Full Name"
+                            name="full_name"
+                            value={editedProfileData.full_name}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            label="Username"
+                            name="username"
+                            value={editedProfileData.username}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Email"
+                            name="email"
+                            value={editedProfileData.email}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Password"
+                            name="password"
+                            value={editedProfileData.password}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="University Name"
+                            name="university_name"
+                            value={editedProfileData.university_name}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Program of Study"
+                            name="program_of_study"
+                            value={editedProfileData.program_of_study}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            label="Age"
+                            name="age"
+                            value={editedProfileData.age}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            label="Bio"
+                            name="bio"
+                            value={editedProfileData.bio}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button onClick={handleSaveChanges} variant="contained" color="primary">
+                            Save Changes
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Paper>
+            <Typography variant="h5" gutterBottom>
+                Interests/Hobbies
+            </Typography>
+            {!editInterests ? (
+                <div>
+                    <ul>
+                    {selectedInterests && selectedInterests.length > 0 ? (
+                        <ul>
+                            {selectedInterests.map((interest) => (
+                                <li key={interest.id}>{interest.hobby_name}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <Typography variant="body1">No interests selected</Typography>
+                    )}
+                    </ul>
+                    <Button onClick={() => setEditInterests(true)} variant="contained" color="primary">
+                        Edit Interests
+                    </Button>
+                </div>
+            ) : (
+                <div>
+                    <Interests
+                        hobbies={hobbies}
+                        selectedHobbies={selectedHobbies}
+                        handleHobbyChange={handleHobbyChange}
+                        handleSaveInterests={handleSaveInterests}
+                        selectedInterests={selectedInterests}
+                    />
+                    <div>
+                        <TextField
+                            label="New Hobby Name"
+                            value={newHobbyName}
+                            onChange={handleNewHobbyChange}
+                            fullWidth
+                        />
+                        <Button onClick={handleAddHobby} variant="contained" color="primary">
+                            Add Hobby
+                        </Button>
+                        <Button onClick={() => setEditInterests(false)} variant="contained" color="secondary">
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            )}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                message={snackbarMessage}
+            />
+        </div>
+    );
+};
 
 export default Profile;
