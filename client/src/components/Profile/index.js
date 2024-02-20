@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, TextField, Button, Paper, Grid, Snackbar } from '@mui/material';
 import Interests from './Interests'; // Assuming Interests component is in a separate file
+import SocialMedia from './SocialMedia';
 
 const Profile = () => {
     const [editedProfileData, setEditedProfileData] = useState({
@@ -21,6 +22,15 @@ const Profile = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const username = localStorage.getItem('username');
+    const [socialMedia, setSocialMedia] = useState([]); // State to store social media
+    const [editSocialMedia, setEditSocialMedia] = useState(false); // State to toggle editing social media
+    const [addSM, setAddSM] = React.useState(false);
+
+    const handleSMSaveChanges = async () => {
+        setAddSM(false);
+        setEditSocialMedia(false);
+    
+    }
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -265,6 +275,37 @@ const Profile = () => {
                     </Grid>
                 </Grid>
             </Paper>
+
+            <Paper>
+                <Typography variant="h5" gutterBottom>
+                    Social Media
+                </Typography>
+
+               {editSocialMedia ? (
+                    <div>
+                        <SocialMedia
+                            socialMedia={socialMedia}
+                            setEditSocialMedia={setEditSocialMedia}
+                            addSM={addSM}
+                            setAddSM={setAddSM}
+                            handleSMSaveChanges={handleSMSaveChanges}
+                        />
+
+                        
+                    </div>
+                ):(
+                <Button onClick={() => setEditSocialMedia(true)} variant="contained" color="primary">
+                    Edit Social Media
+                </Button>
+               )}
+
+
+
+                
+
+            </Paper>
+
+            <Paper>
             <Typography variant="h5" gutterBottom>
                 Interests/Hobbies
             </Typography>
@@ -310,12 +351,14 @@ const Profile = () => {
                     </div>
                 </div>
             )}
+            </Paper>
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={6000}
                 onClose={handleSnackbarClose}
                 message={snackbarMessage}
             />
+            
         </div>
     );
 };
