@@ -23,14 +23,51 @@ const Profile = () => {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const username = localStorage.getItem('username');
     const [socialMedia, setSocialMedia] = useState([]); // State to store social media
-    const [editSocialMedia, setEditSocialMedia] = useState(false); // State to toggle editing social media
-    const [addSM, setAddSM] = React.useState(false);
+    const [newSocialMedia, setNewSocialMedia] = useState({
+        platform_name: '',
+        username: '',
+        url:''
+    });
+    const [editSM, setEditSM] = React.useState(false);
+    const serverURL = "";
+
 
     const handleSMSaveChanges = async () => {
-        setAddSM(false);
-        setEditSocialMedia(false);
+        setEditSM(false);
         //call api
     }
+
+    const handleNewPlatformName = async (event) => {
+        newSocialMedia.platform_name=event.target.value
+    }
+
+    const handleNewUsername = async (event) => {
+        newSocialMedia.username=event.target.value
+    }
+
+    const handleNewURL = async (event) => {
+        newSocialMedia.url=event.target.value
+    }
+
+    
+
+    const callApiAddSM = async () => {
+
+        const url = serverURL + "/api/addSM";
+    
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            socialMedia:socialMedia
+          })
+        });
+        const body = await response.json();
+        if (response.status !== 200) throw Error(body.message);
+        return body;
+      }
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -283,10 +320,13 @@ const Profile = () => {
                
                 <SocialMedia
                     socialMedia={socialMedia}
-                    setEditSocialMedia={setEditSocialMedia}
-                    addSM={addSM}
-                    setAddSM={setAddSM}
+                    editSM={editSM}
+                    setEditSM={setEditSM}
+                    newSocialMedia={newSocialMedia}
                     handleSMSaveChanges={handleSMSaveChanges}
+                    handleNewPlatformName={handleNewPlatformName}
+                    handleNewUsername={handleNewUsername}
+                    handleNewURL={handleNewURL}
                 />
             </Paper>
 
