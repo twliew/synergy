@@ -289,3 +289,18 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
+
+
+app.post('/api/profile/:username/addSM', (req, res) => {
+  let sql = 'insert into twliew.social_media (platform_name, url) values (?, ?, ?)'
+  const { username } = req.params;
+  let data = [req.body.platform_name, req.body.url, username]
+
+  db.query(sql, data, (error, results, fields) => {
+		if (error) {
+			return console.error(error.message);
+		}
+	});
+	connection.end();
+//basically given username, find user id and put it into the table
+});

@@ -53,15 +53,15 @@ const Profile = () => {
 
     const callApiAddSM = async () => {
 
-        const url = serverURL + "/api/addSM";
-    
+        const url = serverURL + "/api/profile/${username}/addSM";
+
         const response = await fetch(url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            socialMedia:socialMedia
+            newSocialMedia:newSocialMedia
           })
         });
         const body = await response.json();
