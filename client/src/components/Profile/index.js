@@ -38,7 +38,7 @@ const Profile = () => {
         setEditSM(false);
         callApiAddSM(username);
         setAddSM(false);
-        setNewSocialMedia({platform_name: '', sm_username: '', url:'', visibility:''})
+        setNewSocialMedia({platform_name: '', sm_username: '', url:'', visibility:''});
     }
 
     const handleNewPlatformName = async (event) => {

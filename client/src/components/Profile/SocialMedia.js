@@ -7,15 +7,6 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import Paper from '@mui/material/Paper';
-import { styled } from '@mui/material/styles';
-
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.primary.background,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    marginTop: theme.spacing(1),
-  }));
 
 const SocialMedia = (props) => {
     return (
@@ -35,6 +26,7 @@ const SocialMedia = (props) => {
                 </div>
             ):(
                 <div>
+                    <Stack>
                     {props.socialMedia.map((sm) => {
                         return(
                             <>
@@ -57,6 +49,7 @@ const SocialMedia = (props) => {
                             </>
                 );
                 })}
+                </Stack>
                     <Button  variant="contained" color="primary">
                         Save Changes
                     </Button>
