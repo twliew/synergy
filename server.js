@@ -324,10 +324,11 @@ app.put('/api/profile/:username/add_social_media', (req, res) => {
 
 app.get('/api/get_social_media', (req, res) => {
   const username = req.params.username;
+
+  
   const sql = `
-      SELECT platform_name, url, visibility, sm_username
-      FROM twliew.social_media
-      WHERE user_id = ?;
+      SELECT *
+      FROM twliew.social_media;
   `;
   const data = [username];
 

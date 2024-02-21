@@ -346,14 +346,6 @@ const Profile = () => {
                 <Typography variant="h5" gutterBottom>
                     Social Media
                 </Typography>
-
-                {socialMedia.map((sm) => {
-                return(
-                    <>
-                        <Typography>{sm.url}</Typography>
-                    </>
-                );
-                })}
                
                 <SocialMedia
                     socialMedia={socialMedia}
