@@ -291,16 +291,33 @@ app.listen(port, () => {
 });
 
 
-app.post('/api/profile/:username/addSM', (req, res) => {
-  let sql = 'insert into twliew.social_media (platform_name, url) values (?, ?, ?)'
+app.put('/api/profile/:username/add_social_media', (req, res) => {
   const { username } = req.params;
-  let data = [req.body.platform_name, req.body.url, username]
+  const { platform_name, url, visibility, sm_username } = req.body;
 
-  db.query(sql, data, (error, results, fields) => {
-		if (error) {
-			return console.error(error.message);
-		}
-	});
-	connection.end();
-//basically given username, find user id and put it into the table
+  // Retrieve user ID based on username
+  const getUserIdQuery = 'SELECT id FROM twliew.user WHERE username = ?';
+  db.query(getUserIdQuery, [username], (err, results) => {
+    if (err) {
+      res.status(500).send('Internal server error');
+      throw err;
+    }
+
+    if (results.length === 0) {
+      res.status(404).send('User not found');
+    } else {
+      const userId = results[0].id;
+
+      // Insert new social media details
+      const insertQuery = 'INSERT INTO twliew.social_media (user_id, platform_name, url, visibility, sm_username) VALUES (?, ?, ?, ?, ?)';
+      const values = [userId, platform_name, url, visibility, sm_username];
+      db.query(insertQuery, values, (err) => {
+        if (err) {
+          res.status(500).send('Internal server error');
+          throw err;
+        }
+        res.status(200).send('Social media details inserted successfully');
+      });
+    }
+  });
 });

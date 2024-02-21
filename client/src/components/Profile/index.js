@@ -25,8 +25,9 @@ const Profile = () => {
     const [socialMedia, setSocialMedia] = useState([]); // State to store social media
     const [newSocialMedia, setNewSocialMedia] = useState({
         platform_name: '',
-        username: '',
-        url:''
+        sm_username: '',
+        url:'',
+        visibility:''
     });
     const [editSM, setEditSM] = React.useState(false);
     const serverURL = "";
@@ -34,7 +35,7 @@ const Profile = () => {
 
     const handleSMSaveChanges = async () => {
         setEditSM(false);
-        //call api
+        callApiAddSM(username);
     }
 
     const handleNewPlatformName = async (event) => {
@@ -42,32 +43,41 @@ const Profile = () => {
     }
 
     const handleNewUsername = async (event) => {
-        newSocialMedia.username=event.target.value
+        newSocialMedia.sm_username=event.target.value
     }
 
     const handleNewURL = async (event) => {
         newSocialMedia.url=event.target.value
     }
 
+    const handleNewVisibility = (event) => {
+        setNewSocialMedia(prevState => ({
+            ...prevState, // maintain the existing state
+            visibility: event.target.value // update the visibility property
+        }));
+    };
+
     
 
-    const callApiAddSM = async () => {
-
-        const url = serverURL + "/api/profile/${username}/addSM";
-
+    const callApiAddSM = async (username) => {
+        const url = serverURL+`/api/profile/${username}/add_social_media`;
+    
         const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            newSocialMedia:newSocialMedia
-          })
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newSocialMedia)
         });
+    
         const body = await response.json();
-        if (response.status !== 200) throw Error(body.message);
+    
+        if (response.status !== 200) {
+            throw new Error(body.message);
+        }
+    
         return body;
-      }
+    };
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -327,6 +337,7 @@ const Profile = () => {
                     handleNewPlatformName={handleNewPlatformName}
                     handleNewUsername={handleNewUsername}
                     handleNewURL={handleNewURL}
+                    handleNewVisibility={handleNewVisibility}
                 />
             </Paper>
 
