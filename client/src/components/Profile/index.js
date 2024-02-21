@@ -30,12 +30,15 @@ const Profile = () => {
         visibility:''
     });
     const [editSM, setEditSM] = React.useState(false);
+    const [addSM, setAddSM] = React.useState(false);
     const serverURL = "";
 
 
-    const handleSMSaveChanges = async () => {
+    const handleNewSMSaveChanges = async () => {
         setEditSM(false);
         callApiAddSM(username);
+        setAddSM(false);
+        setNewSocialMedia({platform_name: '', sm_username: '', url:'', visibility:''})
     }
 
     const handleNewPlatformName = async (event) => {
@@ -57,8 +60,6 @@ const Profile = () => {
         }));
     };
 
-    
-
     const callApiAddSM = async (username) => {
         const url = serverURL+`/api/profile/${username}/add_social_media`;
     
@@ -78,6 +79,24 @@ const Profile = () => {
     
         return body;
     };
+
+    const getSocialMedia = async () => {
+        try {
+            const response = await fetch('/api/get_social_media');
+            if (!response.ok) {
+                throw new Error('Failed to fetch social media');
+            }
+            const data = await response.json();
+            setSocialMedia(data.social_media);
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    };
+
+    useEffect(() => {
+        getSocialMedia();
+    }, []);
+
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -327,13 +346,23 @@ const Profile = () => {
                 <Typography variant="h5" gutterBottom>
                     Social Media
                 </Typography>
+
+                {socialMedia.map((sm) => {
+                return(
+                    <>
+                        <Typography>{sm.url}</Typography>
+                    </>
+                );
+                })}
                
                 <SocialMedia
                     socialMedia={socialMedia}
                     editSM={editSM}
+                    addSM={addSM}
                     setEditSM={setEditSM}
+                    setAddSM={setAddSM}
                     newSocialMedia={newSocialMedia}
-                    handleSMSaveChanges={handleSMSaveChanges}
+                    handleNewSMSaveChanges={handleNewSMSaveChanges}
                     handleNewPlatformName={handleNewPlatformName}
                     handleNewUsername={handleNewUsername}
                     handleNewURL={handleNewURL}

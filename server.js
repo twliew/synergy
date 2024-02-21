@@ -308,10 +308,10 @@ app.put('/api/profile/:username/add_social_media', (req, res) => {
     } else {
       const userId = results[0].id;
 
-      // Insert new social media details
+      // Insert new social media
       const insertQuery = 'INSERT INTO twliew.social_media (user_id, platform_name, url, visibility, sm_username) VALUES (?, ?, ?, ?, ?)';
-      const values = [userId, platform_name, url, visibility, sm_username];
-      db.query(insertQuery, values, (err) => {
+      const data = [userId, platform_name, url, visibility, sm_username];
+      db.query(insertQuery, data, (err) => {
         if (err) {
           res.status(500).send('Internal server error');
           throw err;
@@ -319,5 +319,24 @@ app.put('/api/profile/:username/add_social_media', (req, res) => {
         res.status(200).send('Social media details inserted successfully');
       });
     }
+  });
+});
+
+app.get('/api/get_social_media', (req, res) => {
+  const username = req.params.username;
+  const sql = `
+      SELECT platform_name, url, visibility, sm_username
+      FROM twliew.social_media
+      WHERE user_id = ?;
+  `;
+  const data = [username];
+
+  db.query(sql, data, (err, results) => {
+      if (err) {
+          console.error('Error fetching social media:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      return res.status(200).json({ success: true, social_media: results });
   });
 });
