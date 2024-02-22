@@ -279,6 +279,100 @@ app.post('/api/hobbies', (req, res) => {
   });
 });
 
+// POST request to add social media information for a user
+app.post('/api/profile/:username/social-media', (req, res) => {
+  const { username } = req.params;
+  const { platform_name, sm_username, url, visibility } = req.body;
+
+  // Retrieve user ID based on username
+  const getUserIdQuery = 'SELECT id FROM twliew.user WHERE username = ?';
+  db.query(getUserIdQuery, [username], (err, results) => {
+      if (err) {
+          console.error('Error fetching user id:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+      
+      if (results.length === 0) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      
+      const userId = results[0].id;
+
+      // Fetch the count of existing social media profiles for the user
+      const getSocialMediaCountQuery = 'SELECT COUNT(*) AS count FROM twliew.social_media WHERE user_id = ?';
+      db.query(getSocialMediaCountQuery, [userId], (err, countResults) => {
+          if (err) {
+              console.error('Error fetching social media count:', err);
+              return res.status(500).json({ success: false, message: 'Internal server error' });
+          }
+          
+          const entryNumber = countResults[0].count + 1; // Assign the next entry number
+          
+          // Insert the new social media information into the database
+          const sqlInsertSocialMedia = 'INSERT INTO twliew.social_media (user_id, platform_name, sm_username, url, visibility, entry_number) VALUES (?, ?, ?, ?, ?, ?)';
+          db.query(sqlInsertSocialMedia, [userId, platform_name, sm_username, url, visibility, entryNumber], (err, results) => {
+              if (err) {
+                  console.error('Error inserting new social media:', err);
+                  return res.status(500).json({ success: false, message: 'Internal server error' });
+              }
+
+              return res.status(201).json({ success: true, message: 'Social media added successfully' });
+          });
+      });
+  });
+});
+
+// PUT request to update social media information for a user based on user_id and entry_number
+app.put('/api/profile/:username/social-media/:entryNumber', (req, res) => {
+  const { username, entryNumber } = req.params;
+  const socialMedia = req.body;
+
+  const sqlGetUserId = 'SELECT id FROM user WHERE username = ?';
+  db.query(sqlGetUserId, [username], (err, results) => {
+      if (err) {
+          console.error('Error fetching user id:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (results.length === 0) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      const user_id = results[0].id;
+
+      const sqlUpdateSocialMedia = 'UPDATE social_media SET platform_name = ?, sm_username = ?, url = ?, visibility = ? WHERE user_id = ? AND entry_number = ?';
+      db.query(sqlUpdateSocialMedia, [socialMedia.platform_name, socialMedia.sm_username, socialMedia.url, socialMedia.visibility, user_id, entryNumber], (err, results) => {
+          if (err) {
+              console.error('Error updating social media:', err);
+              return res.status(500).json({ success: false, message: 'Internal server error' });
+          }
+
+          if (results.affectedRows === 0) {
+              return res.status(404).json({ success: false, message: 'Social media entry not found' });
+          }
+
+          return res.status(200).json({ success: true, message: 'Social media updated successfully' });
+      });
+  });
+});
+
+// GET request to fetch social media information for a user
+app.get('/api/profile/:username/social-media', (req, res) => {
+  const { username } = req.params;
+
+  // Fetch social media information from the database
+  const sqlFetchSocialMedia = 'SELECT platform_name, sm_username, url, visibility FROM twliew.social_media WHERE user_id = (SELECT id FROM twliew.user WHERE username = ?)';
+  db.query(sqlFetchSocialMedia, [username], (err, results) => {
+      if (err) {
+          console.error('Error fetching social media:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      return res.status(200).json({ success: true, socialMedia: results });
+  });
+});
+
+
 
 // Root Route
 app.get('/', (req, res) => {

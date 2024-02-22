@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, TextField, Button, Paper, Grid, Snackbar } from '@mui/material';
-import Interests from './Interests'; // Assuming Interests component is in a separate file
+import Interests from './Interests';
+import SocialMedia from './SocialMedia';
 
 const Profile = () => {
     const [editedProfileData, setEditedProfileData] = useState({
@@ -188,74 +189,36 @@ const Profile = () => {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                         <TextField
-                            label="Full Name"
-                            name="full_name"
-                            value={editedProfileData.full_name}
-                            onChange={handleChange}
-                            fullWidth
+                            label="Full Name" name="full_name" value={editedProfileData.full_name} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <TextField
-                            label="Username"
-                            name="username"
-                            value={editedProfileData.username}
-                            onChange={handleChange}
-                            fullWidth
+                            label="Username" name="username" value={editedProfileData.username} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            label="Email"
-                            name="email"
-                            value={editedProfileData.email}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Email" name="email" value={editedProfileData.email} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            label="Password"
-                            name="password"
-                            value={editedProfileData.password}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Password" name="password" value={editedProfileData.password} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            label="University Name"
-                            name="university_name"
-                            value={editedProfileData.university_name}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="University Name" name="university_name" value={editedProfileData.university_name} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            label="Program of Study"
-                            name="program_of_study"
-                            value={editedProfileData.program_of_study}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Program of Study" name="program_of_study" value={editedProfileData.program_of_study} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Age"
-                            name="age"
-                            value={editedProfileData.age}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Age" name="age" value={editedProfileData.age} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Bio"
-                            name="bio"
-                            value={editedProfileData.bio}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Bio" name="bio" value={editedProfileData.bio} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -263,6 +226,13 @@ const Profile = () => {
                             Save Changes
                         </Button>
                     </Grid>
+                </Grid>
+            </Paper>
+            <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
+            <Grid item xs={12}>
+                    <Typography variant="h5" gutterBottom>
+                    </Typography>
+                    <SocialMedia />
                 </Grid>
             </Paper>
             <Typography variant="h5" gutterBottom>
@@ -296,10 +266,7 @@ const Profile = () => {
                     />
                     <div>
                         <TextField
-                            label="New Hobby Name"
-                            value={newHobbyName}
-                            onChange={handleNewHobbyChange}
-                            fullWidth
+                            label="New Hobby Name" value={newHobbyName} onChange={handleNewHobbyChange} fullWidth
                         />
                         <Button onClick={handleAddHobby} variant="contained" color="primary">
                             Add Hobby
