@@ -11,6 +11,7 @@ const SocialMedia = () => {
         visibility: 'public'
     });
     const [editIndex, setEditIndex] = useState(null); // State to track the index of the social media being edited
+    const [isEditing, setIsEditing] = useState(false); // State to track if in edit mode
 
     useEffect(() => {
         // Retrieve the username from local storage
@@ -44,10 +45,10 @@ const SocialMedia = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setNewSocialMedia({
-            ...newSocialMedia,
+        setNewSocialMedia((prev) => ({
+            ...prev,
             [name]: value
-        });
+        }));
     };
 
     const handleAddSocialMedia = async () => {
@@ -72,19 +73,23 @@ const SocialMedia = () => {
     };
 
     const handleEdit = (index) => {
-        // Set the edit index
+        // Set the edit index and toggle edit mode
         setEditIndex(index);
-
-        if (index !== null) {
-            const editedSocialMedia = socialMedia[index];
-            setNewSocialMedia({
-                platform_name: editedSocialMedia.platform_name,
-                sm_username: editedSocialMedia.sm_username,
-                url: editedSocialMedia.url,
-                visibility: editedSocialMedia.visibility
-            });
-        }
+        setIsEditing(true);
+        const editedSocialMedia = socialMedia[index];
+        setNewSocialMedia({
+            platform_name: editedSocialMedia.platform_name,
+            sm_username: editedSocialMedia.sm_username,
+            url: editedSocialMedia.url,
+            visibility: editedSocialMedia.visibility
+        });
     };
+
+    const handleCancelEdit = () => {
+        setEditIndex(null); // Reset edit index
+        setIsEditing(false); // Reset edit mode
+    };
+    
 
     const handleSaveChanges = async () => {
         try {
@@ -109,12 +114,13 @@ const SocialMedia = () => {
             
             // Reset edit index and fetch social media again to reflect changes
             setEditIndex(null);
+            setIsEditing(false); // Reset editing state
             fetchSocialMedia();
         } catch (error) {
             console.error('Error saving social media changes:', error.message);
             // Handle error saving social media changes
         }
-    };    
+    };
 
     return (
         <div>
@@ -123,7 +129,7 @@ const SocialMedia = () => {
             </Typography>
             {socialMedia.map((account, index) => (
                 <div key={index}>
-                    {editIndex === index ? ( // Render editable fields if currently editing this social media
+                    {isEditing && editIndex === index ? ( // Render editable fields if currently editing this social media
                         <div>
                             <TextField
                                 label="Platform"
@@ -170,6 +176,9 @@ const SocialMedia = () => {
                             <Button onClick={handleSaveChanges} variant="contained" color="primary">
                                 Save Changes
                             </Button>
+                            <Button onClick={handleCancelEdit} variant="contained" color="secondary">
+                                Cancel
+                            </Button>
                         </div>
                     ) : (
                         <div>
@@ -183,44 +192,48 @@ const SocialMedia = () => {
                     )}
                 </div>
             ))}
-            <TextField
-                label="Platform"
-                name="platform_name"
-                value={newSocialMedia.platform_name}
-                onChange={handleChange}
-                fullWidth
-            />
-            <TextField
-                label="Username"
-                name="sm_username"
-                value={newSocialMedia.sm_username}
-                onChange={handleChange}
-                fullWidth
-            />
-            <TextField
-                label="URL"
-                name="url"
-                value={newSocialMedia.url}
-                onChange={handleChange}
-                fullWidth
-            />
-            <FormControl fullWidth>
-                <InputLabel id="visibility-label">Visibility</InputLabel>
-                <Select
-                    labelId="visibility-label"
-                    id="visibility"
-                    name="visibility"
-                    value={newSocialMedia.visibility}
-                    onChange={handleChange}
-                >
-                    <MenuItem value="public">Public</MenuItem>
-                    <MenuItem value="friends-only">Friends Only</MenuItem>
-                    <MenuItem value="private">Private</MenuItem>
-                </Select>
-            </FormControl>
-            <Button onClick={handleAddSocialMedia} variant="contained" color="primary">
-                Add Social Media
-            </Button>
+            {!isEditing && (
+                <div>
+                    <TextField
+                        label="Platform"
+                        name="platform_name"
+                        value={newSocialMedia.platform_name}
+                        onChange={handleChange}
+                        fullWidth
+                    />
+                    <TextField
+                        label="Username"
+                        name="sm_username"
+                        value={newSocialMedia.sm_username}
+                        onChange={handleChange}
+                        fullWidth
+                    />
+                    <TextField
+                        label="URL"
+                        name="url"
+                        value={newSocialMedia.url}
+                        onChange={handleChange}
+                        fullWidth
+                    />
+                    <FormControl fullWidth>
+                        <InputLabel id="visibility-label">Visibility</InputLabel>
+                        <Select
+                            labelId="visibility-label"
+                            id="visibility"
+                            name="visibility"
+                            value={newSocialMedia.visibility}
+                            onChange={handleChange}
+                        >
+                            <MenuItem value="public">Public</MenuItem>
+                            <MenuItem value="friends-only">Friends Only</MenuItem>
+                            <MenuItem value="private">Private</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <Button onClick={handleAddSocialMedia} variant="contained" color="primary">
+                        Add Social Media
+                    </Button>
+                </div>
+            )}
         </div>
     );
 };
