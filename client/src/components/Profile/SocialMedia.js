@@ -12,6 +12,7 @@ const SocialMedia = () => {
     });
     const [editIndex, setEditIndex] = useState(null); // State to track the index of the social media being edited
     const [isEditing, setIsEditing] = useState(false); // State to track if in edit mode
+    const [isAdding, setIsAdding] = useState(false); // State to track if in add mode
 
     useEffect(() => {
         // Retrieve the username from local storage
@@ -66,6 +67,7 @@ const SocialMedia = () => {
             // Refresh social media information after adding
             setNewSocialMedia({ platform_name: '', sm_username: '', url: '', visibility: 'public' });
             fetchSocialMedia();
+            setIsAdding(false); // Exit add mode
         } catch (error) {
             console.error('Error adding social media:', error.message);
             // Handle error adding social media
@@ -89,7 +91,10 @@ const SocialMedia = () => {
         setEditIndex(null); // Reset edit index
         setIsEditing(false); // Reset edit mode
     };
-    
+
+    const handleCancelAdd = () => {
+        setIsAdding(false); // Exit add mode
+    };
 
     const handleSaveChanges = async () => {
         try {
@@ -119,6 +124,21 @@ const SocialMedia = () => {
         } catch (error) {
             console.error('Error saving social media changes:', error.message);
             // Handle error saving social media changes
+        }
+    };
+
+    const handleDelete = async (index) => {
+        try {
+            const response = await fetch(`/api/profile/${username}/social-media/${index + 1}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete social media');
+            }
+            fetchSocialMedia(); // Refresh social media information after deletion
+        } catch (error) {
+            console.error('Error deleting social media:', error.message);
+            // Handle error deleting social media
         }
     };
 
@@ -179,6 +199,9 @@ const SocialMedia = () => {
                             <Button onClick={handleCancelEdit} variant="contained" color="secondary">
                                 Cancel
                             </Button>
+                            <Button onClick={() => handleDelete(index)} variant="contained" color="error">
+                                Delete
+                            </Button>
                         </div>
                     ) : (
                         <div>
@@ -188,11 +211,19 @@ const SocialMedia = () => {
                             <Button onClick={() => handleEdit(index)} variant="contained" color="primary">
                                 Edit
                             </Button>
+                            <Button onClick={() => handleDelete(index)} variant="contained" color="error">
+                                Delete
+                            </Button>
                         </div>
                     )}
                 </div>
             ))}
-            {!isEditing && (
+            {!isEditing && !isAdding && (
+                <Button onClick={() => setIsAdding(true)} variant="contained" color="primary">
+                    Add Social Media
+                </Button>
+            )}
+            {isAdding && (
                 <div>
                     <TextField
                         label="Platform"
@@ -231,6 +262,9 @@ const SocialMedia = () => {
                     </FormControl>
                     <Button onClick={handleAddSocialMedia} variant="contained" color="primary">
                         Add Social Media
+                    </Button>
+                    <Button onClick={handleCancelAdd} variant="contained" color="secondary">
+                        Cancel
                     </Button>
                 </div>
             )}

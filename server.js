@@ -372,6 +372,36 @@ app.get('/api/profile/:username/social-media', (req, res) => {
   });
 });
 
+// DELETE endpoint for deleting a specific social media entry
+app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
+  const username = req.params.username;
+  const entryNumber = req.params.entryNumber;
+
+  // Assuming you have a database table named 'social_media' where social media entries are stored
+  const deleteSocialMediaQuery = 'DELETE FROM social_media WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number = ?';
+  const updateEntryNumbersQuery = 'UPDATE social_media SET entry_number = entry_number - 1 WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number > ?';
+  
+  db.query(deleteSocialMediaQuery, [username, entryNumber], (err, results) => {
+      if (err) {
+          console.error('Error deleting social media entry:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (results.affectedRows === 0) {
+          return res.status(404).json({ success: false, message: 'Social media entry not found' });
+      }
+
+      // Update entry numbers after deletion
+      db.query(updateEntryNumbersQuery, [username, entryNumber], (updateErr, updateResults) => {
+          if (updateErr) {
+              console.error('Error updating entry numbers:', updateErr);
+              // Handle error updating entry numbers (rollback deletion?)
+          }
+
+          return res.sendStatus(204); // Send a successful response with status code 204 (No Content)
+      });
+  });
+});
 
 
 // Root Route
