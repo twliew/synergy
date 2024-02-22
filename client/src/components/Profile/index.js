@@ -32,36 +32,66 @@ const Profile = () => {
     const [editSM, setEditSM] = React.useState(false);
     const [addSM, setAddSM] = React.useState(false);
     const serverURL = "";
+    const [formData, setFormData] = useState(socialMedia);
 
-
+    //function to add new social media
     const handleNewSMSaveChanges = async () => {
         setEditSM(false);
         callApiAddSM(username);
         setAddSM(false);
         setNewSocialMedia({platform_name: '', sm_username: '', url:'', visibility:''});
-
     }
 
+    //call api (not made yet) to save social media changes
     const handleSMSaveChanges = async () => {
-
+        // Send updated data to the server
+        fetch('/api/save_social_media', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to save changes');
+            }
+            // Handle success if needed
+        })
+        .catch(error => {
+            console.error('Error:', error.message);
+        });
     }
 
-    const handleAddSM = async () => {
-        setAddSM(true);
+    //fuction to handle updates in the social media
+    const handleFieldChangePlatform = async (index, event) => {
+        for (var i = 0; i <= 2; i++) {
+            if (i === index) {
+                setFormData(prevState => ({
+                    ...prevState, // maintain the existing state
+                    platform_name: event.target.value // update the visibility property
+                }));
+            }
+        }
+        
     }
 
+    //new social media platform name
     const handleNewPlatformName = async (event) => {
         newSocialMedia.platform_name=event.target.value
     }
 
+    //new social media username
     const handleNewUsername = async (event) => {
         newSocialMedia.sm_username=event.target.value
     }
 
+    //new social media url
     const handleNewURL = async (event) => {
         newSocialMedia.url=event.target.value
     }
 
+    //new social media visibility
     const handleNewVisibility = (event) => {
         setNewSocialMedia(prevState => ({
             ...prevState, // maintain the existing state
@@ -69,6 +99,7 @@ const Profile = () => {
         }));
     };
 
+    //function to call add social media api
     const callApiAddSM = async (username) => {
         const url = serverURL+`/api/profile/${username}/add_social_media`;
     
@@ -89,6 +120,7 @@ const Profile = () => {
         return body;
     };
 
+    //fetch social media info
     const getSocialMedia = async () => {
         try {
             const response = await fetch('/api/get_social_media');
@@ -102,6 +134,7 @@ const Profile = () => {
         }
     };
 
+    //use effects bc why not
     useEffect(() => {
         getSocialMedia();
     }, []);
@@ -369,11 +402,11 @@ const Profile = () => {
                     newSocialMedia={newSocialMedia}
                     handleNewSMSaveChanges={handleNewSMSaveChanges}
                     handleSMSaveChanges={handleSMSaveChanges}
-                    handleAddSM={handleAddSM}
                     handleNewPlatformName={handleNewPlatformName}
                     handleNewUsername={handleNewUsername}
                     handleNewURL={handleNewURL}
                     handleNewVisibility={handleNewVisibility}
+                    handleFieldChange={handleFieldChangePlatform}
                 />
             </Paper>
 

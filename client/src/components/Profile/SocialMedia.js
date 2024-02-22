@@ -13,6 +13,7 @@ const SocialMedia = (props) => {
         <div>
             {!props.editSM ? (
                 <div>
+                    {/*loop to render each social media*/}
                     {props.socialMedia.map((sm) => {
                         return(
                             <>
@@ -27,12 +28,28 @@ const SocialMedia = (props) => {
             ):(
                 <div>
                     <Stack>
-                        {props.socialMedia.map((sm) => {
+                        {/*loop to render each social media so the user can edit it in textfields*/}
+                        {props.socialMedia.map((sm, index) => {
                             return(
-                                <>
-                                    <TextField label="Platform Name" id="platform_name" value={sm.platform_name}/>
-                                    <TextField label="Username" id="username" value={sm.sm_username}/>
-                                    <TextField label="URL" id="url" value={sm.url}/>
+                                <div key={index}>
+                                    <Typography>{index}</Typography>
+                                    <TextField 
+                                        label="Platform Name" 
+                                        id="platform_name" 
+                                        value={sm.platform_name} 
+                                        onChange={() => props.handleFieldChangePlatform(index)}
+                                    />
+                                    <TextField 
+                                        label="Username" 
+                                        id="username" 
+                                        value={sm.sm_username}
+                                        onChange={() => props.handleFieldChange(index)}
+                                    />
+                                    <TextField 
+                                        label="URL" 
+                                        id="url" 
+                                        value={sm.url}
+                                        onChange={() => props.handleFieldChange(index)}/>
                                     <FormControl>
                                         <FormLabel id="visibility">Visibility</FormLabel>
                                         <RadioGroup
@@ -46,7 +63,7 @@ const SocialMedia = (props) => {
                                             <FormControlLabel value="friends-only" control={<Radio />} label="Friends Only" />
                                         </RadioGroup>
                                     </FormControl>
-                                </>
+                                </div>
                     );
                         })}
                     </Stack>
@@ -56,7 +73,8 @@ const SocialMedia = (props) => {
                     <Button onClick={() => props.setAddSM(true)} variant="contained" color="primary">
                         Add
                     </Button>
-                        
+                    
+                    {/*adding a new social media (done, don't touch)*/}
                     {props.addSM ? (
                         <div>
                             <TextField label="Platform Name" id="platform_name" onChange={props.handleNewPlatformName}/>
