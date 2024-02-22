@@ -27,30 +27,30 @@ const SocialMedia = (props) => {
             ):(
                 <div>
                     <Stack>
-                    {props.socialMedia.map((sm) => {
-                        return(
-                            <>
-                                <TextField label="Platform Name" id="platform_name" value={sm.platform_name}/>
-                                <TextField label="Username" id="username" value={sm.sm_username}/>
-                                <TextField label="URL" id="url" value={sm.url}/>
-                                <FormControl>
-                                    <FormLabel id="visibility">Visibility</FormLabel>
-                                    <RadioGroup
-                                        row
-                                        aria-labelledby="visibility"
-                                        name="visibility"
-                                        value={sm.visibility}
-                                    >
-                                        <FormControlLabel value="public" control={<Radio />} label="Public" />
-                                        <FormControlLabel value="private" control={<Radio />} label="Private" />
-                                        <FormControlLabel value="matches-only" control={<Radio />} label="Matches Only" />
-                                    </RadioGroup>
-                                </FormControl>
-                            </>
-                );
-                })}
-                </Stack>
-                    <Button  variant="contained" color="primary">
+                        {props.socialMedia.map((sm) => {
+                            return(
+                                <>
+                                    <TextField label="Platform Name" id="platform_name" value={sm.platform_name}/>
+                                    <TextField label="Username" id="username" value={sm.sm_username}/>
+                                    <TextField label="URL" id="url" value={sm.url}/>
+                                    <FormControl>
+                                        <FormLabel id="visibility">Visibility</FormLabel>
+                                        <RadioGroup
+                                            row
+                                            aria-labelledby="visibility"
+                                            name="visibility"
+                                            value={sm.visibility}
+                                        >
+                                            <FormControlLabel value="public" control={<Radio />} label="Public" />
+                                            <FormControlLabel value="private" control={<Radio />} label="Private" />
+                                            <FormControlLabel value="friends-only" control={<Radio />} label="Friends Only" />
+                                        </RadioGroup>
+                                    </FormControl>
+                                </>
+                    );
+                        })}
+                    </Stack>
+                    <Button onClick={() => props.handleSMSaveChanges} variant="contained" color="primary">
                         Save Changes
                     </Button>
                     <Button onClick={() => props.setAddSM(true)} variant="contained" color="primary">
@@ -73,7 +73,7 @@ const SocialMedia = (props) => {
                                 >
                                     <FormControlLabel value="public" control={<Radio />} label="Public" />
                                     <FormControlLabel value="private" control={<Radio />} label="Private" />
-                                    <FormControlLabel value="matches-only" control={<Radio />} label="Matches Only" />
+                                    <FormControlLabel value="friends-only" control={<Radio />} label="Friends Only" />
                                 </RadioGroup>
                             </FormControl>
     

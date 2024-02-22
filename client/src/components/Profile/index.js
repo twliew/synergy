@@ -39,6 +39,15 @@ const Profile = () => {
         callApiAddSM(username);
         setAddSM(false);
         setNewSocialMedia({platform_name: '', sm_username: '', url:'', visibility:''});
+
+    }
+
+    const handleSMSaveChanges = async () => {
+
+    }
+
+    const handleAddSM = async () => {
+        setAddSM(true);
     }
 
     const handleNewPlatformName = async (event) => {
@@ -96,6 +105,10 @@ const Profile = () => {
     useEffect(() => {
         getSocialMedia();
     }, []);
+
+    useEffect(() => {
+        getSocialMedia();
+    }, [socialMedia,]);
 
 
     useEffect(() => {
@@ -355,6 +368,8 @@ const Profile = () => {
                     setAddSM={setAddSM}
                     newSocialMedia={newSocialMedia}
                     handleNewSMSaveChanges={handleNewSMSaveChanges}
+                    handleSMSaveChanges={handleSMSaveChanges}
+                    handleAddSM={handleAddSM}
                     handleNewPlatformName={handleNewPlatformName}
                     handleNewUsername={handleNewUsername}
                     handleNewURL={handleNewURL}
