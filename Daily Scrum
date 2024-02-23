@@ -33,4 +33,44 @@ was setting it up locally before, missing dependencies (taylor)
 What will I do today
 set up routing, navigating between pages, basis for Profile page (taylor)
 
+Feb 19
+What did I do yesterday
+reviewed parth's code for registration and profile and created plan for social media (taylor)
+What was in my way
+adding code following similar format as existing code for most efficient implementation (taylor)
+What will I do today
+review d3 from msci 245 to familiarize with react and js code, get existing code committed to my branch (taylor)
+
+Feb 20
+What did I do yesterday
+reviewed code and planned implementation (taylor)
+What was in my way
+figuring out where to input my code to not disrupt existing code (taylor)
+What will I do today
+create the add social media feature (taylor)
+
+Feb 21
+What did I do yesterday
+add new social media feature (taylor)
+What was in my way
+issues inputting new social media in server (taylor)
+What will I do today
+begin displaying user's existing social media on profile page (taylor)
+
+Feb 22
+What did I do yesterday
+add and display user social media (taylor)
+What was in my way
+figuring out the get social media api (taylor)
+What will I do today
+update existing social media (taylor)
+
+Feb 23
+What did I do yesterday
+update existing social media, discuss with team (taylor)
+What was in my way
+handle and api function to deal with updating (taylor)
+What will I do today
+look at testing (taylor)
+
 
