@@ -16,9 +16,9 @@ const Profile = () => {
     });
     const [hobbies, setHobbies] = useState([]);
     const [selectedHobbies, setSelectedHobbies] = useState([]);
-    const [selectedInterests, setSelectedInterests] = useState([]); // State to store selected interests
-    const [editInterests, setEditInterests] = useState(false); // State to toggle editing interests
-    const [newHobbyName, setNewHobbyName] = useState(''); // State to store new hobby name
+    const [selectedInterests, setSelectedInterests] = useState([]); 
+    const [editInterests, setEditInterests] = useState(false); 
+    const [newHobbyName, setNewHobbyName] = useState(''); 
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const username = localStorage.getItem('username');
@@ -38,11 +38,9 @@ const Profile = () => {
         
                 setEditedProfileData(profileData.userProfile);
                 setSelectedInterests(interestsData.selectedInterests);
-                // Pre-select interests for editing
                 setSelectedHobbies(interestsData.selectedInterests.map(interest => interest.id));
             } catch (error) {
                 console.error('Error:', error.message);
-                // Handle error fetching profile data
             }
         };
     
@@ -56,7 +54,6 @@ const Profile = () => {
                 setHobbies(data.hobbies);
             } catch (error) {
                 console.error('Error:', error.message);
-                // Handle error fetching hobbies
             }
         };
     
@@ -76,7 +73,6 @@ const Profile = () => {
 
     const handleSaveChanges = async () => {
         try {
-            // Exclude the 'created_at' property from the editedProfileData object
             const { created_at, ...requestData } = editedProfileData;
 
             const response = await fetch(`/api/profile/${username}`, {
@@ -93,7 +89,6 @@ const Profile = () => {
             setSnackbarOpen(true);
         } catch (error) {
             console.error('Error saving changes:', error.message);
-            // Handle error saving changes
             setSnackbarMessage('Error saving changes');
             setSnackbarOpen(true);
         }
@@ -116,21 +111,17 @@ const Profile = () => {
                 throw new Error('Failed to save interests');
             }
             
-            // Update selectedInterests state immediately after saving
             setSelectedInterests(hobbies.filter(hobby => selectedHobbies.includes(hobby.id)));
             
-            // If no interests are selected, set selectedInterests to an empty array
             if (selectedHobbies.length === 0) {
                 setSelectedInterests([]);
             }
             
-            // Handle success message or any other action
-            setEditInterests(false); // Exit edit interests mode after saving
+            setEditInterests(false);
             setSnackbarMessage('Interests saved successfully');
             setSnackbarOpen(true);
         } catch (error) {
             console.error('Error saving interests:', error.message);
-            // Handle error saving interests
             setSnackbarMessage('Error saving interests');
             setSnackbarOpen(true);
         }
@@ -153,24 +144,20 @@ const Profile = () => {
                 throw new Error('Failed to add hobby');
             }
     
-            // Fetch updated list of hobbies after adding the new hobby
             const updatedHobbiesResponse = await fetch('/api/hobbies');
             const updatedHobbiesData = await updatedHobbiesResponse.json();
             setHobbies(updatedHobbiesData.hobbies);
     
-            // Update selectedHobbies with the newly created hobby ID
             const newHobby = updatedHobbiesData.hobbies.find(hobby => hobby.hobby_name === newHobbyName);
             if (newHobby) {
                 setSelectedHobbies(prevHobbies => [...prevHobbies, newHobby.id]);
             }
     
-            // Clear the new hobby input field
             setNewHobbyName('');
             setSnackbarMessage('Hobby added successfully');
             setSnackbarOpen(true);
         } catch (error) {
             console.error('Error adding hobby:', error.message);
-            // Handle error adding hobby
             setSnackbarMessage('Error adding hobby');
             setSnackbarOpen(true);
         }

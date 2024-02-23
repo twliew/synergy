@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
 
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin }) => { // Pass onLogin function as a prop
     const [formData, setFormData] = useState({
         username: '',
         password: ''
     });
 
-    const handleChange = (e) => {
+    const handleChange = (e) => { // Update form data when input changes
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleLogin = async () => {
+    const handleLogin = async () => { // Handle login form submission
         try {
             const response = await fetch('/api/login', {
                 method: 'POST',
@@ -25,20 +25,17 @@ const Login = ({ onLogin }) => {
                 throw new Error('Failed to login');
             }
 
-            const { token, username } = await response.json();
-            localStorage.setItem('token', token);
+            const { token, username } = await response.json(); // Get token and username from response
+            localStorage.setItem('token', token); // Store token in local storage
             localStorage.setItem('username', username); // Store username in local storage
-
-            // If login is successful, call the onLogin function passed from App.js
             onLogin();
 
         } catch (error) {
             console.error('Error:', error.message);
-            // Handle login failure, show error message to the user, etc.
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e) => { // Handle form submission
         e.preventDefault();
         handleLogin();
     };

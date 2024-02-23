@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 const SocialMedia = () => {
-    const [username, setUsername] = useState('');
-    const [socialMedia, setSocialMedia] = useState([]);
-    const [newSocialMedia, setNewSocialMedia] = useState({
+    const [username, setUsername] = useState(''); // State to track the username
+    const [socialMedia, setSocialMedia] = useState([]); // State to track social media information
+    const [newSocialMedia, setNewSocialMedia] = useState({ // State to track new social media information
         platform_name: '',
         sm_username: '',
         url: '',
@@ -18,13 +18,13 @@ const SocialMedia = () => {
         // Retrieve the username from local storage
         const storedUsername = localStorage.getItem('username');
         if (storedUsername) {
-            setUsername(storedUsername);
+            setUsername(storedUsername); // Set the username state
         } else {
             // Handle case when no username is found in local storage
         }
     }, []);
 
-    const fetchSocialMedia = async () => {
+    const fetchSocialMedia = async () => { // Fetch social media information for the user
         try {
             const response = await fetch(`/api/profile/${username}/social-media`);
             if (!response.ok) {
@@ -34,17 +34,16 @@ const SocialMedia = () => {
             setSocialMedia(data.socialMedia);
         } catch (error) {
             console.error('Error fetching social media:', error.message);
-            // Handle error fetching social media
         }
     };
 
-    useEffect(() => {
+    useEffect(() => { // Fetch social media when the username changes
         if (username) {
             fetchSocialMedia();
         }
     }, [username]);
 
-    const handleChange = (e) => {
+    const handleChange = (e) => { // Handle changes to the new social media information
         const { name, value } = e.target;
         setNewSocialMedia((prev) => ({
             ...prev,
@@ -52,7 +51,7 @@ const SocialMedia = () => {
         }));
     };
 
-    const handleAddSocialMedia = async () => {
+    const handleAddSocialMedia = async () => { // Add social media information for the user
         try {
             const response = await fetch(`/api/profile/${username}/social-media`, {
                 method: 'POST',
@@ -64,18 +63,15 @@ const SocialMedia = () => {
             if (!response.ok) {
                 throw new Error('Failed to add social media');
             }
-            // Refresh social media information after adding
             setNewSocialMedia({ platform_name: '', sm_username: '', url: '', visibility: 'public' });
             fetchSocialMedia();
-            setIsAdding(false); // Exit add mode
+            setIsAdding(false);
         } catch (error) {
             console.error('Error adding social media:', error.message);
-            // Handle error adding social media
         }
     };
 
-    const handleEdit = (index) => {
-        // Set the edit index and toggle edit mode
+    const handleEdit = (index) => { // Handle editing a social media entry
         setEditIndex(index);
         setIsEditing(true);
         const editedSocialMedia = socialMedia[index];
@@ -87,47 +83,44 @@ const SocialMedia = () => {
         });
     };
 
-    const handleCancelEdit = () => {
-        setEditIndex(null); // Reset edit index
-        setIsEditing(false); // Reset edit mode
+    const handleCancelEdit = () => { // Handle canceling the edit
+        setEditIndex(null);
+        setIsEditing(false);
     };
 
-    const handleCancelAdd = () => {
-        setIsAdding(false); // Exit add mode
+    const handleCancelAdd = () => { // Handle canceling the add
+        setIsAdding(false);
     };
 
-    const handleSaveChanges = async () => {
+    const handleSaveChanges = async () => { // Handle saving changes to the social media entry
         try {
             const editedSocialMedia = socialMedia[editIndex];
             const updatedSocialMedia = {
                 ...newSocialMedia,
-                entryNumber: editIndex + 1 // Adding entryNumber to the updated social media object
+                entryNumber: editIndex + 1
             };
     
             // Update social media information for the user
-            const response = await fetch(`/api/profile/${username}/social-media/${editIndex + 1}`, { // Pass entryNumber in the URL
+            const response = await fetch(`/api/profile/${username}/social-media/${editIndex + 1}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(updatedSocialMedia) // Include entryNumber in the request body
+                body: JSON.stringify(updatedSocialMedia)
             });
     
             if (!response.ok) {
                 throw new Error('Failed to save social media changes');
             }
-            
-            // Reset edit index and fetch social media again to reflect changes
             setEditIndex(null);
-            setIsEditing(false); // Reset editing state
+            setIsEditing(false);
             fetchSocialMedia();
         } catch (error) {
             console.error('Error saving social media changes:', error.message);
-            // Handle error saving social media changes
         }
     };
 
-    const handleDelete = async (index) => {
+    const handleDelete = async (index) => { // Handle deleting a social media entry
         try {
             const response = await fetch(`/api/profile/${username}/social-media/${index + 1}`, {
                 method: 'DELETE'
@@ -135,10 +128,9 @@ const SocialMedia = () => {
             if (!response.ok) {
                 throw new Error('Failed to delete social media');
             }
-            fetchSocialMedia(); // Refresh social media information after deletion
+            fetchSocialMedia();
         } catch (error) {
             console.error('Error deleting social media:', error.message);
-            // Handle error deleting social media
         }
     };
 

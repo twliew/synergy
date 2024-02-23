@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Typography, TextField, Button } from '@mui/material';
 
 const Register = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({ // Initialize form data
     username: '',
     email: '',
-    confirmEmail: '', // Added for confirming email
+    confirmEmail: '',
     password: '',
     full_name: '',
     university_name: '',
@@ -15,16 +15,15 @@ const Register = () => {
   });
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
+  const handleChange = (e) => { // Update form data when input changes
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => { // Handle form submission
     e.preventDefault();
-    const { confirmEmail, ...userDataWithoutConfirm } = formData; // Exclude confirmEmail from userData
+    const { confirmEmail, ...userDataWithoutConfirm } = formData;
     const validationErrors = validateForm(formData);
     if (Object.keys(validationErrors).length === 0) {
-      // Form is valid, submit data
       try {
         const response = await fetch('/api/register', {
           method: 'POST',
@@ -38,19 +37,16 @@ const Register = () => {
           throw new Error('Failed to register user');
         }
   
-        // Handle success response from the server, if needed
       } catch (error) {
         console.error('Error:', error.message);
         setErrors({ submit: error.message });
       }
     } else {
-      // Form has validation errors, display them
       setErrors(validationErrors);
     }
   };
 
-  // Validation function to check if form fields are filled out
-  const validateForm = (data) => {
+  const validateForm = (data) => { // Validate form data
     const errors = {};
     if (!data.username.trim()) {
       errors.username = 'Username is required';
@@ -92,8 +88,7 @@ const Register = () => {
     return errors;
   };
 
-  // Check if email is from an accepted university domain
-  const isUniversityEmail = (email) => {
+  const isUniversityEmail = (email) => { // Check if email is from a university domain
     const universityDomains = ['uwaterloo.ca', 'mail.utoronto.ca', 'mcmaster.ca', 'wlu.ca'];
     const domain = email.split('@')[1];
     return universityDomains.includes(domain);

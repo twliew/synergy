@@ -9,12 +9,9 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 5000;
-
-// Middleware
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 
-// MySQL Connection
 const db = mysql.createConnection({
   host: 'ec2-3-137-65-169.us-east-2.compute.amazonaws.com',
   user: 'twliew',
@@ -22,7 +19,6 @@ const db = mysql.createConnection({
   database: 'twliew'
 });
 
-// Connect to MySQL
 db.connect((err) => {
   if (err) {
     throw err;
@@ -404,12 +400,10 @@ app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
 });
 
 
-// Root Route
 app.get('/', (req, res) => {
   res.send('Server is running');
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
