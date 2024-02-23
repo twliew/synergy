@@ -20,26 +20,53 @@ add folders for each page in the components folder, add directories in the App i
 Feb 14
 What did I do yesterday
 reviewed d3 from msci 245 and reviewed lab6 (taylor)
+Worked on lab 6, vertical slice portion (Parth)
 What was in my way
 setting up project configuration on repository, errors running yarn start and yarn dev (taylor)
+n/a (Parth)
 What will I do today
 try running commands on codespaces rather than locally (taylor)
+Implement what I've learned into course project (Parth)
+
+
 
 Feb 15
 What did I do yesterday
 set up codespaces for project repo (taylor)
+Continued to work on on Lab 6 (Parth)
 What was in my way
 was setting it up locally before, missing dependencies (taylor)
+n/a (Parth)
 What will I do today
 set up routing, navigating between pages, basis for Profile page (taylor)
+complete lab 6 (Parth)
+
+Feb 16
+What did I do yesterday
+Began planning out how I will code Login and Register components (Parth)
+What was in my way
+Not having started (Parth)
+What will I do today
+Complete coding registration and login components (Parth)
+
+Feb 18 
+What did I do yesterday 
+Think about how to code profile and hobbies (Parth)
+What was in my way
+Nothing, however we decided to remove profile pictures and images due to two reasons 1. a friend making app shoudl be off interests not looks and 2. it was weird to code (Parth)
+What will I do today
+Complete coding hobbies and profile (Parth)
 
 Feb 19
 What did I do yesterday
 reviewed parth's code for registration and profile and created plan for social media (taylor)
+Completed coding hobbies and profile (Parth)
 What was in my way
 adding code following similar format as existing code for most efficient implementation (taylor)
+N/A (Parth)
 What will I do today
 review d3 from msci 245 to familiarize with react and js code, get existing code committed to my branch (taylor)
+Stylistic changes to profile and hobbies sections (Parth) 
 
 Feb 20
 What did I do yesterday
@@ -60,17 +87,23 @@ begin displaying user's existing social media on profile page (taylor)
 Feb 22
 What did I do yesterday
 add and display user social media (taylor)
+review Taylor's code (Parth)
 What was in my way
 figuring out the get social media api (taylor)
+N/A (Parth)
 What will I do today
 update existing social media (taylor)
+Work with taylor to fix social media code and work on testing(Parth)
 
 Feb 23
 What did I do yesterday
 update existing social media, discuss with team (taylor)
+Testing and fixing social media code (Parth)
 What was in my way
 handle and api function to deal with updating (taylor)
+Currently jest tests do not run for us, it says it can't parse JSX and to add depdnencies to do so, however, those dependencies are installed and called so we are confused (Parth)
 What will I do today
 look at testing (taylor)
+continue looking at testings (Parth)
 
 
