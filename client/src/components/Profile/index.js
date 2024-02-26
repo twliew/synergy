@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, TextField, Button, Paper, Grid, Snackbar } from '@mui/material';
-import Interests from './Interests'; // Assuming Interests component is in a separate file
+import Interests from './Interests';
 import SocialMedia from './SocialMedia';
-//social media
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
 
 const Profile = () => {
     const [editedProfileData, setEditedProfileData] = useState({
@@ -24,133 +16,12 @@ const Profile = () => {
     });
     const [hobbies, setHobbies] = useState([]);
     const [selectedHobbies, setSelectedHobbies] = useState([]);
-    const [selectedInterests, setSelectedInterests] = useState([]); // State to store selected interests
-    const [editInterests, setEditInterests] = useState(false); // State to toggle editing interests
-    const [newHobbyName, setNewHobbyName] = useState(''); // State to store new hobby name
+    const [selectedInterests, setSelectedInterests] = useState([]); 
+    const [editInterests, setEditInterests] = useState(false); 
+    const [newHobbyName, setNewHobbyName] = useState(''); 
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const username = localStorage.getItem('username');
-    const [socialMedia, setSocialMedia] = useState([]); // State to store social media
-    const [newSocialMedia, setNewSocialMedia] = useState({
-        platform_name: '',
-        sm_username: '',
-        url:'',
-        visibility:''
-    });
-    const [editSM, setEditSM] = React.useState(false);
-    const [addSM, setAddSM] = React.useState(false);
-    const serverURL = "";
-    const [formData, setFormData] = useState(socialMedia);
-
-    //function to add new social media
-    const handleNewSMSaveChanges = async () => {
-        setEditSM(false);
-        callApiAddSM(username);
-        setAddSM(false);
-        setNewSocialMedia({platform_name: '', sm_username: '', url:'', visibility:''});
-    }
-
-    //call api (not made yet) to save social media changes
-    const handleSMSaveChanges = async () => {
-        // Send updated data to the server
-        fetch('/api/save_social_media', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to save changes');
-            }
-            // Handle success if needed
-        })
-        .catch(error => {
-            console.error('Error:', error.message);
-        });
-    }
-
-    //fuction to handle updates in the social media
-    const handleFieldChangePlatform = async (index, event) => {
-        for (var i = 0; i <= 2; i++) {
-            if (i === index) {
-                setFormData(prevState => ({
-                    ...prevState, // maintain the existing state
-                    platform_name: event.target.value // update the visibility property
-                }));
-            }
-        }
-        
-    }
-
-    //new social media platform name
-    const handleNewPlatformName = async (event) => {
-        newSocialMedia.platform_name=event.target.value
-    }
-
-    //new social media username
-    const handleNewUsername = async (event) => {
-        newSocialMedia.sm_username=event.target.value
-    }
-
-    //new social media url
-    const handleNewURL = async (event) => {
-        newSocialMedia.url=event.target.value
-    }
-
-    //new social media visibility
-    const handleNewVisibility = (event) => {
-        setNewSocialMedia(prevState => ({
-            ...prevState, // maintain the existing state
-            visibility: event.target.value // update the visibility property
-        }));
-    };
-
-    //function to call add social media api
-    const callApiAddSM = async (username) => {
-        const url = serverURL+`/api/profile/${username}/add_social_media`;
-    
-        const response = await fetch(url, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(newSocialMedia)
-        });
-    
-        const body = await response.json();
-    
-        if (response.status !== 200) {
-            throw new Error(body.message);
-        }
-    
-        return body;
-    };
-
-    //fetch social media info
-    const getSocialMedia = async () => {
-        try {
-            const response = await fetch('/api/get_social_media');
-            if (!response.ok) {
-                throw new Error('Failed to fetch social media');
-            }
-            const data = await response.json();
-            setSocialMedia(data.social_media);
-        } catch (error) {
-            console.error('Error:', error.message);
-        }
-    };
-
-    //use effects bc why not
-    useEffect(() => {
-        getSocialMedia();
-    }, []);
-
-    useEffect(() => {
-        getSocialMedia();
-    }, [socialMedia,]);
-
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -167,11 +38,9 @@ const Profile = () => {
         
                 setEditedProfileData(profileData.userProfile);
                 setSelectedInterests(interestsData.selectedInterests);
-                // Pre-select interests for editing
                 setSelectedHobbies(interestsData.selectedInterests.map(interest => interest.id));
             } catch (error) {
                 console.error('Error:', error.message);
-                // Handle error fetching profile data
             }
         };
     
@@ -185,7 +54,6 @@ const Profile = () => {
                 setHobbies(data.hobbies);
             } catch (error) {
                 console.error('Error:', error.message);
-                // Handle error fetching hobbies
             }
         };
     
@@ -205,7 +73,6 @@ const Profile = () => {
 
     const handleSaveChanges = async () => {
         try {
-            // Exclude the 'created_at' property from the editedProfileData object
             const { created_at, ...requestData } = editedProfileData;
 
             const response = await fetch(`/api/profile/${username}`, {
@@ -222,7 +89,6 @@ const Profile = () => {
             setSnackbarOpen(true);
         } catch (error) {
             console.error('Error saving changes:', error.message);
-            // Handle error saving changes
             setSnackbarMessage('Error saving changes');
             setSnackbarOpen(true);
         }
@@ -245,21 +111,17 @@ const Profile = () => {
                 throw new Error('Failed to save interests');
             }
             
-            // Update selectedInterests state immediately after saving
             setSelectedInterests(hobbies.filter(hobby => selectedHobbies.includes(hobby.id)));
             
-            // If no interests are selected, set selectedInterests to an empty array
             if (selectedHobbies.length === 0) {
                 setSelectedInterests([]);
             }
             
-            // Handle success message or any other action
-            setEditInterests(false); // Exit edit interests mode after saving
+            setEditInterests(false);
             setSnackbarMessage('Interests saved successfully');
             setSnackbarOpen(true);
         } catch (error) {
             console.error('Error saving interests:', error.message);
-            // Handle error saving interests
             setSnackbarMessage('Error saving interests');
             setSnackbarOpen(true);
         }
@@ -282,24 +144,20 @@ const Profile = () => {
                 throw new Error('Failed to add hobby');
             }
     
-            // Fetch updated list of hobbies after adding the new hobby
             const updatedHobbiesResponse = await fetch('/api/hobbies');
             const updatedHobbiesData = await updatedHobbiesResponse.json();
             setHobbies(updatedHobbiesData.hobbies);
     
-            // Update selectedHobbies with the newly created hobby ID
             const newHobby = updatedHobbiesData.hobbies.find(hobby => hobby.hobby_name === newHobbyName);
             if (newHobby) {
                 setSelectedHobbies(prevHobbies => [...prevHobbies, newHobby.id]);
             }
     
-            // Clear the new hobby input field
             setNewHobbyName('');
             setSnackbarMessage('Hobby added successfully');
             setSnackbarOpen(true);
         } catch (error) {
             console.error('Error adding hobby:', error.message);
-            // Handle error adding hobby
             setSnackbarMessage('Error adding hobby');
             setSnackbarOpen(true);
         }
@@ -318,74 +176,36 @@ const Profile = () => {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                         <TextField
-                            label="Full Name"
-                            name="full_name"
-                            value={editedProfileData.full_name}
-                            onChange={handleChange}
-                            fullWidth
+                            label="Full Name" name="full_name" value={editedProfileData.full_name} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <TextField
-                            label="Username"
-                            name="username"
-                            value={editedProfileData.username}
-                            onChange={handleChange}
-                            fullWidth
+                            label="Username" name="username" value={editedProfileData.username} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            label="Email"
-                            name="email"
-                            value={editedProfileData.email}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Email" name="email" value={editedProfileData.email} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            label="Password"
-                            name="password"
-                            value={editedProfileData.password}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Password" name="password" value={editedProfileData.password} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            label="University Name"
-                            name="university_name"
-                            value={editedProfileData.university_name}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="University Name" name="university_name" value={editedProfileData.university_name} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            label="Program of Study"
-                            name="program_of_study"
-                            value={editedProfileData.program_of_study}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Program of Study" name="program_of_study" value={editedProfileData.program_of_study} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Age"
-                            name="age"
-                            value={editedProfileData.age}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Age" name="age" value={editedProfileData.age} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <TextField
-                            label="Bio"
-                            name="bio"
-                            value={editedProfileData.bio}
-                            onChange={handleChange}
-                            fullWidth
+                        <TextField label="Bio" name="bio" value={editedProfileData.bio} onChange={handleChange} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -395,130 +215,13 @@ const Profile = () => {
                     </Grid>
                 </Grid>
             </Paper>
-
-            <Paper>
-                <Typography variant="h5" gutterBottom>
-                    Social Media
-                </Typography>
-               
-                {/*<SocialMedia
-                    socialMedia={socialMedia}
-                    editSM={editSM}
-                    addSM={addSM}
-                    setEditSM={setEditSM}
-                    setAddSM={setAddSM}
-                    newSocialMedia={newSocialMedia}
-                    handleNewSMSaveChanges={handleNewSMSaveChanges}
-                    handleSMSaveChanges={handleSMSaveChanges}
-                    handleNewPlatformName={handleNewPlatformName}
-                    handleNewUsername={handleNewUsername}
-                    handleNewURL={handleNewURL}
-                    handleNewVisibility={handleNewVisibility}
-                    handleFieldChange={handleFieldChangePlatform}
-                />*/}
-{/*start of social media code */}
-<div>
-            {!props.editSM ? (
-                <div>
-                    {/*loop to render each social media*/}
-                    {props.socialMedia.map((sm) => {
-                        return(
-                            <>
-                                <Typography>{sm.platform_name}: <Link href={sm.url}>{sm.sm_username}</Link>, {sm.visibility}</Typography>
-                            </>
-                        );
-                    })}
-                    <Button onClick={() => props.setEditSM(true)} variant="contained" color="primary">
-                        Edit
-                    </Button>
-                </div>
-            ):(
-                <div>
-                    <Stack>
-                        {/*loop to render each social media so the user can edit it in textfields*/}
-                        {props.socialMedia.map((sm, index) => {
-                            return(
-                                <div key={index}>
-                                    <Typography>{index}</Typography>
-                                    <TextField 
-                                        label="Platform Name" 
-                                        id="platform_name" 
-                                        value={sm.platform_name} 
-                                        onChange={() => props.handleFieldChangePlatform(index)}
-                                    />
-                                    <TextField 
-                                        label="Username" 
-                                        id="username" 
-                                        value={sm.sm_username}
-                                        onChange={() => props.handleFieldChange(index)}
-                                    />
-                                    <TextField 
-                                        label="URL" 
-                                        id="url" 
-                                        value={sm.url}
-                                        onChange={() => props.handleFieldChange(index)}/>
-                                    <FormControl>
-                                        <FormLabel id="visibility">Visibility</FormLabel>
-                                        <RadioGroup
-                                            row
-                                            aria-labelledby="visibility"
-                                            name="visibility"
-                                            value={sm.visibility}
-                                        >
-                                            <FormControlLabel value="public" control={<Radio />} label="Public" />
-                                            <FormControlLabel value="private" control={<Radio />} label="Private" />
-                                            <FormControlLabel value="friends-only" control={<Radio />} label="Friends Only" />
-                                        </RadioGroup>
-                                    </FormControl>
-                                </div>
-                    );
-                        })}
-                    </Stack>
-                    <Button onClick={() => props.handleSMSaveChanges} variant="contained" color="primary">
-                        Save Changes
-                    </Button>
-                    <Button onClick={() => props.setAddSM(true)} variant="contained" color="primary">
-                        Add
-                    </Button>
-                    
-                    {/*adding a new social media (done, don't touch)*/}
-                    {props.addSM ? (
-                        <div>
-                            <TextField label="Platform Name" id="platform_name" onChange={props.handleNewPlatformName}/>
-                            <TextField label="Username" id="username" onChange={props.handleNewUsername}/>
-                            <TextField label="URL" id="url" onChange={props.handleNewURL}/>
-                            <FormControl>
-                                <FormLabel id="visibility">Visibility</FormLabel>
-                                <RadioGroup
-                                    row
-                                    aria-labelledby="visibility"
-                                    name="visibility"
-                                    value={props.newSocialMedia.visibility}
-                                    onChange={props.handleNewVisibility}
-                                >
-                                    <FormControlLabel value="public" control={<Radio />} label="Public" />
-                                    <FormControlLabel value="private" control={<Radio />} label="Private" />
-                                    <FormControlLabel value="friends-only" control={<Radio />} label="Friends Only" />
-                                </RadioGroup>
-                            </FormControl>
-    
-                            <Button onClick={() => props.handleNewSMSaveChanges()} variant="contained" color="primary">
-                                Save New Social Media
-                            </Button>
-                        </div>
-                    ):(
-                        <div>
-                        </div> 
-                    )}
-                    
-                </div>
-            )}
-        </div>
-{/*end of social media code */}
-
+            <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
+            <Grid item xs={12}>
+                    <Typography variant="h5" gutterBottom>
+                    </Typography>
+                    <SocialMedia />
+                </Grid>
             </Paper>
-
-            <Paper>
             <Typography variant="h5" gutterBottom>
                 Interests/Hobbies
             </Typography>
@@ -550,10 +253,7 @@ const Profile = () => {
                     />
                     <div>
                         <TextField
-                            label="New Hobby Name"
-                            value={newHobbyName}
-                            onChange={handleNewHobbyChange}
-                            fullWidth
+                            label="New Hobby Name" value={newHobbyName} onChange={handleNewHobbyChange} fullWidth
                         />
                         <Button onClick={handleAddHobby} variant="contained" color="primary">
                             Add Hobby
@@ -564,14 +264,12 @@ const Profile = () => {
                     </div>
                 </div>
             )}
-            </Paper>
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={6000}
                 onClose={handleSnackbarClose}
                 message={snackbarMessage}
             />
-            
         </div>
     );
 };

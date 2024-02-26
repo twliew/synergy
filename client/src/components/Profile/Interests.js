@@ -4,9 +4,6 @@ import { Typography, FormControl, InputLabel, Select, MenuItem, Button } from '@
 const Interests = ({ hobbies, selectedHobbies, handleHobbyChange, handleSaveInterests }) => {
     return (
         <div>
-            <Typography variant="h5" gutterBottom>
-                Interests/Hobbies
-            </Typography>
             <FormControl fullWidth>
                 <InputLabel id="select-multiple-label">Select Interests/Hobbies</InputLabel>
                 <Select
