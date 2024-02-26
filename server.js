@@ -8,13 +8,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = process.env.PORT || 5000;
-
-// Middleware
+const port = process.env.PORT || 5001;
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 
-// MySQL Connection
 const db = mysql.createConnection({
   host: 'ec2-3-137-65-169.us-east-2.compute.amazonaws.com',
   user: 'twliew',
@@ -22,7 +19,6 @@ const db = mysql.createConnection({
   database: 'twliew'
 });
 
-// Connect to MySQL
 db.connect((err) => {
   if (err) {
     throw err;
@@ -102,6 +98,7 @@ const isUniversityEmail = (email) => {
 // Login Route
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
+  console.log("login: ", username, password);
   const sql = 'SELECT * FROM twliew.user WHERE username = ? AND password = ?';
   const values = [username, password];
 
@@ -279,65 +276,135 @@ app.post('/api/hobbies', (req, res) => {
   });
 });
 
-
-// Root Route
-app.get('/', (req, res) => {
-  res.send('Server is running');
-});
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
-});
-
-
-app.put('/api/profile/:username/add_social_media', (req, res) => {
+// POST request to add social media information for a user
+app.post('/api/profile/:username/social-media', (req, res) => {
   const { username } = req.params;
-  const { platform_name, url, visibility, sm_username } = req.body;
+  const { platform_name, sm_username, url, visibility } = req.body;
 
   // Retrieve user ID based on username
   const getUserIdQuery = 'SELECT id FROM twliew.user WHERE username = ?';
   db.query(getUserIdQuery, [username], (err, results) => {
-    if (err) {
-      res.status(500).send('Internal server error');
-      throw err;
-    }
-
-    if (results.length === 0) {
-      res.status(404).send('User not found');
-    } else {
+      if (err) {
+          console.error('Error fetching user id:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+      
+      if (results.length === 0) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      
       const userId = results[0].id;
 
-      // Insert new social media
-      const insertQuery = 'INSERT INTO twliew.social_media (user_id, platform_name, url, visibility, sm_username) VALUES (?, ?, ?, ?, ?)';
-      const data = [userId, platform_name, url, visibility, sm_username];
-      db.query(insertQuery, data, (err) => {
-        if (err) {
-          res.status(500).send('Internal server error');
-          throw err;
-        }
-        res.status(200).send('Social media details inserted successfully');
+      // Fetch the count of existing social media profiles for the user
+      const getSocialMediaCountQuery = 'SELECT COUNT(*) AS count FROM twliew.social_media WHERE user_id = ?';
+      db.query(getSocialMediaCountQuery, [userId], (err, countResults) => {
+          if (err) {
+              console.error('Error fetching social media count:', err);
+              return res.status(500).json({ success: false, message: 'Internal server error' });
+          }
+          
+          const entryNumber = countResults[0].count + 1; // Assign the next entry number
+          
+          // Insert the new social media information into the database
+          const sqlInsertSocialMedia = 'INSERT INTO twliew.social_media (user_id, platform_name, sm_username, url, visibility, entry_number) VALUES (?, ?, ?, ?, ?, ?)';
+          db.query(sqlInsertSocialMedia, [userId, platform_name, sm_username, url, visibility, entryNumber], (err, results) => {
+              if (err) {
+                  console.error('Error inserting new social media:', err);
+                  return res.status(500).json({ success: false, message: 'Internal server error' });
+              }
+
+              return res.status(201).json({ success: true, message: 'Social media added successfully' });
+          });
       });
-    }
   });
 });
 
-app.get('/api/get_social_media', (req, res) => {
-  const username = req.params.username;
+// PUT request to update social media information for a user based on user_id and entry_number
+app.put('/api/profile/:username/social-media/:entryNumber', (req, res) => {
+  const { username, entryNumber } = req.params;
+  const socialMedia = req.body;
 
-  
-  const sql = `
-      SELECT *
-      FROM twliew.social_media;
-  `;
-  const data = [username];
+  const sqlGetUserId = 'SELECT id FROM user WHERE username = ?';
+  db.query(sqlGetUserId, [username], (err, results) => {
+      if (err) {
+          console.error('Error fetching user id:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
 
-  db.query(sql, data, (err, results) => {
+      if (results.length === 0) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      const user_id = results[0].id;
+
+      const sqlUpdateSocialMedia = 'UPDATE social_media SET platform_name = ?, sm_username = ?, url = ?, visibility = ? WHERE user_id = ? AND entry_number = ?';
+      db.query(sqlUpdateSocialMedia, [socialMedia.platform_name, socialMedia.sm_username, socialMedia.url, socialMedia.visibility, user_id, entryNumber], (err, results) => {
+          if (err) {
+              console.error('Error updating social media:', err);
+              return res.status(500).json({ success: false, message: 'Internal server error' });
+          }
+
+          if (results.affectedRows === 0) {
+              return res.status(404).json({ success: false, message: 'Social media entry not found' });
+          }
+
+          return res.status(200).json({ success: true, message: 'Social media updated successfully' });
+      });
+  });
+});
+
+// GET request to fetch social media information for a user
+app.get('/api/profile/:username/social-media', (req, res) => {
+  const { username } = req.params;
+
+  // Fetch social media information from the database
+  const sqlFetchSocialMedia = 'SELECT platform_name, sm_username, url, visibility FROM twliew.social_media WHERE user_id = (SELECT id FROM twliew.user WHERE username = ?)';
+  db.query(sqlFetchSocialMedia, [username], (err, results) => {
       if (err) {
           console.error('Error fetching social media:', err);
           return res.status(500).json({ success: false, message: 'Internal server error' });
       }
 
-      return res.status(200).json({ success: true, social_media: results });
+      return res.status(200).json({ success: true, socialMedia: results });
   });
+});
+
+// DELETE endpoint for deleting a specific social media entry
+app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
+  const username = req.params.username;
+  const entryNumber = req.params.entryNumber;
+
+  // Assuming you have a database table named 'social_media' where social media entries are stored
+  const deleteSocialMediaQuery = 'DELETE FROM social_media WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number = ?';
+  const updateEntryNumbersQuery = 'UPDATE social_media SET entry_number = entry_number - 1 WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number > ?';
+  
+  db.query(deleteSocialMediaQuery, [username, entryNumber], (err, results) => {
+      if (err) {
+          console.error('Error deleting social media entry:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (results.affectedRows === 0) {
+          return res.status(404).json({ success: false, message: 'Social media entry not found' });
+      }
+
+      // Update entry numbers after deletion
+      db.query(updateEntryNumbersQuery, [username, entryNumber], (updateErr, updateResults) => {
+          if (updateErr) {
+              console.error('Error updating entry numbers:', updateErr);
+              // Handle error updating entry numbers (rollback deletion?)
+          }
+
+          return res.sendStatus(204); // Send a successful response with status code 204 (No Content)
+      });
+  });
+});
+
+
+app.get('/', (req, res) => {
+  res.send('Server is running');
+});
+
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
 });
