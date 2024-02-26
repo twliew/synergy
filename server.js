@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 
@@ -30,60 +30,51 @@ db.connect((err) => {
 app.post('/api/register', (req, res) => {
   const userData = req.body;
 
-const userDataWithoutConfirm = { ...userData };
-delete userDataWithoutConfirm.confirmEmail;
-
-// If all validations pass, proceed with user registration
-const sql = 'INSERT INTO twliew.user SET ?';
-db.query(sql, userDataWithoutConfirm, (err, result) => {
-  if (err) {
-    return res.status(400).send('Failed to register user');
-  }
-  res.status(200).send('User registered successfully');
-});
+  const userDataWithoutConfirm = { ...userData };
+  delete userDataWithoutConfirm.confirmEmail;
 
   // Check if username already exists
   const checkUsernameQuery = 'SELECT * FROM twliew.user WHERE username = ?';
   db.query(checkUsernameQuery, [userData.username], (err, usernameResults) => {
     if (err) {
-      res.status(500).send('Internal server error');
-      throw err;
+      return res.status(500).send('Internal server error');
     }
 
     if (usernameResults.length > 0) {
-      res.status(400).send('Username already exists');
-    } else {
-      // Check if email already exists
-      const checkEmailQuery = 'SELECT * FROM twliew.user WHERE email = ?';
-      db.query(checkEmailQuery, [userData.email], (err, emailResults) => {
-        if (err) {
-          res.status(500).send('Internal server error');
-          throw err;
-        }
-
-        if (emailResults.length > 0) {
-          res.status(400).send('Email already exists');
-        } else if (!isUniversityEmail(userData.email)) {
-          res.status(400).send('Only university email addresses with valid university domains are allowed');
-        } else {
-          // Implement password strength criteria validation
-          const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
-          if (!passwordRegex.test(userData.password)) {
-            return res.status(400).send('Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character');
-          }
-
-          // If all validations pass, proceed with user registration
-          const sql = 'INSERT INTO twliew.user SET ?';
-          db.query(sql, userData, (err, result) => {
-            if (err) {
-              res.status(400).send('Failed to register user');
-              throw err;
-            }
-            res.status(200).send('User registered successfully');
-          });
-        }
-      });
+      return res.status(400).send('Username already exists');
     }
+
+    // Check if email already exists
+    const checkEmailQuery = 'SELECT * FROM twliew.user WHERE email = ?';
+    db.query(checkEmailQuery, [userData.email], (err, emailResults) => {
+      if (err) {
+        return res.status(500).send('Internal server error');
+      }
+
+      if (emailResults.length > 0) {
+        return res.status(400).send('Email already exists');
+      }
+
+      if (!isUniversityEmail(userData.email)) {
+        return res.status(400).send('Only university email addresses with valid university domains are allowed');
+      }
+
+      // Implement password strength criteria validation
+      const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+      if (!passwordRegex.test(userData.password)) {
+        return res.status(400).send('Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character');
+      }
+
+      // If all validations pass, proceed with user registration
+      const sql = 'INSERT INTO twliew.user SET ?';
+      db.query(sql, userData, (err, result) => {
+        if (err) {
+          return res.status(400).send('Failed to register user');
+        }
+        // Handle success response
+        res.status(200).send('User registered successfully');
+      });
+    });
   });
 });
 
@@ -95,10 +86,10 @@ const isUniversityEmail = (email) => {
 };
 
 
+
 // Login Route
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
-  console.log("login: ", username, password);
   const sql = 'SELECT * FROM twliew.user WHERE username = ? AND password = ?';
   const values = [username, password];
 
