@@ -13,11 +13,16 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@mui/styles": "^5.15.10",
+    "axios": "^1.6.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "mysql": "^2.18.1",
     "node-fetch": "^3.3.1",
     "nodemon": "^2.0.22",
+    "react": "^18.2.0",
+    "react-scripts": "^5.0.1",
     "recompose": "^0.30.0",
     "yarn": "^1.22.19"
   },

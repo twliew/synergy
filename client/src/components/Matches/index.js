@@ -22,26 +22,6 @@ const Matches = () => {
     return (
         <ThemeProvider theme={theme}>
             {/*overhead bar*/}
-            <AppBar position="static">
-                <Container maxWidth="xl">
-                    <Toolbar disableGutters>
-                        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                            <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>navigate('/')}>
-                                Home
-                            </Button>
-                            <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>navigate('/Profile')}>
-                                Profile
-                            </Button>
-                            <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>navigate('/People')}>
-                                People
-                            </Button>
-                            <Button sx={{ my: 2, color: 'white', display: 'block' }} onClick={()=>navigate('/Matches')}>
-                                Matches
-                            </Button>
-                        </Box>
-                    </Toolbar>
-                </Container>
-            </AppBar>
       <Typography>matches</Typography>
     </ThemeProvider>
   );
