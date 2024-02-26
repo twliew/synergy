@@ -108,8 +108,11 @@ continue looking at testings (Parth)
 
 Feb 26
 What did I do yesterday
+review how to implement testing (taylor)
 almost broke production, was trying to figure out why my tests didn't work (Parth)
 What was in my way
+cypress (taylor)
 I didn't cd into client hence the tests were noticing babel and jest config files (Parth)
 What will I do today
+fix ports, finish testing - cypress, video demo, pdf doc with user stories, peer eidting, project desc in readme file (taylor)
 Finish testing (works now), submit the assignment (Parth)
