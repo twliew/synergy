@@ -106,4 +106,10 @@ What will I do today
 look at testing (taylor)
 continue looking at testings (Parth)
 
-
+Feb 26
+What did I do yesterday
+almost broke production, was trying to figure out why my tests didn't work (Parth)
+What was in my way
+I didn't cd into client hence the tests were noticing babel and jest config files (Parth)
+What will I do today
+Finish testing (works now), submit the assignment (Parth)
