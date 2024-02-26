@@ -80,7 +80,18 @@ git push origin your-branch-name
 
 9.	In your GitHub repo, create new pull request. Ensure that other team members review and approve the changes. After that, merge `your-branch-name` branch with the `main` branch.
 
-
+## Project Description
+1. Register and Login
+   - For new users: go to register tab and input profile information. Then navigate to Login tab and use login credentials to access your account.
+   - Existing Users: Go to Login tab and use login credentials to access your account.
+2. Overhead Bar
+   - Use overhead tabs to navigate to various pages within the system.
+3. Profile
+   - Edit your profile information in by making changes in textfields and selecting Save Changes.
+   - Add, edit, and delete social media -> Add social media information such as platform (e.g. instagram), username, url, and visibility (what other users can view these)
+   - Add hobbies and interests -> add hobby from existing hobbies within database in the dropdown. If you don't find a hobby, add a new hobby in the below textfield and select Add Hobby. Save Interests to maintain all changes.
+4. Logout
+   - Logout of your account by selecting Logout in the top right corner of the system.
 
 
 
