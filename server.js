@@ -392,6 +392,32 @@ app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
 });
 
 
+app.get('/api/profile/exclude/:username', (req, res) => {
+  const signedInUsername = req.params.username;
+
+  const sql = `
+    SELECT u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
+           GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+           GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+    FROM twliew.user u
+    LEFT JOIN twliew.user_hobbies uh ON u.id = uh.user_id
+    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
+    LEFT JOIN twliew.social_media sm ON u.id = sm.user_id
+    WHERE u.username != ? AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+    GROUP BY u.id;
+  `;
+
+  db.query(sql, [signedInUsername], (err, results) => {
+    if (err) {
+      console.error('Error fetching profile data:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    return res.status(200).json({ success: true, profiles: results });
+  });
+});
+
+
 app.get('/', (req, res) => {
   res.send('Server is running');
 });
