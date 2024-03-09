@@ -139,6 +139,7 @@ const SocialMedia = () => {
             <Typography variant="h5" gutterBottom>
                 Social Media
             </Typography>
+
             {socialMedia.map((account, index) => (
                 <div key={index}>
                     {isEditing && editIndex === index ? ( // Render editable fields if currently editing this social media
