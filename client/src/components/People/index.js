@@ -20,7 +20,6 @@ const People = () => {
     const navigate = useNavigate();
     const username = localStorage.getItem('username');
 
-    // Function to fetch all users excluding the signed-in user
     const fetchAllUsers = () => {
         fetch(`/api/profile/exclude/${username}`)
             .then(response => response.json())
@@ -34,7 +33,6 @@ const People = () => {
         fetchAllUsers();
     }, []);
 
-    // Function to handle search based on selected hobbies
     const handleSearch = () => {
         fetch(`/api/profile/search`, {
             method: 'POST',
@@ -59,8 +57,11 @@ const People = () => {
         .catch(error => console.error('Error searching users:', error));
     };
 
+    const undoSearch = () => {
+        fetchAllUsers();
+    };
+
     React.useEffect(() => {
-        // Fetch all hobbies to populate dropdown
         fetch(`/api/hobbies`)
             .then(response => response.json())
             .then(data => {
@@ -68,6 +69,10 @@ const People = () => {
             })
             .catch(error => console.error('Error fetching hobbies:', error));
     }, []);
+
+    const handleHobbiesChange = (event) => {
+        setSelectedHobbies(Array.from(event.target.selectedOptions, option => option.value));
+    };
 
     return (
         <ThemeProvider theme={theme}>
@@ -80,7 +85,7 @@ const People = () => {
                             id="hobbies"
                             multiple
                             value={selectedHobbies}
-                            onChange={event => setSelectedHobbies(Array.from(event.target.selectedOptions, option => option.value))}
+                            onChange={handleHobbiesChange}
                         >
                             {hobbies.map(hobby => (
                                 <option key={hobby.id} value={hobby.id}>{hobby.hobby_name}</option>
@@ -88,6 +93,7 @@ const People = () => {
                         </select>
                     </Box>
                     <button onClick={handleSearch}>Search</button>
+                    <button onClick={undoSearch}>Undo Search</button>
                     {users.map(user => (
                         <Box key={user.id} mb={3}>
                             <Card sx={{ minWidth: 275 }}>
