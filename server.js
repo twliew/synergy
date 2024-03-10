@@ -397,13 +397,13 @@ app.get('/api/profile/exclude/:username', (req, res) => {
 
   const sql = `
     SELECT u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
-           GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
-           GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+       GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+       GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
     FROM twliew.user u
     LEFT JOIN twliew.user_hobbies uh ON u.id = uh.user_id
     LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
-    LEFT JOIN twliew.social_media sm ON u.id = sm.user_id
-    WHERE u.username != ? AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+    LEFT JOIN twliew.social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+    WHERE u.username != ?
     GROUP BY u.id;
   `;
 
@@ -416,6 +416,39 @@ app.get('/api/profile/exclude/:username', (req, res) => {
     return res.status(200).json({ success: true, profiles: results });
   });
 });
+
+// Search users by hobbies
+app.post('/api/profile/search', (req, res) => {
+  const { hobbies } = req.body;
+
+  // Construct SQL query dynamically based on selected hobbies
+  let sql = `
+    SELECT u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
+           GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+           GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+    FROM twliew.user u
+    LEFT JOIN twliew.user_hobbies uh ON u.id = uh.user_id
+    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
+    LEFT JOIN twliew.social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+    WHERE 1=1`;
+
+  // Add conditions for selected hobbies
+  if (hobbies && hobbies.length > 0) {
+    sql += ` AND uh.hobby_id IN (${hobbies.join(',')})`;
+  }
+
+  sql += ' GROUP BY u.id';
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error searching users by hobbies:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    return res.status(200).json({ success: true, profiles: results });
+  });
+});
+
 
 
 app.get('/', (req, res) => {

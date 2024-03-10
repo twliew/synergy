@@ -15,16 +15,34 @@ const theme = createTheme({
 
 const People = () => {
     const [users, setUsers] = React.useState([]);
+    const [selectedHobbies, setSelectedHobbies] = React.useState([]);
+    const [hobbies, setHobbies] = React.useState([]);
     const navigate = useNavigate();
     const username = localStorage.getItem('username');
 
+    const handleSearch = () => {
+        fetch(`/api/profile/search`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ hobbies: selectedHobbies }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            setUsers(data.profiles); 
+        })
+        .catch(error => console.error('Error searching users:', error));
+    };
+
     React.useEffect(() => {
-        fetch(`/api/profile/exclude/${username}`)
+        // Fetch all hobbies to populate dropdown
+        fetch(`/api/hobbies`)
             .then(response => response.json())
             .then(data => {
-                setUsers(data.profiles); 
+                setHobbies(data.hobbies);
             })
-            .catch(error => console.error('Error fetching users:', error));
+            .catch(error => console.error('Error fetching hobbies:', error));
     }, []);
 
     return (
@@ -32,6 +50,20 @@ const People = () => {
             <Container>
                 <Typography variant="h4" gutterBottom>People</Typography>
                 <Box sx={{ overflow: 'auto' }}>
+                    <Box mb={3}>
+                        <label htmlFor="hobbies">Select Hobbies:</label>
+                        <select
+                            id="hobbies"
+                            multiple
+                            value={selectedHobbies}
+                            onChange={event => setSelectedHobbies(Array.from(event.target.selectedOptions, option => option.value))}
+                        >
+                            {hobbies.map(hobby => (
+                                <option key={hobby.id} value={hobby.id}>{hobby.hobby_name}</option>
+                            ))}
+                        </select>
+                    </Box>
+                    <button onClick={handleSearch}>Search</button>
                     {users.map(user => (
                         <Box key={user.id} mb={3}>
                             <Card sx={{ minWidth: 275 }}>
