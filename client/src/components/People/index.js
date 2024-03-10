@@ -37,12 +37,12 @@ const People = () => {
     }, []);
 
     const handleSearch = () => {
-        fetch(`/api/profile/search`, {
+        fetch(`/api/profile/search/${username}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ hobbies: selectedHobbies }),
+            body: JSON.stringify({ hobbies: selectedHobbies, username: username }), // Include the signed-in username
         })
         .then(response => {
             if (!response.ok) {
@@ -59,6 +59,7 @@ const People = () => {
         })
         .catch(error => console.error('Error searching users:', error));
     };
+    
 
     const undoSearch = () => {
         fetchAllUsers();

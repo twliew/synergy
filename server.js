@@ -418,11 +418,12 @@ app.get('/api/profile/exclude/:username', (req, res) => {
 });
 
 // Search users by hobbies
-app.post('/api/profile/search', (req, res) => {
+app.post('/api/profile/search/:username', (req, res) => {
   const { hobbies } = req.body;
+  const signedInUsername = req.params.username; 
 
   let sql = `
-    SELECT u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
+    SELECT u.id, u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
            GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
            GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
     FROM twliew.user u
@@ -436,9 +437,11 @@ app.post('/api/profile/search', (req, res) => {
     sql += ` AND h.hobby_name IN (${placeholders})`;
   }
 
+  sql += ` AND u.username != ?`;
+
   sql += ' GROUP BY u.id';
 
-  db.query(sql, hobbies, (err, results) => { 
+  db.query(sql, [...hobbies, signedInUsername], (err, results) => {
     if (err) {
       console.error('Error searching users by hobbies:', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
@@ -447,7 +450,6 @@ app.post('/api/profile/search', (req, res) => {
     return res.status(200).json({ success: true, profiles: results });
   });
 });
-
 
 app.get('/', (req, res) => {
   res.send('Server is running');
