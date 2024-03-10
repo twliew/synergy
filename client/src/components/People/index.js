@@ -6,6 +6,9 @@ import CardContent from "@mui/material/CardContent";
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { useNavigate } from 'react-router-dom';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
 
 const theme = createTheme({
     palette: {
@@ -71,7 +74,7 @@ const People = () => {
     }, []);
 
     const handleHobbiesChange = (event) => {
-        setSelectedHobbies(Array.from(event.target.selectedOptions, option => option.value));
+        setSelectedHobbies(event.target.value);
     };
 
     return (
@@ -80,20 +83,29 @@ const People = () => {
                 <Typography variant="h4" gutterBottom>People</Typography>
                 <Box sx={{ overflow: 'auto' }}>
                     <Box mb={3}>
-                        <label htmlFor="hobbies">Select Hobbies:</label>
-                        <select
+                        <Typography>Select Hobbies:</Typography>
+                        <Select
                             id="hobbies"
                             multiple
                             value={selectedHobbies}
                             onChange={handleHobbiesChange}
+                            renderValue={(selected) => (
+                                <div>
+                                    {selected.map((value) => (
+                                        <Box key={value}>{value}</Box>
+                                    ))}
+                                </div>
+                            )}
                         >
                             {hobbies.map(hobby => (
-                                <option key={hobby.id} value={hobby.id}>{hobby.hobby_name}</option>
+                                <MenuItem key={hobby.id} value={hobby.hobby_name}>
+                                    {hobby.hobby_name}
+                                </MenuItem>
                             ))}
-                        </select>
+                        </Select>
                     </Box>
-                    <button onClick={handleSearch}>Search</button>
-                    <button onClick={undoSearch}>Undo Search</button>
+                    <Button onClick={handleSearch} variant="contained" color="primary">Search</Button>
+                    <Button onClick={undoSearch} variant="contained" color="secondary">Undo Search</Button>
                     {users.map(user => (
                         <Box key={user.id} mb={3}>
                             <Card sx={{ minWidth: 275 }}>

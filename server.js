@@ -432,12 +432,13 @@ app.post('/api/profile/search', (req, res) => {
     WHERE 1=1`;
 
   if (hobbies && hobbies.length > 0) {
-    sql += ` AND uh.hobby_id IN (${hobbies.join(',')})`;
+    const placeholders = hobbies.map(() => '?').join(',');
+    sql += ` AND h.hobby_name IN (${placeholders})`;
   }
 
   sql += ' GROUP BY u.id';
 
-  db.query(sql, (err, results) => {
+  db.query(sql, hobbies, (err, results) => { 
     if (err) {
       console.error('Error searching users by hobbies:', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
@@ -446,7 +447,6 @@ app.post('/api/profile/search', (req, res) => {
     return res.status(200).json({ success: true, profiles: results });
   });
 });
-
 
 
 app.get('/', (req, res) => {
