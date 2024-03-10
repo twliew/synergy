@@ -21,13 +21,14 @@ const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
     };
 
     return (
-        <div>
-            <Typography>Select Hobbies:</Typography>
+        <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
+            <Typography variant="h6" gutterBottom>Select Hobbies:</Typography>
             <Select
                 id="hobbies"
                 multiple
                 value={selectedHobbies}
                 onChange={handleHobbiesChange}
+                style={{ minWidth: 200 }}
                 renderValue={(selected) => (
                     <div>
                         {selected.map((value) => (
@@ -42,9 +43,11 @@ const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
                     </MenuItem>
                 ))}
             </Select>
-            <Button onClick={handleSearch} variant="contained" color="primary">Search</Button>
-            <Button onClick={undoSearch} variant="contained" color="secondary">Undo Search</Button>
-        </div>
+            <Box mt={2} display="flex" justifyContent="center">
+                <Button onClick={handleSearch} variant="contained" color="primary" style={{ marginRight: 8 }}>Search</Button>
+                <Button onClick={undoSearch} variant="contained" color="secondary">Undo Search</Button>
+            </Box>
+        </Box>
     );
 }
 
