@@ -391,7 +391,7 @@ app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
   });
 });
 
-
+// Get all users excluding the signed-in user
 app.get('/api/profile/exclude/:username', (req, res) => {
   const signedInUsername = req.params.username;
 
@@ -421,7 +421,6 @@ app.get('/api/profile/exclude/:username', (req, res) => {
 app.post('/api/profile/search', (req, res) => {
   const { hobbies } = req.body;
 
-  // Construct SQL query dynamically based on selected hobbies
   let sql = `
     SELECT u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
            GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
@@ -432,7 +431,6 @@ app.post('/api/profile/search', (req, res) => {
     LEFT JOIN twliew.social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
     WHERE 1=1`;
 
-  // Add conditions for selected hobbies
   if (hobbies && hobbies.length > 0) {
     sql += ` AND uh.hobby_id IN (${hobbies.join(',')})`;
   }

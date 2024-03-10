@@ -20,6 +20,21 @@ const People = () => {
     const navigate = useNavigate();
     const username = localStorage.getItem('username');
 
+    // Function to fetch all users excluding the signed-in user
+    const fetchAllUsers = () => {
+        fetch(`/api/profile/exclude/${username}`)
+            .then(response => response.json())
+            .then(data => {
+                setUsers(data.profiles); 
+            })
+            .catch(error => console.error('Error fetching users:', error));
+    };
+
+    React.useEffect(() => {
+        fetchAllUsers();
+    }, []);
+
+    // Function to handle search based on selected hobbies
     const handleSearch = () => {
         fetch(`/api/profile/search`, {
             method: 'POST',
@@ -28,9 +43,18 @@ const People = () => {
             },
             body: JSON.stringify({ hobbies: selectedHobbies }),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
-            setUsers(data.profiles); 
+            if (data.success) {
+                setUsers(data.profiles); 
+            } else {
+                throw new Error(data.message);
+            }
         })
         .catch(error => console.error('Error searching users:', error));
     };
