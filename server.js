@@ -396,9 +396,9 @@ app.get('/api/profile/exclude/:username', (req, res) => {
   const signedInUsername = req.params.username;
 
   const sql = `
-    SELECT u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
-       GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
-       GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+    SELECT u.id, u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
+      GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+      GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
     FROM twliew.user u
     LEFT JOIN twliew.user_hobbies uh ON u.id = uh.user_id
     LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
@@ -447,9 +447,32 @@ app.post('/api/profile/search/:username', (req, res) => {
       return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 
-    return res.status(200).json({ success: true, profiles: results });
+    // Fetch all hobbies for each user
+    const userIds = results.map(user => user.id);
+    const userHobbiesSql = `
+      SELECT uh.user_id, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS all_hobbies
+      FROM twliew.user_hobbies uh
+      LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
+      WHERE uh.user_id IN (${userIds.join(',')})
+      GROUP BY uh.user_id`;
+
+    db.query(userHobbiesSql, (userHobbiesErr, userHobbiesResults) => {
+      if (userHobbiesErr) {
+        console.error('Error fetching all hobbies for users:', userHobbiesErr);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      // Merge all hobbies data into the main results
+      const mergedResults = results.map(user => {
+        const userHobbies = userHobbiesResults.find(h => h.user_id === user.id);
+        return { ...user, all_hobbies: userHobbies ? userHobbies.all_hobbies : '' };
+      });
+
+      return res.status(200).json({ success: true, profiles: mergedResults });
+    });
   });
 });
+
 
 app.get('/', (req, res) => {
   res.send('Server is running');
