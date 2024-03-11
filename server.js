@@ -435,10 +435,6 @@ app.post('/api/profile/search/:username', (req, res) => {
     LEFT JOIN twliew.social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
     WHERE 1=1`;
 
-  if (filterLikedUsers) {
-    sql += ` AND u.id IN (SELECT liked_id FROM twliew.likes WHERE liker_id = (SELECT id FROM twliew.user WHERE username = ?))`;
-  }
-
   if (hobbies && hobbies.length > 0) {
     const placeholders = hobbies.map(() => '?').join(',');
     sql += ` AND h.hobby_name IN (${placeholders})`;
@@ -488,52 +484,35 @@ app.post('/api/like/:username', (req, res) => {
   const signedInUsername = req.params.username; // Username of the liker
   const { likedUsername } = req.body; // Username of the liked user
 
-  const selectLikerIdQuery = `
-    SELECT id FROM user WHERE username = ?
-  `;
-  
-  const selectLikedIdQuery = `
-    SELECT id FROM user WHERE username = ?
+  const selectUserIdsQuery = `
+    SELECT id FROM user WHERE username = ? OR username = ?
   `;
 
-  db.query(selectLikerIdQuery, [signedInUsername], (err, likerResults) => {
+  db.query(selectUserIdsQuery, [signedInUsername, likedUsername], (err, results) => {
     if (err) {
-      console.error('Error retrieving liker ID:', err);
+      console.error('Error retrieving user IDs:', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 
-    if (likerResults.length !== 1) {
-      return res.status(404).json({ success: false, message: 'Liker not found' });
+    if (results.length !== 2) {
+      return res.status(404).json({ success: false, message: 'One or both users not found' });
     }
 
-    const likerId = likerResults[0].id;
+    const likerId = results[0].id;
+    const likedId = results[1].id;
 
-    db.query(selectLikedIdQuery, [likedUsername], (err, likedResults) => {
+    const insertLikeQuery = 'INSERT INTO likes (liker_id, liked_id) VALUES (?, ?)';
+
+    db.query(insertLikeQuery, [likerId, likedId], (err, result) => {
       if (err) {
-        console.error('Error retrieving liked ID:', err);
+        console.error('Error liking user:', err);
         return res.status(500).json({ success: false, message: 'Internal server error' });
       }
 
-      if (likedResults.length !== 1) {
-        return res.status(404).json({ success: false, message: 'Liked user not found' });
-      }
-
-      const likedId = likedResults[0].id;
-
-      const insertLikeQuery = 'INSERT INTO likes (liker_id, liked_id) VALUES (?, ?)';
-
-      db.query(insertLikeQuery, [likerId, likedId], (err, result) => {
-        if (err) {
-          console.error('Error liking user:', err);
-          return res.status(500).json({ success: false, message: 'Internal server error' });
-        }
-
-        return res.status(201).json({ success: true, message: 'User liked successfully' });
-      });
+      return res.status(201).json({ success: true, message: 'User liked successfully' });
     });
   });
 });
-
 
 
 app.get('/', (req, res) => {

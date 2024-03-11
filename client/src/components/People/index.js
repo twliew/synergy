@@ -86,7 +86,6 @@ const People = () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            fetchAllUsers();
         })
         .catch(error => console.error('Error liking user:', error));
     };

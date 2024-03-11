@@ -9,22 +9,17 @@ import Typography from '@mui/material/Typography';
 
 const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
     const [selectedHobbies, setSelectedHobbies] = useState([]);
-    const [filterLikedUsers, setFilterLikedUsers] = useState(false);
 
     const handleHobbiesChange = (event) => {
         setSelectedHobbies(event.target.value);
     };
 
     const handleSearch = () => {
-        onSearch(selectedHobbies, filterLikedUsers);
+        onSearch(selectedHobbies);
     };
 
     const undoSearch = () => {
         onUndoSearch();
-    };
-
-    const handleLikedUserFilterChange = (event) => {
-        setFilterLikedUsers(event.target.checked);
     };
 
     return (
@@ -51,10 +46,6 @@ const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
                 ))}
             </Select>
             <Box mt={2} display="flex" justifyContent="center">
-                <FormControlLabel
-                    control={<Checkbox checked={filterLikedUsers} onChange={handleLikedUserFilterChange} />}
-                    label="Filter for who liked you"
-                />
                 <Button onClick={handleSearch} variant="contained" color="primary" style={{ marginLeft: 8 }}>Search</Button>
                 <Button onClick={undoSearch} variant="contained" color="secondary">Undo Search</Button>
             </Box>
