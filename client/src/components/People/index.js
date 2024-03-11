@@ -73,6 +73,24 @@ const People = () => {
         setIsSearching(false); 
     };
 
+    const handleLike = (likedUserId, likedUsername) => {
+        const signedInUsername = localStorage.getItem('username');
+        fetch('/api/like/' + signedInUsername, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ likedUsername }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            fetchAllUsers();
+        })
+        .catch(error => console.error('Error liking user:', error));
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <Container>
@@ -88,12 +106,14 @@ const People = () => {
                             <Card sx={{ minWidth: 275 }}>
                                 <CardContent>
                                     <Typography gutterBottom variant="h5" component="h2">{user.full_name}</Typography>
+                                    <Typography variant="body2" color="textSecondary" gutterBottom>Username: {user.username}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>University: {user.university_name}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {user.program_of_study}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Age: {user.age}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {isSearching ? user.all_hobbies : user.hobbies}</Typography>
                                     <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
+                                    <button onClick={() => handleLike(user.id, user.username)}>Like</button>
                                 </CardContent>
                             </Card>
                         </Box>

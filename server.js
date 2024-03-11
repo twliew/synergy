@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 
@@ -396,15 +396,19 @@ app.get('/api/profile/exclude/:username', (req, res) => {
   const signedInUsername = req.params.username;
 
   const sql = `
-    SELECT u.id, u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
+    SELECT 
+      u.*, 
       GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
       GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
-    FROM twliew.user u
-    LEFT JOIN twliew.user_hobbies uh ON u.id = uh.user_id
-    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
-    LEFT JOIN twliew.social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
-    WHERE u.username != ?
-    GROUP BY u.id;
+    FROM 
+      twliew.user AS u
+      LEFT JOIN twliew.user_hobbies AS uh ON u.id = uh.user_id
+      LEFT JOIN twliew.hobbies AS h ON uh.hobby_id = h.id
+      LEFT JOIN twliew.social_media AS sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+    WHERE 
+      u.username != ?
+    GROUP BY 
+      u.id;
   `;
 
   db.query(sql, [signedInUsername], (err, results) => {
@@ -417,58 +421,99 @@ app.get('/api/profile/exclude/:username', (req, res) => {
   });
 });
 
-// Search users by hobbies
+
 app.post('/api/profile/search/:username', (req, res) => {
-  const { hobbies } = req.body;
-  const signedInUsername = req.params.username; 
+  const { hobbies, filterLikedUsers } = req.body;
+  const signedInUsername = req.params.username;
 
   let sql = `
-    SELECT u.id, u.university_name, u.full_name, u.age, u.bio, u.program_of_study,
-           GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
-           GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+    SELECT u.*, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+    GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
     FROM twliew.user u
     LEFT JOIN twliew.user_hobbies uh ON u.id = uh.user_id
     LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
     LEFT JOIN twliew.social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
     WHERE 1=1`;
 
+  if (filterLikedUsers) {
+    sql += ` AND u.id IN (SELECT liked_id FROM twliew.likes WHERE liker_id = (SELECT id FROM twliew.user WHERE username = ?))`;
+  }
+
   if (hobbies && hobbies.length > 0) {
     const placeholders = hobbies.map(() => '?').join(',');
     sql += ` AND h.hobby_name IN (${placeholders})`;
   }
 
-  sql += ` AND u.username != ?`;
+  sql += ' AND u.username != ?';
 
   sql += ' GROUP BY u.id';
 
-  db.query(sql, [...hobbies, signedInUsername], (err, results) => {
+  const queryParams = filterLikedUsers ? [signedInUsername, ...hobbies, signedInUsername] : [...hobbies, signedInUsername];
+
+  db.query(sql, queryParams, (err, results) => {
     if (err) {
       console.error('Error searching users by hobbies:', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
     }
+    processUserProfiles(results, res);
+  });
+});
 
-    // Fetch all hobbies for each user
-    const userIds = results.map(user => user.id);
-    const userHobbiesSql = `
-      SELECT uh.user_id, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS all_hobbies
-      FROM twliew.user_hobbies uh
-      LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
-      WHERE uh.user_id IN (${userIds.join(',')})
-      GROUP BY uh.user_id`;
+// Function to process user profiles and store them in an array
+function processUserProfiles(userProfiles, res) {
+  const userIds = userProfiles.map(user => user.id);
+  const userHobbiesSql = `
+    SELECT uh.user_id, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS all_hobbies
+    FROM twliew.user_hobbies uh
+    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
+    WHERE uh.user_id IN (${userIds.join(',')})
+    GROUP BY uh.user_id`;
 
-    db.query(userHobbiesSql, (userHobbiesErr, userHobbiesResults) => {
-      if (userHobbiesErr) {
-        console.error('Error fetching all hobbies for users:', userHobbiesErr);
+  db.query(userHobbiesSql, (userHobbiesErr, userHobbiesResults) => {
+    if (userHobbiesErr) {
+      console.error('Error fetching all hobbies for users:', userHobbiesErr);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    // Merge all hobbies data into the main results
+    const mergedResults = userProfiles.map(user => {
+      const userHobbies = userHobbiesResults.find(h => h.user_id === user.id);
+      return { ...user, all_hobbies: userHobbies ? userHobbies.all_hobbies : '' };
+    });
+    return res.status(200).json({ success: true, profiles: mergedResults });
+  });
+}
+
+app.post('/api/like/:username', (req, res) => {
+  const signedInUsername = req.params.username; // Username of the liker
+  const { likedUsername } = req.body; // Username of the liked user
+
+  const selectUserIdsQuery = `
+    SELECT id FROM user WHERE username = ? OR username = ?
+  `;
+
+  db.query(selectUserIdsQuery, [signedInUsername, likedUsername], (err, results) => {
+    if (err) {
+      console.error('Error retrieving user IDs:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    if (results.length !== 2) {
+      return res.status(404).json({ success: false, message: 'One or both users not found' });
+    }
+
+    const likerId = results[0].id;
+    const likedId = results[1].id;
+
+    const insertLikeQuery = 'INSERT INTO likes (liker_id, liked_id) VALUES (?, ?)';
+
+    db.query(insertLikeQuery, [likerId, likedId], (err, result) => {
+      if (err) {
+        console.error('Error liking user:', err);
         return res.status(500).json({ success: false, message: 'Internal server error' });
       }
 
-      // Merge all hobbies data into the main results
-      const mergedResults = results.map(user => {
-        const userHobbies = userHobbiesResults.find(h => h.user_id === user.id);
-        return { ...user, all_hobbies: userHobbies ? userHobbies.all_hobbies : '' };
-      });
-
-      return res.status(200).json({ success: true, profiles: mergedResults });
+      return res.status(201).json({ success: true, message: 'User liked successfully' });
     });
   });
 });

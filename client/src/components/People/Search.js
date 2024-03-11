@@ -3,21 +3,28 @@ import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
-import { Typography } from '@mui/material';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Typography from '@mui/material/Typography';
 
 const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
     const [selectedHobbies, setSelectedHobbies] = useState([]);
+    const [filterLikedUsers, setFilterLikedUsers] = useState(false);
 
     const handleHobbiesChange = (event) => {
         setSelectedHobbies(event.target.value);
     };
 
     const handleSearch = () => {
-        onSearch(selectedHobbies);
+        onSearch(selectedHobbies, filterLikedUsers);
     };
 
     const undoSearch = () => {
         onUndoSearch();
+    };
+
+    const handleLikedUserFilterChange = (event) => {
+        setFilterLikedUsers(event.target.checked);
     };
 
     return (
@@ -44,7 +51,11 @@ const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
                 ))}
             </Select>
             <Box mt={2} display="flex" justifyContent="center">
-                <Button onClick={handleSearch} variant="contained" color="primary" style={{ marginRight: 8 }}>Search</Button>
+                <FormControlLabel
+                    control={<Checkbox checked={filterLikedUsers} onChange={handleLikedUserFilterChange} />}
+                    label="Filter for who liked you"
+                />
+                <Button onClick={handleSearch} variant="contained" color="primary" style={{ marginLeft: 8 }}>Search</Button>
                 <Button onClick={undoSearch} variant="contained" color="secondary">Undo Search</Button>
             </Box>
         </Box>
