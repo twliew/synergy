@@ -514,6 +514,33 @@ app.post('/api/like/:username', (req, res) => {
   });
 });
 
+app.get('/api/profile/viewLikes/:username', (req, res) => {
+  const likedUsername = req.params.username;
+
+  // Retrieve profiles of users who have liked the signed-in user
+  const sql = `
+      SELECT u.*, 
+          GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+          GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+      FROM user AS u
+      INNER JOIN likes AS l ON u.id = l.liker_id
+      LEFT JOIN user_hobbies AS uh ON u.id = uh.user_id
+      LEFT JOIN hobbies AS h ON uh.hobby_id = h.id
+      LEFT JOIN social_media AS sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+      WHERE l.liked_id = (SELECT id FROM user WHERE username = ?)
+      GROUP BY u.id;
+  `;
+
+  db.query(sql, [likedUsername], (err, results) => {
+      if (err) {
+          console.error('Error fetching liked profiles:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      return res.status(200).json({ success: true, profiles: results });
+  });
+});
+
 
 app.get('/', (req, res) => {
   res.send('Server is running');

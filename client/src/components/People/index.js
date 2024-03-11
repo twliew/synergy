@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SearchPeople from './Search';
+import ViewLikes from './ViewLikes'; 
 
 const theme = createTheme({
     palette: {
@@ -17,6 +18,7 @@ const People = () => {
     const [users, setUsers] = useState([]);
     const [allHobbies, setAllHobbies] = useState([]);
     const [isSearching, setIsSearching] = useState(false); 
+    const [viewLikes, setViewLikes] = useState(false); 
 
     useEffect(() => {
         fetchAllUsers();
@@ -90,33 +92,48 @@ const People = () => {
         .catch(error => console.error('Error liking user:', error));
     };
 
+    const toggleViewLikes = () => {
+        setViewLikes(!viewLikes);
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <Container>
-                <Typography variant="h4" gutterBottom>People</Typography>
-                <Box sx={{ overflow: 'auto' }}>
+                <Typography variant="h4" gutterBottom>{viewLikes ? 'Profiles of Users who Liked You' : 'People'}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <SearchPeople 
                         allHobbies={allHobbies}
                         onSearch={(selectedHobbies) => handleSearch(selectedHobbies)}
                         onUndoSearch={undoSearch}
                     />
-                    {users.map(user => (
-                        <Box key={user.id} mb={3}>
-                            <Card sx={{ minWidth: 275 }}>
-                                <CardContent>
-                                    <Typography gutterBottom variant="h5" component="h2">{user.full_name}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>Username: {user.username}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>University: {user.university_name}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {user.program_of_study}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>Age: {user.age}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {isSearching ? user.all_hobbies : user.hobbies}</Typography>
-                                    <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
-                                    <button onClick={() => handleLike(user.id, user.username)}>Like</button>
-                                </CardContent>
-                            </Card>
-                        </Box>
-                    ))}
+                    <button onClick={toggleViewLikes} style={{ marginLeft: '10px' }}>
+                        {viewLikes ? 'Back to People' : 'View Likes'}
+                    </button>
+                </Box>
+                <Box sx={{ overflow: 'auto' }}>
+                    {viewLikes ? (
+                        <ViewLikes />
+                    ) : ( 
+                        <>
+                            {users.map(user => (
+                                <Box key={user.id} mb={3}>
+                                    <Card sx={{ minWidth: 275 }}>
+                                        <CardContent>
+                                            <Typography gutterBottom variant="h5" component="h2">{user.full_name}</Typography>
+                                            <Typography variant="body2" color="textSecondary" gutterBottom>Username: {user.username}</Typography>
+                                            <Typography variant="body2" color="textSecondary" gutterBottom>University: {user.university_name}</Typography>
+                                            <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {user.program_of_study}</Typography>
+                                            <Typography variant="body2" color="textSecondary" gutterBottom>Age: {user.age}</Typography>
+                                            <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
+                                            <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {isSearching ? user.all_hobbies : user.hobbies}</Typography>
+                                            <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
+                                            <button onClick={() => handleLike(user.id, user.username)}>Like</button>
+                                        </CardContent>
+                                    </Card>
+                                </Box>
+                            ))}
+                        </>
+                    )}
                 </Box>
             </Container>
         </ThemeProvider>
