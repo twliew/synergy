@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 
@@ -488,35 +488,52 @@ app.post('/api/like/:username', (req, res) => {
   const signedInUsername = req.params.username; // Username of the liker
   const { likedUsername } = req.body; // Username of the liked user
 
-  const selectUserIdsQuery = `
-    SELECT id FROM user WHERE username = ? OR username = ?
+  const selectLikerIdQuery = `
+    SELECT id FROM user WHERE username = ?
+  `;
+  
+  const selectLikedIdQuery = `
+    SELECT id FROM user WHERE username = ?
   `;
 
-  db.query(selectUserIdsQuery, [signedInUsername, likedUsername], (err, results) => {
+  db.query(selectLikerIdQuery, [signedInUsername], (err, likerResults) => {
     if (err) {
-      console.error('Error retrieving user IDs:', err);
+      console.error('Error retrieving liker ID:', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 
-    if (results.length !== 2) {
-      return res.status(404).json({ success: false, message: 'One or both users not found' });
+    if (likerResults.length !== 1) {
+      return res.status(404).json({ success: false, message: 'Liker not found' });
     }
 
-    const likerId = results[0].id;
-    const likedId = results[1].id;
+    const likerId = likerResults[0].id;
 
-    const insertLikeQuery = 'INSERT INTO likes (liker_id, liked_id) VALUES (?, ?)';
-
-    db.query(insertLikeQuery, [likerId, likedId], (err, result) => {
+    db.query(selectLikedIdQuery, [likedUsername], (err, likedResults) => {
       if (err) {
-        console.error('Error liking user:', err);
+        console.error('Error retrieving liked ID:', err);
         return res.status(500).json({ success: false, message: 'Internal server error' });
       }
 
-      return res.status(201).json({ success: true, message: 'User liked successfully' });
+      if (likedResults.length !== 1) {
+        return res.status(404).json({ success: false, message: 'Liked user not found' });
+      }
+
+      const likedId = likedResults[0].id;
+
+      const insertLikeQuery = 'INSERT INTO likes (liker_id, liked_id) VALUES (?, ?)';
+
+      db.query(insertLikeQuery, [likerId, likedId], (err, result) => {
+        if (err) {
+          console.error('Error liking user:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+
+        return res.status(201).json({ success: true, message: 'User liked successfully' });
+      });
     });
   });
 });
+
 
 
 app.get('/', (req, res) => {
