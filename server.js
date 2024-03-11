@@ -406,7 +406,7 @@ app.get('/api/profile/exclude/:username', (req, res) => {
       LEFT JOIN twliew.hobbies AS h ON uh.hobby_id = h.id
       LEFT JOIN twliew.social_media AS sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
     WHERE 
-      u.username != ?
+      u.username != ? AND u.availability = 1
     GROUP BY 
       u.id;
   `;
@@ -441,6 +441,7 @@ app.post('/api/profile/search/:username', (req, res) => {
   }
 
   sql += ' AND u.username != ?';
+  sql += ' AND u.availability = 1';
 
   sql += ' GROUP BY u.id';
 
@@ -454,6 +455,7 @@ app.post('/api/profile/search/:username', (req, res) => {
     processUserProfiles(results, res);
   });
 });
+
 
 // Function to process user profiles and store them in an array
 function processUserProfiles(userProfiles, res) {
