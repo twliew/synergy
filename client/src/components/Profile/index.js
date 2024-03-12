@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, TextField, Button, Paper, Grid, Snackbar } from '@mui/material';
+import { Typography, TextField, Button, Paper, Grid, Snackbar, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import Interests from './Interests';
 import SocialMedia from './SocialMedia';
 
@@ -207,6 +207,21 @@ const Profile = () => {
                     <Grid item xs={12} sm={6}>
                         <TextField label="Bio" name="bio" value={editedProfileData.bio} onChange={handleChange} fullWidth
                         />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth>
+                            <InputLabel id="availability-label">Availability {editedProfileData.availability}</InputLabel>
+                            <Select
+                                labelId="availability-label"
+                                id="availability"
+                                name="availability"
+                                value={editedProfileData.availability}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value={1}>Available</MenuItem>
+                                <MenuItem value={0}>Unavailable</MenuItem>
+                            </Select>
+                        </FormControl>
                     </Grid>
                     <Grid item xs={12}>
                         <Button onClick={handleSaveChanges} variant="contained" color="primary">
