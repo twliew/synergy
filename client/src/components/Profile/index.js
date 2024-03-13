@@ -23,7 +23,6 @@ const Profile = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const username = localStorage.getItem('username');
-    const [saveChanges, setSaveChanges] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -210,6 +209,7 @@ const Profile = () => {
                         <TextField label="Bio" name="bio" value={editedProfileData.bio} onChange={handleChange} fullWidth
                         />
                     </Grid>
+                    {/*change profile avail*/}
                     <Grid item xs={12} sm={6}>
                         <Typography>Change Profile Availability</Typography>
                         <FormControl fullWidth>
