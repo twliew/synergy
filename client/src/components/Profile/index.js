@@ -12,7 +12,8 @@ const Profile = () => {
         university_name: '',
         program_of_study: '',
         age: '',
-        bio: ''
+        bio: '',
+        availability: ''
     });
     const [hobbies, setHobbies] = useState([]);
     const [selectedHobbies, setSelectedHobbies] = useState([]);
@@ -22,6 +23,7 @@ const Profile = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const username = localStorage.getItem('username');
+    const [saveChanges, setSaveChanges] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -209,8 +211,9 @@ const Profile = () => {
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
+                        <Typography>Change Profile Availability</Typography>
                         <FormControl fullWidth>
-                            <InputLabel id="availability-label">Availability {editedProfileData.availability}</InputLabel>
+                            <InputLabel id="availability-label">Availability</InputLabel>
                             <Select
                                 labelId="availability-label"
                                 id="availability"
