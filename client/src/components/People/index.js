@@ -4,6 +4,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
+import Button from '@mui/material/Button';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SearchPeople from './Search';
 import ViewLikes from './ViewLikes'; 
@@ -106,9 +107,9 @@ const People = () => {
                         onSearch={(selectedHobbies) => handleSearch(selectedHobbies)}
                         onUndoSearch={undoSearch}
                     />
-                    <button onClick={toggleViewLikes} style={{ marginLeft: '10px' }}>
+                    <Button onClick={toggleViewLikes} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
                         {viewLikes ? 'Back to People' : 'View Likes'}
-                    </button>
+                    </Button>
                 </Box>
                 <Box sx={{ overflow: 'auto' }}>
                     {viewLikes ? (
@@ -116,27 +117,33 @@ const People = () => {
                     ) : ( 
                         <>
                             {users.map(user => (
-                                <Box key={user.id} mb={3}>
-                                    <Card sx={{ minWidth: 275 }}>
-                                        <CardContent>
-                                            <Typography gutterBottom variant="h5" component="h2">{user.full_name}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Username: {user.username}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>University: {user.university_name}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {user.program_of_study}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Age: {user.age}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {isSearching ? user.all_hobbies : user.hobbies}</Typography>
-                                            <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
-                                            <button onClick={() => handleLike(user.id, user.username)}>Like</button>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
+                                <UserCard key={user.id} user={user} handleLike={handleLike} />
                             ))}
                         </>
                     )}
                 </Box>
             </Container>
         </ThemeProvider>
+    );
+}
+
+const UserCard = ({ user, handleLike }) => {
+    return (
+        <Box mb={3}>
+            <Card sx={{ minWidth: 275 }}>
+                <CardContent>
+                    <Typography gutterBottom variant="h5" component="h2">{user.full_name}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Username: {user.username}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>University: {user.university_name}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {user.program_of_study}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Age: {user.age}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {user.hobbies}</Typography>
+                    <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
+                    <Button onClick={() => handleLike(user.id, user.username)} variant="contained" color="primary">Like</Button>
+                </CardContent>
+            </Card>
+        </Box>
     );
 }
 
