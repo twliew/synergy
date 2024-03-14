@@ -22,7 +22,12 @@ const ViewLikes = () => {
     const fetchLikedProfiles = () => {
         const signedInUsername = localStorage.getItem('username');
         fetch(`/api/profile/viewLikes/${signedInUsername}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     setLikedProfiles(data.profiles);
