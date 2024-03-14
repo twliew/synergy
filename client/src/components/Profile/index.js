@@ -212,7 +212,6 @@ const Profile = () => {
                     </Grid>
                     {/*change profile avail*/}
                     <Grid item xs={12} sm={6}>
-                        <Typography>Change Profile Availability</Typography>
                         <FormControl fullWidth>
                             <InputLabel id="availability-label">Availability</InputLabel>
                             <Select
@@ -228,7 +227,6 @@ const Profile = () => {
                         </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <Typography>Change Mood</Typography>
                         <FormControl fullWidth>
                             <InputLabel id="mood-label">Current Mood</InputLabel>
                             <Select
