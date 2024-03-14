@@ -89,6 +89,8 @@ const People = () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+            // Refresh users after liking
+            fetchAllUsers();
         })
         .catch(error => console.error('Error liking user:', error));
     };
@@ -128,6 +130,15 @@ const People = () => {
 }
 
 const UserCard = ({ user, handleLike }) => {
+    const [isLiked, setIsLiked] = useState(user.is_liked === 1);
+
+    const handleLikeClick = () => {
+        if (!isLiked) {
+            handleLike(user.id, user.username);
+            setIsLiked(true);
+        }
+    };
+
     return (
         <Box mb={3}>
             <Card sx={{ minWidth: 275 }}>
@@ -140,7 +151,7 @@ const UserCard = ({ user, handleLike }) => {
                     <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {user.hobbies}</Typography>
                     <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
-                    <Button onClick={() => handleLike(user.id, user.username)} variant="contained" color="primary">Like</Button>
+                    <Button onClick={handleLikeClick} variant="contained" color="primary" disabled={isLiked}>Like</Button>
                 </CardContent>
             </Card>
         </Box>
