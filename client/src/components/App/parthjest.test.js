@@ -3,6 +3,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import Login from './Login';
 import Profile from '../Profile';
+import People from '../People';
+import Search from '../People/Search';
+import ViewLikes from '../People/ViewLikes';
 
 describe('Login component', () => {
     test('renders login button correctly', () => {
@@ -39,4 +42,65 @@ describe('Profile component', () => {
             expect(screen.getByRole('button', { name: 'Add Hobby' })).toBeInTheDocument();
         });
       });
+});
+
+global.fetch = jest.fn();
+
+describe('Search component', () => {
+    test('renders search button', () => {
+        // Mock props
+        const allHobbies = [
+            { id: 1, hobby_name: 'Reading' },
+            { id: 2, hobby_name: 'Gaming' },
+            { id: 3, hobby_name: 'Cooking' },
+        ];
+        const onSearchMock = jest.fn();
+        const onUndoSearchMock = jest.fn();
+        render(
+            <Search
+                allHobbies={allHobbies}
+                onSearch={onSearchMock}
+                onUndoSearch={onUndoSearchMock}
+            />
+        );
+        expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+    });
+
+    test('renders undo search button', () => {
+        // Mock props
+        const allHobbies = [
+            { id: 1, hobby_name: 'Reading' },
+            { id: 2, hobby_name: 'Gaming' },
+            { id: 3, hobby_name: 'Cooking' },
+        ];
+        const onSearchMock = jest.fn();
+        const onUndoSearchMock = jest.fn();
+        render(
+            <Search
+                allHobbies={allHobbies}
+                onSearch={onSearchMock}
+                onUndoSearch={onUndoSearchMock}
+            />
+        );
+        expect(screen.getByRole('button', { name: 'Undo Search' })).toBeInTheDocument();
+    });
+
+    test('renders Select Hobbies text', () => {
+        // Mock props
+        const allHobbies = [
+            { id: 1, hobby_name: 'Reading' },
+            { id: 2, hobby_name: 'Gaming' },
+            { id: 3, hobby_name: 'Cooking' },
+        ];
+        const onSearchMock = jest.fn();
+        const onUndoSearchMock = jest.fn();
+        render(
+            <Search
+                allHobbies={allHobbies}
+                onSearch={onSearchMock}
+                onUndoSearch={onUndoSearchMock}
+            />
+        );
+        expect(screen.getByText('Select Hobbies:')).toBeInTheDocument();
+    });
 });
