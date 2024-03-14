@@ -365,7 +365,7 @@ app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
   const username = req.params.username;
   const entryNumber = req.params.entryNumber;
 
-  // Assuming you have a database table named 'social_media' where social media entries are stored
+  // Delete the social media entry from the database
   const deleteSocialMediaQuery = 'DELETE FROM social_media WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number = ?';
   const updateEntryNumbersQuery = 'UPDATE social_media SET entry_number = entry_number - 1 WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number > ?';
   
