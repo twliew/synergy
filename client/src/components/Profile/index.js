@@ -13,7 +13,8 @@ const Profile = () => {
         program_of_study: '',
         age: '',
         bio: '',
-        availability: ''
+        availability: '',
+        mood: ''
     });
     const [hobbies, setHobbies] = useState([]);
     const [selectedHobbies, setSelectedHobbies] = useState([]);
@@ -223,6 +224,27 @@ const Profile = () => {
                             >
                                 <MenuItem value={1}>Available</MenuItem>
                                 <MenuItem value={0}>Unavailable</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <Typography>Change Mood</Typography>
+                        <FormControl fullWidth>
+                            <InputLabel id="mood-label">Current Mood</InputLabel>
+                            <Select
+                                labelId="mood-label"
+                                id="mood"
+                                name="mood"
+                                value={editedProfileData.mood}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value={'Happy'}>Happy</MenuItem>
+                                <MenuItem value={'Sad'}>Sad</MenuItem>
+                                <MenuItem value={'Excited'}>Excited</MenuItem>
+                                <MenuItem value={'Bored'}>Bored</MenuItem>
+                                <MenuItem value={'Lonely'}>Lonely</MenuItem>
+                                <MenuItem value={'Neutral'}>Neutral</MenuItem>
+
                             </Select>
                         </FormControl>
                     </Grid>
