@@ -365,7 +365,7 @@ app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
   const username = req.params.username;
   const entryNumber = req.params.entryNumber;
 
-  // Assuming you have a database table named 'social_media' where social media entries are stored
+  // Delete the social media entry from the database
   const deleteSocialMediaQuery = 'DELETE FROM social_media WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number = ?';
   const updateEntryNumbersQuery = 'UPDATE social_media SET entry_number = entry_number - 1 WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number > ?';
   
@@ -391,7 +391,7 @@ app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
   });
 });
 
-// Get all users excluding the signed-in user
+// Get all users excluding the signed-in user and include liked status
 app.get('/api/profile/exclude/:username', (req, res) => {
   const signedInUsername = req.params.username;
 
@@ -399,19 +399,24 @@ app.get('/api/profile/exclude/:username', (req, res) => {
     SELECT 
       u.*, 
       GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
-      GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+      GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media,
+      CASE 
+        WHEN l.liked_id IS NOT NULL THEN 1 
+        ELSE 0 
+      END AS is_liked
     FROM 
       twliew.user AS u
       LEFT JOIN twliew.user_hobbies AS uh ON u.id = uh.user_id
       LEFT JOIN twliew.hobbies AS h ON uh.hobby_id = h.id
       LEFT JOIN twliew.social_media AS sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+      LEFT JOIN twliew.likes AS l ON u.id = l.liked_id AND l.liker_id = (SELECT id FROM twliew.user WHERE username = ?)
     WHERE 
       u.username != ? AND u.availability = 1
     GROUP BY 
       u.id;
   `;
 
-  db.query(sql, [signedInUsername], (err, results) => {
+  db.query(sql, [signedInUsername, signedInUsername], (err, results) => {
     if (err) {
       console.error('Error fetching profile data:', err);
       return res.status(500).json({ success: false, message: 'Internal server error' });
@@ -420,6 +425,7 @@ app.get('/api/profile/exclude/:username', (req, res) => {
     return res.status(200).json({ success: true, profiles: results });
   });
 });
+
 
 
 app.post('/api/profile/search/:username', (req, res) => {
