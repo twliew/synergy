@@ -22,11 +22,11 @@ const People = () => {
     const [viewLikes, setViewLikes] = useState(false); 
 
     useEffect(() => {
-        fetchAllUsers();
-        fetchHobbies();
+        fetchAllUsers(); //fetch all users
+        fetchHobbies(); //fetch all hobbies
     }, []);
 
-    const fetchAllUsers = () => {
+    const fetchAllUsers = () => { //fetch all users
         const username = localStorage.getItem('username');
         fetch(`/api/profile/exclude/${username}`)
             .then(response => response.json())
@@ -36,7 +36,7 @@ const People = () => {
             .catch(error => console.error('Error fetching users:', error));
     };    
 
-    const fetchHobbies = () => {
+    const fetchHobbies = () => { //fetch all hobbies
         fetch(`/api/hobbies`)
             .then(response => response.json())
             .then(data => {
@@ -45,7 +45,7 @@ const People = () => {
             .catch(error => console.error('Error fetching hobbies:', error));
     };
 
-    const handleSearch = (selectedHobbies) => {
+    const handleSearch = (selectedHobbies) => { //search for users with the selected hobbies
         const username = localStorage.getItem('username');
         fetch(`/api/profile/search/${username}`, {
             method: 'POST',
@@ -62,7 +62,6 @@ const People = () => {
         })
         .then(data => {
             if (data.success) {
-                // Retain the hobbies from the API response
                 setUsers(data.profiles.map(profile => ({ ...profile, hobbies: profile.all_hobbies }))); 
                 setIsSearching(true); 
             } else {
@@ -72,12 +71,12 @@ const People = () => {
         .catch(error => console.error('Error searching users:', error));
     };
 
-    const undoSearch = () => {
-        fetchAllUsers();
+    const undoSearch = () => { //undo the search
+        fetchAllUsers(); //fetch all users
         setIsSearching(false); 
     };
 
-    const handleLike = (likedUserId, likedUsername) => {
+    const handleLike = (likedUserId, likedUsername) => { //like a user
         const signedInUsername = localStorage.getItem('username');
         fetch('/api/like/' + signedInUsername, {
             method: 'POST',
@@ -90,16 +89,27 @@ const People = () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            // Refresh users after liking
-            fetchAllUsers();
+            fetchAllUsers(); //fetch all users
         })
         .catch(error => console.error('Error liking user:', error));
     };
 
-    const toggleViewLikes = () => {
+    const toggleViewLikes = () => { //takes you to view likes page
+        fetchAllUsers();
         setViewLikes(!viewLikes);
     };
+    
+    const backToPeople = () => { //takes you back to people page
+        fetchAllUsers();
+        setViewLikes(false);
+    };
 
+    useEffect(() => {
+        if (!viewLikes) { //if not viewing likes, fetch all users
+            fetchAllUsers();
+        }
+    }, [viewLikes]);
+    
     return (
         <ThemeProvider theme={theme}>
             <Container>
@@ -113,6 +123,11 @@ const People = () => {
                     <Button onClick={toggleViewLikes} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
                         {viewLikes ? 'Back to People' : 'View Likes'}
                     </Button>
+                    {!viewLikes && (
+                        <Button onClick={backToPeople} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
+                            Back to People
+                        </Button>
+                    )}
                 </Box>
                 <Box sx={{ overflow: 'auto' }}>
                     {viewLikes ? (

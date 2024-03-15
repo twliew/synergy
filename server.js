@@ -427,7 +427,7 @@ app.get('/api/profile/exclude/:username', (req, res) => {
 });
 
 
-
+// Search users by hobbies
 app.post('/api/profile/search/:username', (req, res) => {
   const { hobbies, filterLikedUsers } = req.body;
   const signedInUsername = req.params.username;
@@ -489,8 +489,8 @@ function processUserProfiles(userProfiles, res) {
 }
 
 app.post('/api/like/:username', (req, res) => {
-  const signedInUsername = req.params.username; // Username of the liker
-  const { likedUsername } = req.body; // Username of the liked user
+  const signedInUsername = req.params.username;
+  const { likedUsername } = req.body;
 
   const selectLikerIdQuery = `
     SELECT id FROM user WHERE username = ?
@@ -538,10 +538,9 @@ app.post('/api/like/:username', (req, res) => {
   });
 });
 
+// Get request to fetch liking profiles
 app.get('/api/profile/viewLikes/:username', (req, res) => {
   const likedUsername = req.params.username;
-
-  // Retrieve profiles of users who have liked the signed-in user
   const sql = `
       SELECT u.*, 
           GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,

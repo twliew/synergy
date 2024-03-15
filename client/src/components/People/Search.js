@@ -10,15 +10,15 @@ import Typography from '@mui/material/Typography';
 const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
     const [selectedHobbies, setSelectedHobbies] = useState([]);
 
-    const handleHobbiesChange = (event) => {
+    const handleHobbiesChange = (event) => { //handle change in selected hobbies
         setSelectedHobbies(event.target.value);
     };
 
-    const handleSearch = () => {
+    const handleSearch = () => { //search for users with the selected hobbies
         onSearch(selectedHobbies);
     };
 
-    const undoSearch = () => {
+    const undoSearch = () => { //undo the search
         onUndoSearch();
     };
 
