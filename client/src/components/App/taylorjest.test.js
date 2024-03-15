@@ -5,16 +5,19 @@ import Register from './Register';
 import Profile from '../Profile';
 
 describe('Registration component', () => {
+    //sprint 1
     test('renders Register button correctly', () => {
       render(<Register />);
       expect(screen.getByRole('button', { name: 'Register' })).toBeInTheDocument();
     });
 
+    //sprint 1
     test('renders Social Media on page correctly', () => {
       render(<Profile />);
       expect(screen.getByText('Social Media')).toBeInTheDocument();
     });
 
+    //sprint 2
     test('availability dropdown render and functionality in register component', async () => {
       render(<Register />);
 
@@ -31,6 +34,7 @@ describe('Registration component', () => {
   });
 
 describe('Profile component', () => {
+  //sprint 1
     test('renders cancel button when edit interests button is clicked', async () => {
       render(<Profile />);
       const editInterestsButton = screen.getByRole('button', { name: 'Edit Interests' });
@@ -39,7 +43,8 @@ describe('Profile component', () => {
           expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       });
     });
-    
+
+    //sprint 1
     test('renders Save Interests button when edit interests button is clicked', async () => {
       render(<Profile />);
       const editInterestsButton = screen.getByRole('button', { name: 'Edit Interests' });
@@ -49,6 +54,7 @@ describe('Profile component', () => {
       });
     });
 
+    //sprint 2
     test('availability dropdown list render and functionality', async () => {
       render(<Profile />);
 
@@ -63,7 +69,8 @@ describe('Profile component', () => {
 
       expect(optionAvailable).toHaveAttribute('aria-selected', 'true');
     });
-
+    
+    //sprint 2
     test('mood dropdown list render and functionality', async () => {
       render(<Profile />);
 
