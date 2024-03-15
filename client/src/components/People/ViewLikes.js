@@ -15,6 +15,7 @@ const theme = createTheme({
 
 const ViewLikes = () => {
     const [likedProfiles, setLikedProfiles] = useState([]);
+    const [likedStatus, setLikedStatus] = useState({});
 
     useEffect(() => {
         fetchLikedProfiles();
@@ -32,6 +33,7 @@ const ViewLikes = () => {
             .then(data => {
                 if (data.success) {
                     setLikedProfiles(data.profiles);
+                    checkLikedStatus(data.profiles);
                 } else {
                     throw new Error(data.message);
                 }
@@ -39,33 +41,51 @@ const ViewLikes = () => {
             .catch(error => console.error('Error fetching liked profiles:', error));
     };
 
-    const handleLike = (likedUserId, likedUsername) => {
+    const checkLikedStatus = (profiles) => {
         const signedInUsername = localStorage.getItem('username');
-        fetch('/api/like/' + signedInUsername, {
+        profiles.forEach(profile => {
+            fetch(`/api/like/check/${signedInUsername}/${profile.username}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        setLikedStatus(prevStatus => ({
+                            ...prevStatus,
+                            [profile.username]: data.liked
+                        }));
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => console.error(`Error checking liked status for ${profile.username}:`, error));
+        });
+    };
+
+    const handleLikeUser = (likedUsername) => {
+        const signedInUsername = localStorage.getItem('username');
+        fetch(`/api/like/${signedInUsername}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ likedUsername }),
+            body: JSON.stringify({ likedUsername })
         })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            // Refresh liked profiles after liking
-            fetchLikedProfiles();
+            fetchLikedProfiles(); // Update liked profiles after liking
         })
         .catch(error => console.error('Error liking user:', error));
-    };
-
-    const isProfileLiked = (profileId) => {
-        return likedProfiles.some(profile => profile.id === profileId);
     };
 
     return (
         <ThemeProvider theme={theme}>
             <Container>
-                <Typography variant="h4" gutterBottom>Profiles of Users who Liked You</Typography>
                 <Box sx={{ overflow: 'auto' }}>
                     {likedProfiles.map(profile => (
                         <Box key={profile.id} mb={3}>
@@ -79,7 +99,13 @@ const ViewLikes = () => {
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {profile.bio}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {profile.hobbies}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Public Social Media: {profile.public_social_media}</Typography>
-                                    <Button onClick={() => handleLike(profile.id, profile.username)} variant="contained" color="primary" disabled={!profile.is_liked}>Like</Button>
+                                    <Typography variant="body2" color="textSecondary" gutterBottom>Liked by: {profile.mood}</Typography>
+                                    <Button
+                                        onClick={() => handleLikeUser(profile.username)}
+                                        disabled={likedStatus[profile.username]}
+                                    >
+                                        {likedStatus[profile.username] ? 'Liked' : 'Like'}
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </Box>

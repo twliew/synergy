@@ -152,6 +152,7 @@ const UserCard = ({ user, handleLike, isSearching }) => {
                     <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {isSearching ? user.all_hobbies : user.hobbies}</Typography>
                     <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
+                    <Typography variant="body2" color="textSecondary">Mood: {user.mood}</Typography>
                     <Button onClick={handleLikeClick} variant="contained" color="primary" disabled={isLiked}>Like</Button>
                 </CardContent>
             </Card>

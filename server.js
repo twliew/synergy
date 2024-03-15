@@ -565,6 +565,57 @@ app.get('/api/profile/viewLikes/:username', (req, res) => {
   });
 });
 
+app.get('/api/like/check/:signedInUsername/:targetUsername', (req, res) => {
+  const signedInUsername = req.params.signedInUsername;
+  const targetUsername = req.params.targetUsername;
+
+  const selectLikerIdQuery = `
+      SELECT id FROM user WHERE username = ?
+  `;
+
+  const selectLikedIdQuery = `
+      SELECT id FROM user WHERE username = ?
+  `;
+
+  db.query(selectLikerIdQuery, [signedInUsername], (err, likerResults) => {
+      if (err) {
+          console.error('Error retrieving liker ID:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (likerResults.length !== 1) {
+          return res.status(404).json({ success: false, message: 'Liker not found' });
+      }
+
+      const likerId = likerResults[0].id;
+
+      db.query(selectLikedIdQuery, [targetUsername], (err, likedResults) => {
+          if (err) {
+              console.error('Error retrieving liked ID:', err);
+              return res.status(500).json({ success: false, message: 'Internal server error' });
+          }
+
+          if (likedResults.length !== 1) {
+              return res.status(404).json({ success: false, message: 'Target user not found' });
+          }
+
+          const likedId = likedResults[0].id;
+
+          const checkLikeQuery = 'SELECT * FROM likes WHERE liker_id = ? AND liked_id = ?';
+
+          db.query(checkLikeQuery, [likerId, likedId], (err, likeResults) => {
+              if (err) {
+                  console.error('Error checking like:', err);
+                  return res.status(500).json({ success: false, message: 'Internal server error' });
+              }
+
+              const liked = likeResults.length > 0;
+
+              return res.status(200).json({ success: true, liked });
+          });
+      });
+  });
+});
 
 app.get('/', (req, res) => {
   res.send('Server is running');
