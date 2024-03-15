@@ -550,7 +550,7 @@ app.get('/api/profile/viewLikes/:username', (req, res) => {
       LEFT JOIN user_hobbies AS uh ON u.id = uh.user_id
       LEFT JOIN hobbies AS h ON uh.hobby_id = h.id
       LEFT JOIN social_media AS sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
-      WHERE l.liked_id = (SELECT id FROM user WHERE username = ?)
+      WHERE l.liked_id = (SELECT id FROM user WHERE username = ?) AND u.availability = 1
       GROUP BY u.id;
   `;
 
