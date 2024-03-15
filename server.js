@@ -365,7 +365,7 @@ app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
   const username = req.params.username;
   const entryNumber = req.params.entryNumber;
 
-  // Assuming you have a database table named 'social_media' where social media entries are stored
+  // Delete the social media entry from the database
   const deleteSocialMediaQuery = 'DELETE FROM social_media WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number = ?';
   const updateEntryNumbersQuery = 'UPDATE social_media SET entry_number = entry_number - 1 WHERE user_id = (SELECT id FROM user WHERE username = ?) AND entry_number > ?';
   
@@ -391,6 +391,230 @@ app.delete('/api/profile/:username/social-media/:entryNumber', (req, res) => {
   });
 });
 
+// Get all users excluding the signed-in user and include liked status
+app.get('/api/profile/exclude/:username', (req, res) => {
+  const signedInUsername = req.params.username;
+
+  const sql = `
+    SELECT 
+      u.*, 
+      GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+      GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media,
+      CASE 
+        WHEN l.liked_id IS NOT NULL THEN 1 
+        ELSE 0 
+      END AS is_liked
+    FROM 
+      twliew.user AS u
+      LEFT JOIN twliew.user_hobbies AS uh ON u.id = uh.user_id
+      LEFT JOIN twliew.hobbies AS h ON uh.hobby_id = h.id
+      LEFT JOIN twliew.social_media AS sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+      LEFT JOIN twliew.likes AS l ON u.id = l.liked_id AND l.liker_id = (SELECT id FROM twliew.user WHERE username = ?)
+    WHERE 
+      u.username != ? AND u.availability = 1
+    GROUP BY 
+      u.id;
+  `;
+
+  db.query(sql, [signedInUsername, signedInUsername], (err, results) => {
+    if (err) {
+      console.error('Error fetching profile data:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    return res.status(200).json({ success: true, profiles: results });
+  });
+});
+
+
+// Search users by hobbies
+app.post('/api/profile/search/:username', (req, res) => {
+  const { hobbies, filterLikedUsers } = req.body;
+  const signedInUsername = req.params.username;
+
+  let sql = `
+    SELECT u.*, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+    GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+    FROM twliew.user u
+    LEFT JOIN twliew.user_hobbies uh ON u.id = uh.user_id
+    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
+    LEFT JOIN twliew.social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+    WHERE 1=1`;
+
+  if (hobbies && hobbies.length > 0) {
+    const placeholders = hobbies.map(() => '?').join(',');
+    sql += ` AND h.hobby_name IN (${placeholders})`;
+  }
+
+  sql += ' AND u.username != ?';
+  sql += ' AND u.availability = 1';
+
+  sql += ' GROUP BY u.id';
+
+  const queryParams = filterLikedUsers ? [signedInUsername, ...hobbies, signedInUsername] : [...hobbies, signedInUsername];
+
+  db.query(sql, queryParams, (err, results) => {
+    if (err) {
+      console.error('Error searching users by hobbies:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+    processUserProfiles(results, res);
+  });
+});
+
+
+// Function to process user profiles and store them in an array
+function processUserProfiles(userProfiles, res) {
+  const userIds = userProfiles.map(user => user.id);
+  const userHobbiesSql = `
+    SELECT uh.user_id, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS all_hobbies
+    FROM twliew.user_hobbies uh
+    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
+    WHERE uh.user_id IN (${userIds.join(',')})
+    GROUP BY uh.user_id`;
+
+  db.query(userHobbiesSql, (userHobbiesErr, userHobbiesResults) => {
+    if (userHobbiesErr) {
+      console.error('Error fetching all hobbies for users:', userHobbiesErr);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    // Merge all hobbies data into the main results
+    const mergedResults = userProfiles.map(user => {
+      const userHobbies = userHobbiesResults.find(h => h.user_id === user.id);
+      return { ...user, all_hobbies: userHobbies ? userHobbies.all_hobbies : '' };
+    });
+    return res.status(200).json({ success: true, profiles: mergedResults });
+  });
+}
+
+app.post('/api/like/:username', (req, res) => {
+  const signedInUsername = req.params.username;
+  const { likedUsername } = req.body;
+
+  const selectLikerIdQuery = `
+    SELECT id FROM user WHERE username = ?
+  `;
+  
+  const selectLikedIdQuery = `
+    SELECT id FROM user WHERE username = ?
+  `;
+
+  db.query(selectLikerIdQuery, [signedInUsername], (err, likerResults) => {
+    if (err) {
+      console.error('Error retrieving liker ID:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    if (likerResults.length !== 1) {
+      return res.status(404).json({ success: false, message: 'Liker not found' });
+    }
+
+    const likerId = likerResults[0].id;
+
+    db.query(selectLikedIdQuery, [likedUsername], (err, likedResults) => {
+      if (err) {
+        console.error('Error retrieving liked ID:', err);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (likedResults.length !== 1) {
+        return res.status(404).json({ success: false, message: 'Liked user not found' });
+      }
+
+      const likedId = likedResults[0].id;
+
+      const insertLikeQuery = 'INSERT INTO likes (liker_id, liked_id) VALUES (?, ?)';
+
+      db.query(insertLikeQuery, [likerId, likedId], (err, result) => {
+        if (err) {
+          console.error('Error liking user:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+
+        return res.status(201).json({ success: true, message: 'User liked successfully' });
+      });
+    });
+  });
+});
+
+// Get request to fetch liking profiles
+app.get('/api/profile/viewLikes/:username', (req, res) => {
+  const likedUsername = req.params.username;
+  const sql = `
+      SELECT u.*, 
+          GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+          GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+      FROM user AS u
+      INNER JOIN likes AS l ON u.id = l.liker_id
+      LEFT JOIN user_hobbies AS uh ON u.id = uh.user_id
+      LEFT JOIN hobbies AS h ON uh.hobby_id = h.id
+      LEFT JOIN social_media AS sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+      WHERE l.liked_id = (SELECT id FROM user WHERE username = ?) AND u.availability = 1
+      GROUP BY u.id;
+  `;
+
+  db.query(sql, [likedUsername], (err, results) => {
+      if (err) {
+          console.error('Error fetching liked profiles:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      return res.status(200).json({ success: true, profiles: results });
+  });
+});
+
+app.get('/api/like/check/:signedInUsername/:targetUsername', (req, res) => {
+  const signedInUsername = req.params.signedInUsername;
+  const targetUsername = req.params.targetUsername;
+
+  const selectLikerIdQuery = `
+      SELECT id FROM user WHERE username = ?
+  `;
+
+  const selectLikedIdQuery = `
+      SELECT id FROM user WHERE username = ?
+  `;
+
+  db.query(selectLikerIdQuery, [signedInUsername], (err, likerResults) => {
+      if (err) {
+          console.error('Error retrieving liker ID:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (likerResults.length !== 1) {
+          return res.status(404).json({ success: false, message: 'Liker not found' });
+      }
+
+      const likerId = likerResults[0].id;
+
+      db.query(selectLikedIdQuery, [targetUsername], (err, likedResults) => {
+          if (err) {
+              console.error('Error retrieving liked ID:', err);
+              return res.status(500).json({ success: false, message: 'Internal server error' });
+          }
+
+          if (likedResults.length !== 1) {
+              return res.status(404).json({ success: false, message: 'Target user not found' });
+          }
+
+          const likedId = likedResults[0].id;
+
+          const checkLikeQuery = 'SELECT * FROM likes WHERE liker_id = ? AND liked_id = ?';
+
+          db.query(checkLikeQuery, [likerId, likedId], (err, likeResults) => {
+              if (err) {
+                  console.error('Error checking like:', err);
+                  return res.status(500).json({ success: false, message: 'Internal server error' });
+              }
+
+              const liked = likeResults.length > 0;
+
+              return res.status(200).json({ success: true, liked });
+          });
+      });
+  });
+});
 
 app.get('/', (req, res) => {
   res.send('Server is running');

@@ -5,18 +5,36 @@ import Register from './Register';
 import Profile from '../Profile';
 
 describe('Registration component', () => {
+    //sprint 1
     test('renders Register button correctly', () => {
       render(<Register />);
       expect(screen.getByRole('button', { name: 'Register' })).toBeInTheDocument();
     });
 
+    //sprint 1
     test('renders Social Media on page correctly', () => {
       render(<Profile />);
       expect(screen.getByText('Social Media')).toBeInTheDocument();
     });
+
+    //sprint 2
+    test('availability dropdown render and functionality in register component', async () => {
+      render(<Register />);
+
+      const availDropdown = screen.getByRole('combobox', { name: 'Availability' });
+      fireEvent.mouseDown(availDropdown);
+
+      await screen.findByRole('option', { name: 'Available' });
+
+      const optionAvailable = screen.getByRole('option', { name: 'Available' });
+      fireEvent.click(optionAvailable);
+
+      expect(optionAvailable).toHaveAttribute('aria-selected', 'true');
+    });
   });
 
 describe('Profile component', () => {
+  //sprint 1
     test('renders cancel button when edit interests button is clicked', async () => {
       render(<Profile />);
       const editInterestsButton = screen.getByRole('button', { name: 'Edit Interests' });
@@ -25,7 +43,8 @@ describe('Profile component', () => {
           expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
       });
     });
-    
+
+    //sprint 1
     test('renders Save Interests button when edit interests button is clicked', async () => {
       render(<Profile />);
       const editInterestsButton = screen.getByRole('button', { name: 'Edit Interests' });
@@ -33,6 +52,38 @@ describe('Profile component', () => {
       await waitFor(() => {
           expect(screen.getByRole('button', { name: 'Save Interests' })).toBeInTheDocument();
       });
+    });
+
+    //sprint 2
+    test('availability dropdown list render and functionality', async () => {
+      render(<Profile />);
+
+      const availDropdown = screen.getByRole('combobox', { name: 'Availability' });
+      fireEvent.mouseDown(availDropdown);
+
+      //wait for options to laod
+      await screen.findByRole('option', { name: 'Available' });
+
+      const optionAvailable = screen.getByRole('option', { name: 'Available' });
+      fireEvent.click(optionAvailable);
+
+      expect(optionAvailable).toHaveAttribute('aria-selected', 'true');
+    });
+    
+    //sprint 2
+    test('mood dropdown list render and functionality', async () => {
+      render(<Profile />);
+
+      const moodDropdown = screen.getByRole('combobox', { name: 'Current Mood' });
+      fireEvent.mouseDown(moodDropdown);
+
+      //wait for options to load
+      await screen.findByRole('option', { name: 'Lonely' });
+
+      const optionMood = screen.getByRole('option', { name: 'Lonely' });
+      fireEvent.click(optionMood);
+
+      expect(optionMood).toHaveAttribute('aria-selected', 'true');
     });
 });
   
