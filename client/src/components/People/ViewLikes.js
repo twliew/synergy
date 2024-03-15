@@ -99,7 +99,7 @@ const ViewLikes = () => {
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {profile.bio}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {profile.hobbies}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Public Social Media: {profile.public_social_media}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>Liked by: {profile.mood}</Typography>
+                                    <Typography variant="body2" color="textSecondary" gutterBottom>Mood: {profile.mood}</Typography>
                                     <Button
                                         onClick={() => handleLikeUser(profile.username)} disabled={likedStatus[profile.username]} variant="contained" color="primary"
                                     >
