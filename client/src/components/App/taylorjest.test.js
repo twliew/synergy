@@ -15,7 +15,7 @@ describe('Registration component', () => {
       expect(screen.getByText('Social Media')).toBeInTheDocument();
     });
 
-    test('availability dropdown render in register component', async () => {
+    test('availability dropdown render and functionality in register component', async () => {
       render(<Register />);
 
       const availDropdown = screen.getByRole('combobox', { name: 'Availability' });
@@ -49,7 +49,7 @@ describe('Profile component', () => {
       });
     });
 
-    test('availability dropdown render', async () => {
+    test('availability dropdown list render and functionality', async () => {
       render(<Profile />);
 
       const availDropdown = screen.getByRole('combobox', { name: 'Availability' });
@@ -64,7 +64,7 @@ describe('Profile component', () => {
       expect(optionAvailable).toHaveAttribute('aria-selected', 'true');
     });
 
-    test('mood dropdown render', async () => {
+    test('mood dropdown list render and functionality', async () => {
       render(<Profile />);
 
       const moodDropdown = screen.getByRole('combobox', { name: 'Current Mood' });
