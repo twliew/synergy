@@ -118,27 +118,50 @@ fix ports, finish testing - cypress, video demo, pdf doc with user stories, peer
 Finish testing (works now), submit the assignment (Parth)
 
 March 10
-What did I do yesterday (Parth)
-Nothing
+What did I do yesterday
+Nothing (Parth)
+review redux (taylor)
 What was in my way
 Assignments and exams (Parth)
+reviewing redux catch up (taylor)
 What will I do today
 Work on the people page so that it correctly renders the user profiles (Parth)
+review parth's People code (taylor)
 
 March 11
 What did I do yesterday
 Worked on people page (Parth)
+review People code (taylor)
 What was in my way
 SQL queries and joins were challenging (Parth)
+understand logic and how to implement my code (taylor)
 What will I do today
 Finish the people page, including "view likes" so that we can view who liked the signed-in user as well as "search" so that we can search based off hobbies (Parth)
+pull changes from parth to taylor and add functionality (taylor)
+
+March 13
+What did I do yesterday
+pull changes and review code (taylor)
+What was in my way
+nothing (taylor)
+What will I do today
+fix functionality of availability (taylor)
 
 March 14
 What did I do yesterday
 noticed bugs in the code (Parth)
+fix functionality and look at testing (taylor)
 What was in my way
 Nothing (Parth)
+how to test dropdowns (taylor)
 What will I do today
 Work on fixing the code, (I have now fixed it) (Parth)
+create jest tests for dropdowns, create user stories document, update readme file (taylor)
 
-
+March 15
+What did I do yesterday
+jest tests (taylor)
+What was in my way
+figuring out the right syntax (taylor)
+What will I do today
+finish e2e cypress test, video finalize doc (taylor)
