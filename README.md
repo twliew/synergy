@@ -19,7 +19,7 @@
    - Can filter based on a certain one or multiple hobbies or interests
    - User can Like another user using a Like button for each user
    - The View Likes button brings the user to a list of other system users that have liked them
-   - Return to the main People page by clikcing on Back to People button
+   - Return to the main People page by clicking on Back to People button
 
 
 # MSci 342 - Project template
