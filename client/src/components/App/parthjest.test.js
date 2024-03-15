@@ -44,6 +44,7 @@ describe('Profile component', () => {
       });
 });
 
+//sprint 2
 global.fetch = jest.fn();
 
 describe('Search component', () => {
