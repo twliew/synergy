@@ -115,11 +115,13 @@ const People = () => {
             <Container>
                 <Typography variant="h4" gutterBottom>{viewLikes ? 'Profiles of Users who Liked You' : 'People'}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <SearchPeople 
-                        allHobbies={allHobbies}
-                        onSearch={(selectedHobbies) => handleSearch(selectedHobbies)}
-                        onUndoSearch={undoSearch}
-                    />
+                    {!viewLikes && ( // Conditionally render SearchPeople component
+                        <SearchPeople 
+                            allHobbies={allHobbies}
+                            onSearch={(selectedHobbies) => handleSearch(selectedHobbies)}
+                            onUndoSearch={undoSearch}
+                        />
+                    )}
                     <Button onClick={toggleViewLikes} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
                         {viewLikes ? 'Back to People' : 'View Likes'}
                     </Button>
