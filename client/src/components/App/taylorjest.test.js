@@ -14,6 +14,20 @@ describe('Registration component', () => {
       render(<Profile />);
       expect(screen.getByText('Social Media')).toBeInTheDocument();
     });
+
+    test('availability dropdown render and functionality in register component', async () => {
+      render(<Register />);
+
+      const availDropdown = screen.getByRole('combobox', { name: 'Availability' });
+      fireEvent.mouseDown(availDropdown);
+
+      await screen.findByRole('option', { name: 'Available' });
+
+      const optionAvailable = screen.getByRole('option', { name: 'Available' });
+      fireEvent.click(optionAvailable);
+
+      expect(optionAvailable).toHaveAttribute('aria-selected', 'true');
+    });
   });
 
 describe('Profile component', () => {
@@ -33,6 +47,36 @@ describe('Profile component', () => {
       await waitFor(() => {
           expect(screen.getByRole('button', { name: 'Save Interests' })).toBeInTheDocument();
       });
+    });
+
+    test('availability dropdown list render and functionality', async () => {
+      render(<Profile />);
+
+      const availDropdown = screen.getByRole('combobox', { name: 'Availability' });
+      fireEvent.mouseDown(availDropdown);
+
+      //wait for options to laod
+      await screen.findByRole('option', { name: 'Available' });
+
+      const optionAvailable = screen.getByRole('option', { name: 'Available' });
+      fireEvent.click(optionAvailable);
+
+      expect(optionAvailable).toHaveAttribute('aria-selected', 'true');
+    });
+
+    test('mood dropdown list render and functionality', async () => {
+      render(<Profile />);
+
+      const moodDropdown = screen.getByRole('combobox', { name: 'Current Mood' });
+      fireEvent.mouseDown(moodDropdown);
+
+      //wait for options to load
+      await screen.findByRole('option', { name: 'Lonely' });
+
+      const optionMood = screen.getByRole('option', { name: 'Lonely' });
+      fireEvent.click(optionMood);
+
+      expect(optionMood).toHaveAttribute('aria-selected', 'true');
     });
 });
   
