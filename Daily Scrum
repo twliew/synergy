@@ -116,3 +116,29 @@ I didn't cd into client hence the tests were noticing babel and jest config file
 What will I do today
 fix ports, finish testing - cypress, video demo, pdf doc with user stories, peer eidting, project desc in readme file (taylor)
 Finish testing (works now), submit the assignment (Parth)
+
+March 10
+What did I do yesterday
+Nothing
+What was in my way
+Assignments and exams
+What will I do today
+Work on the people page so that it correctly renders the user profiles
+
+March 11
+What did I do yesterday
+Worked on people page
+What was in my way
+SQL queries and joins were challenging
+What will I do today
+Finish the people page, including "view likes" so that we can view who liked the signed-in user as well as "search" so that we can search based off hobbies
+
+March 14
+What did I do yesterday
+noticed bugs in the code
+What was in my way
+Nothing
+What will I do today
+Work on fixing the code, (I have now fixed it)
+
+
