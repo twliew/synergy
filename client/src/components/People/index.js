@@ -62,7 +62,8 @@ const People = () => {
         })
         .then(data => {
             if (data.success) {
-                setUsers(data.profiles); 
+                // Retain the hobbies from the API response
+                setUsers(data.profiles.map(profile => ({ ...profile, hobbies: profile.all_hobbies }))); 
                 setIsSearching(true); 
             } else {
                 throw new Error(data.message);
@@ -119,7 +120,7 @@ const People = () => {
                     ) : ( 
                         <>
                             {users.map(user => (
-                                <UserCard key={user.id} user={user} handleLike={handleLike} />
+                                <UserCard key={user.id} user={user} handleLike={handleLike} isSearching={isSearching} />
                             ))}
                         </>
                     )}
@@ -129,7 +130,7 @@ const People = () => {
     );
 }
 
-const UserCard = ({ user, handleLike }) => {
+const UserCard = ({ user, handleLike, isSearching }) => {
     const [isLiked, setIsLiked] = useState(user.is_liked === 1);
 
     const handleLikeClick = () => {
@@ -149,7 +150,7 @@ const UserCard = ({ user, handleLike }) => {
                     <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {user.program_of_study}</Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>Age: {user.age}</Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
-                    <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {user.hobbies}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {isSearching ? user.all_hobbies : user.hobbies}</Typography>
                     <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
                     <Button onClick={handleLikeClick} variant="contained" color="primary" disabled={isLiked}>Like</Button>
                 </CardContent>
