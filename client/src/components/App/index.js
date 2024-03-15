@@ -38,19 +38,19 @@ function App() {
                             <>
                                 {/* Home Link */}
                                 <Typography variant="h6" component="div">
-                                    <Link to="/" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Home</Link>
+                                    <Link id="Home" to="/" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Home</Link>
                                 </Typography>
                                 {/* Profile Link */}
                                 <Typography variant="h6" component="div">
-                                    <Link to="/Profile" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Profile</Link>
+                                    <Link id="Profile" to="/Profile" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Profile</Link>
                                 </Typography>
                                 {/* People Link */}
                                 <Typography variant="h6" component="div">
-                                    <Link to="/People" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>People</Link>
+                                    <Link id="People" to="/People" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>People</Link>
                                 </Typography>
                                 {/* Matches Link */}
                                 <Typography variant="h6" component="div">
-                                    <Link to="/Matches" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Matches</Link>
+                                    <Link id="Matches" to="/Matches" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Matches</Link>
                                 </Typography>
                             </>
                         )}
