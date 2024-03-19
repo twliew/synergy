@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, TextField, Button } from '@mui/material';
+import { Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 const Register = () => {
   const [formData, setFormData] = useState({ // Initialize form data
@@ -11,7 +11,8 @@ const Register = () => {
     university_name: '',
     program_of_study: '',
     age: '',
-    bio: ''
+    bio: '',
+    availability: ''
   });
   const [errors, setErrors] = useState({});
 
@@ -85,6 +86,10 @@ const Register = () => {
     if (!data.bio.trim()) {
       errors.bio = 'Bio is required';
     }
+    if (!data.availability.trim()) {
+      //error handling for availability
+      errors.availability = 'Availability is required';
+    }
     return errors;
   };
 
@@ -109,6 +114,19 @@ const Register = () => {
         <TextField type="text" name="program_of_study" label="Program of Study" value={formData.program_of_study} onChange={handleChange} fullWidth />
         <TextField type="number" name="age" label="Age" value={formData.age} onChange={handleChange} fullWidth />
         <TextField name="bio" label="Bio" value={formData.bio} onChange={handleChange} multiline fullWidth />
+        <FormControl fullWidth>
+                            <InputLabel id="availability-label">Availability</InputLabel>
+                            <Select
+                                labelId="availability-label"
+                                id="availability"
+                                name="availability"
+                                value={formData.availability}
+                                onChange={handleChange}
+                            >
+                                <MenuItem value={1}>Available</MenuItem>
+                                <MenuItem value={0}>Unavailable</MenuItem>
+                            </Select>
+                        </FormControl>
         {errors.submit && <Typography color="error">{errors.submit}</Typography>}
         <Button type="submit" variant="contained" color="primary">Register</Button>
       </form>
@@ -117,3 +135,4 @@ const Register = () => {
 };
 
 export default Register; 
+
