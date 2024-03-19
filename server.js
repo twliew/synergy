@@ -427,7 +427,7 @@ app.get('/api/profile/exclude/:username', (req, res) => {
 });
 
 
-
+// Search users by hobbies
 app.post('/api/profile/search/:username', (req, res) => {
   const { hobbies, filterLikedUsers } = req.body;
   const signedInUsername = req.params.username;
@@ -489,8 +489,8 @@ function processUserProfiles(userProfiles, res) {
 }
 
 app.post('/api/like/:username', (req, res) => {
-  const signedInUsername = req.params.username; // Username of the liker
-  const { likedUsername } = req.body; // Username of the liked user
+  const signedInUsername = req.params.username;
+  const { likedUsername } = req.body;
 
   const selectLikerIdQuery = `
     SELECT id FROM user WHERE username = ?
@@ -538,10 +538,9 @@ app.post('/api/like/:username', (req, res) => {
   });
 });
 
+// Get request to fetch liking profiles
 app.get('/api/profile/viewLikes/:username', (req, res) => {
   const likedUsername = req.params.username;
-
-  // Retrieve profiles of users who have liked the signed-in user
   const sql = `
       SELECT u.*, 
           GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
@@ -551,7 +550,7 @@ app.get('/api/profile/viewLikes/:username', (req, res) => {
       LEFT JOIN user_hobbies AS uh ON u.id = uh.user_id
       LEFT JOIN hobbies AS h ON uh.hobby_id = h.id
       LEFT JOIN social_media AS sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
-      WHERE l.liked_id = (SELECT id FROM user WHERE username = ?)
+      WHERE l.liked_id = (SELECT id FROM user WHERE username = ?) AND u.availability = 1
       GROUP BY u.id;
   `;
 
@@ -565,6 +564,57 @@ app.get('/api/profile/viewLikes/:username', (req, res) => {
   });
 });
 
+app.get('/api/like/check/:signedInUsername/:targetUsername', (req, res) => {
+  const signedInUsername = req.params.signedInUsername;
+  const targetUsername = req.params.targetUsername;
+
+  const selectLikerIdQuery = `
+      SELECT id FROM user WHERE username = ?
+  `;
+
+  const selectLikedIdQuery = `
+      SELECT id FROM user WHERE username = ?
+  `;
+
+  db.query(selectLikerIdQuery, [signedInUsername], (err, likerResults) => {
+      if (err) {
+          console.error('Error retrieving liker ID:', err);
+          return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+
+      if (likerResults.length !== 1) {
+          return res.status(404).json({ success: false, message: 'Liker not found' });
+      }
+
+      const likerId = likerResults[0].id;
+
+      db.query(selectLikedIdQuery, [targetUsername], (err, likedResults) => {
+          if (err) {
+              console.error('Error retrieving liked ID:', err);
+              return res.status(500).json({ success: false, message: 'Internal server error' });
+          }
+
+          if (likedResults.length !== 1) {
+              return res.status(404).json({ success: false, message: 'Target user not found' });
+          }
+
+          const likedId = likedResults[0].id;
+
+          const checkLikeQuery = 'SELECT * FROM likes WHERE liker_id = ? AND liked_id = ?';
+
+          db.query(checkLikeQuery, [likerId, likedId], (err, likeResults) => {
+              if (err) {
+                  console.error('Error checking like:', err);
+                  return res.status(500).json({ success: false, message: 'Internal server error' });
+              }
+
+              const liked = likeResults.length > 0;
+
+              return res.status(200).json({ success: true, liked });
+          });
+      });
+  });
+});
 
 app.get('/', (req, res) => {
   res.send('Server is running');
