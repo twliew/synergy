@@ -1,36 +1,39 @@
-import app from 'firebase/app';
-import 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+} from 'firebase/auth';
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  //Enter your firebase API details
-  };
+  apiKey: "AIzaSyBPPQkEDJZDd9lUNN8gF4QO_rUOnoUdR8s",
+  authDomain: "msci342---project-ffa77.firebaseapp.com",
+  databaseURL: "https://msci342---project-ffa77-default-rtdb.firebaseio.com",
+  projectId: "msci342---project-ffa77",
+  storageBucket: "msci342---project-ffa77.appspot.com",
+  messagingSenderId: "965761441872",
+  appId: "1:965761441872:web:367c9e4fa7cbcbd864f155",
+  measurementId: "G-MSRFVV9XBQ"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
 class Firebase {
   constructor() {
-    app.initializeApp(firebaseConfig);
-    this.auth = app.auth();
+    this.auth = getAuth(app);
   }
-  
+
   // *** Auth API ***
-
   doCreateUserWithEmailAndPassword = (email, password) =>
-  this.auth.createUserWithEmailAndPassword(email, password);
-
-  doSignInWithEmailAndPassword = (email, password) =>
-  this.auth.signInWithEmailAndPassword(email, password);
-
-  doSignOut = () => this.auth.signOut();
-
-  doPasswordReset = email => this.auth.sendPasswordResetEmail(email);
-
-  doPasswordUpdate = password =>
-    this.auth.currentUser.updatePassword(password);
-
-  doGetIdToken = (bool) => {
-    return this.auth.currentUser.getIdToken(/* forceRefresh */ bool);
-  }
-
-  doGetUserByEmail = email => this.auth.getUserByEmail(email);
-
+    createUserWithEmailAndPassword(this.auth, email, password)
+      .then((userCredential) => {
+        // Successfully created user
+        return userCredential.user;
+      })
+      .catch((error) => {
+        throw error;
+      });
 }
 
 export default Firebase;

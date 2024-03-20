@@ -1,8 +1,148 @@
 import React, { useState } from 'react';
-import { Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import Firebase from '../Firebase';
 
 const Register = () => {
-  const [formData, setFormData] = useState({ // Initialize form data
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [full_name, setFullName] = useState('');
+  const [university_name, setUniversityName] = useState('');
+  const [program_of_study, setProgramOfStudy] = useState('');
+  const [age, setAge] = useState('');
+  const [bio, setBio] = useState('');
+  const [error, setError] = useState(null);
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      // Check if the password meets your requirements (e.g., length)
+      if (password.length < 6) {
+        throw new Error('Password must be at least 6 characters long');
+      }
+
+      const firebase = new Firebase();
+      const firebaseUser = await firebase.doCreateUserWithEmailAndPassword(email, password);
+
+      // Register user in your backend
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          uid: firebaseUser.uid,
+          username: username,
+          email: email,
+          password: password,
+          full_name: full_name,
+          university_name: university_name,
+          program_of_study: program_of_study,
+          age: age,
+          bio: bio
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Error registering user');
+      }
+
+      // Registration successful, you may redirect the user or show a success message
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Register</h2>
+      <form onSubmit={handleRegister}>
+        <div>
+          <label>Username:</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Full Name:</label>
+          <input
+            type="text"
+            value={full_name}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>University Name:</label>
+          <input
+            type="text"
+            value={university_name}
+            onChange={(e) => setUniversityName(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Program of Study:</label>
+          <input
+            type="text"
+            value={program_of_study}
+            onChange={(e) => setProgramOfStudy(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Age:</label>
+          <input
+            type="number"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Bio:</label>
+          <textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit">Register</button>
+        {error && <p>{error}</p>}
+      </form>
+    </div>
+  );
+};
+
+export default Register;
+
+
+/* import React, { useState } from 'react';
+import { Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import Firebase from '../Firebase';
+
+const Register = () => {
+  const [formData, setFormData] = useState({
     username: '',
     email: '',
     confirmEmail: '',
@@ -16,28 +156,38 @@ const Register = () => {
   });
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => { // Update form data when input changes
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => { // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { confirmEmail, ...userDataWithoutConfirm } = formData;
+    const { confirmEmail, password, ...userDataWithoutConfirm } = formData;
     const validationErrors = validateForm(formData);
+
     if (Object.keys(validationErrors).length === 0) {
       try {
+        // Register user with Firebase
+        const { email, password } = formData;
+        const userCredential = await Firebase.doCreateUserWithEmailAndPassword(email, password);
+
+        // Get Firebase UID
+        const uid = userCredential.uid;
+
+        // Send other form data to MySQL
         const response = await fetch('/api/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(userDataWithoutConfirm) //
+          body: JSON.stringify({ ...userDataWithoutConfirm, id: uid })
         });
-  
+
         if (!response.ok) {
           throw new Error('Failed to register user');
         }
-  
+
+        console.log('User registered successfully');
       } catch (error) {
         console.error('Error:', error.message);
         setErrors({ submit: error.message });
@@ -46,6 +196,7 @@ const Register = () => {
       setErrors(validationErrors);
     }
   };
+  
 
   const validateForm = (data) => { // Validate form data
     const errors = {};
@@ -86,10 +237,10 @@ const Register = () => {
     if (!data.bio.trim()) {
       errors.bio = 'Bio is required';
     }
-    if (!data.availability.trim()) {
+    if (typeof data.availability !== 'string' || !data.availability.trim()) {
       //error handling for availability
       errors.availability = 'Availability is required';
-    }
+  }
     return errors;
   };
 
@@ -115,18 +266,18 @@ const Register = () => {
         <TextField type="number" name="age" label="Age" value={formData.age} onChange={handleChange} fullWidth />
         <TextField name="bio" label="Bio" value={formData.bio} onChange={handleChange} multiline fullWidth />
         <FormControl fullWidth>
-                            <InputLabel id="availability-label">Availability</InputLabel>
-                            <Select
-                                labelId="availability-label"
-                                id="availability"
-                                name="availability"
-                                value={formData.availability}
-                                onChange={handleChange}
-                            >
-                                <MenuItem value={1}>Available</MenuItem>
-                                <MenuItem value={0}>Unavailable</MenuItem>
-                            </Select>
-                        </FormControl>
+          <InputLabel id="availability-label">Availability</InputLabel>
+          <Select
+            labelId="availability-label"
+            id="availability"
+            name="availability"
+            value={formData.availability}
+            onChange={handleChange}
+          >
+            <MenuItem value={1}>Available</MenuItem>
+            <MenuItem value={0}>Unavailable</MenuItem>
+          </Select>
+        </FormControl>
         {errors.submit && <Typography color="error">{errors.submit}</Typography>}
         <Button type="submit" variant="contained" color="primary">Register</Button>
       </form>
@@ -134,5 +285,6 @@ const Register = () => {
   );
 };
 
-export default Register; 
+export default Register;
 
+ */

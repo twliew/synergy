@@ -1,16 +1,26 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import mysql from 'mysql';
+import admin from 'firebase-admin';
+import serviceAccount from './serviceAccountKey.json' assert {type: 'json'};
 import { fileURLToPath } from 'url';
 import path from 'path';
+import cors from 'cors'; // Import cors package
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://msci342---project-ffa77-default-rtdb.firebaseio.com"
+});
+
 const app = express();
 const port = process.env.PORT || 5000;
+
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(cors()); // Use CORS middleware
 
 const db = mysql.createConnection({
   host: 'ec2-3-137-65-169.us-east-2.compute.amazonaws.com',
@@ -26,64 +36,64 @@ db.connect((err) => {
   console.log('Connected to MySQL Database');
 });
 
-// Register Route
-app.post('/api/register', (req, res) => {
+
+app.post('/register', (req, res) => {
+  const { uid, username, email, password, full_name, university_name, program_of_study, age, bio } = req.body;
+  const sql = `
+    INSERT INTO user (id, username, email, password, full_name, university_name, program_of_study, age, bio)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  db.query(sql, [uid, username, email, password, full_name, university_name, program_of_study, age, bio], (err, result) => {
+    if (err) {
+      console.error('Error inserting user:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      console.log('User inserted into MySQL:', result);
+      res.status(200).json({ message: 'User registered successfully' });
+    }
+  });
+});
+
+/* // Register Route
+app.post('/api/register', async (req, res) => {
   const userData = req.body;
 
-  const userDataWithoutConfirm = { ...userData };
-  delete userDataWithoutConfirm.confirmEmail;
-
-  // Check if username already exists
-  const checkUsernameQuery = 'SELECT * FROM twliew.user WHERE username = ?';
-  db.query(checkUsernameQuery, [userData.username], (err, usernameResults) => {
-    if (err) {
-      return res.status(500).send('Internal server error');
-    }
-
+  try {
+    // Check if username already exists
+    const [usernameResults] = await db.execute('SELECT * FROM twliew.user WHERE username = ?', [userData.username]);
     if (usernameResults.length > 0) {
       return res.status(400).send('Username already exists');
     }
 
     // Check if email already exists
-    const checkEmailQuery = 'SELECT * FROM twliew.user WHERE email = ?';
-    db.query(checkEmailQuery, [userData.email], (err, emailResults) => {
-      if (err) {
-        return res.status(500).send('Internal server error');
-      }
+    const [emailResults] = await db.execute('SELECT * FROM twliew.user WHERE email = ?', [userData.email]);
+    if (emailResults.length > 0) {
+      return res.status(400).send('Email already exists');
+    }
 
-      if (emailResults.length > 0) {
-        return res.status(400).send('Email already exists');
-      }
+    // Validate university email
+    if (!isUniversityEmail(userData.email)) {
+      return res.status(400).send('Only university email addresses with valid university domains are allowed');
+    }
 
-      if (!isUniversityEmail(userData.email)) {
-        return res.status(400).send('Only university email addresses with valid university domains are allowed');
-      }
+    // Insert user data into MySQL database
+    const [result] = await db.execute('INSERT INTO twliew.user SET ?', userData);
 
-      // Implement password strength criteria validation
-      const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
-      if (!passwordRegex.test(userData.password)) {
-        return res.status(400).send('Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character');
-      }
-
-      // If all validations pass, proceed with user registration
-      const sql = 'INSERT INTO twliew.user SET ?';
-      db.query(sql, userData, (err, result) => {
-        if (err) {
-          return res.status(400).send('Failed to register user');
-        }
-        // Handle success response
-        res.status(200).send('User registered successfully');
-      });
-    });
-  });
+    // Handle success response
+    res.status(200).send('User registered successfully');
+    
+  } catch (error) {
+    console.error('Error:', error.message);
+    res.status(500).send('Internal server error');
+  }
 });
 
-// Check if email is from an accepted university domain
+// Function to check if email is from a university domain
 const isUniversityEmail = (email) => {
   const universityDomains = ['uwaterloo.ca', 'mail.utoronto.ca', 'mcmaster.ca', 'wlu.ca'];
   const domain = email.split('@')[1];
   return universityDomains.includes(domain);
-};
+}; */
 
 
 
