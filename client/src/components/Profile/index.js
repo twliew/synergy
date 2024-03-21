@@ -14,7 +14,7 @@ const Profile = () => {
         age: '',
         bio: '',
         availability: '',
-        mood: ''
+        mood: '' 
     });
     const [hobbies, setHobbies] = useState([]);
     const [selectedHobbies, setSelectedHobbies] = useState([]);

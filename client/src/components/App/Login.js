@@ -17,8 +17,11 @@ const Login = ({ onLogin }) => {
             const auth = getAuth(); // Get Firebase authentication instance
             const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password); // Sign in with email and password
 
-            // If sign-in is successful, fetch username and store it in local storage
+            // If sign-in is successful
             if (userCredential.user) {
+                const idToken = await userCredential.user.getIdToken(); // Retrieve ID token
+                localStorage.setItem('token', idToken); // Store ID token in local storage
+
                 const email = formData.email;
                 const response = await fetch(`/api/getUsername?email=${encodeURIComponent(email)}`);
                 const data = await response.json();

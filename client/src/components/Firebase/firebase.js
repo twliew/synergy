@@ -27,28 +27,28 @@ class Firebase {
 
   // *** Auth API ***
   doCreateUserWithEmailAndPassword = (email, password) =>
-    createUserWithEmailAndPassword(this.auth, email, password)
-      .then((userCredential) => {
-        // Successfully created user
-        return userCredential.user;
-      })
-      .catch((error) => {
-        throw error;
-      });
-    
-    doSignInWithEmailAndPassword = (email, password) =>
-      signInWithEmailAndPassword(this.auth, email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          return user;
-        })
-        .catch((error) => {
-          throw error;
-        });
+  createUserWithEmailAndPassword(this.auth, email, password)
+    .then((userCredential) => {
+      // Successfully created user
+      return userCredential.user;
+    })
+    .catch((error) => {
+      throw error;
+    });
+  
+doSignInWithEmailAndPassword = (email, password) =>
+  signInWithEmailAndPassword(this.auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      return user;
+    })
+    .catch((error) => {
+      throw error;
+    });
 
-    doGetIdToken = (bool) => {
-      return this.auth.currentUser.getIdToken(/* forceRefresh */ bool);
-    }
+doGetIdToken = (bool) => {
+  return this.auth.currentUser.getIdToken(/* forceRefresh */ bool);
+};
       
 }
 
