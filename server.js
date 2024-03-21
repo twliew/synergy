@@ -5,7 +5,7 @@ import admin from 'firebase-admin';
 import serviceAccount from './serviceAccountKey.json' assert {type: 'json'};
 import { fileURLToPath } from 'url';
 import path from 'path';
-import cors from 'cors'; // Import cors package
+import cors from 'cors';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,8 +54,32 @@ app.post('/register', (req, res) => {
   });
 });
 
+// Define the route to handle GET requests to /api/getUsername
+app.get('/api/getUsername', (req, res) => {
+  const { email } = req.query.email; // Extract email from query parameters
 
-/* // Login Route
+  // Query the database to retrieve the username based on the email
+  const query = `SELECT username FROM user WHERE email = ?`;
+  connection.query(query, [email], (error, results) => {
+    if (error) {
+      console.error('Error querying database:', error);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (results.length === 0) {
+      // If no user found with the given email, return a 404 error
+      res.status(404).json({ error: 'User not found' });
+    } else {
+      // If user found, return the username
+      const username = results[0].username;
+      res.json({ username });
+    }
+  });
+});
+
+
+// Login Route
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const sql = 'SELECT * FROM twliew.user WHERE username = ? AND password = ?';
@@ -79,7 +103,7 @@ app.post('/api/login', (req, res) => {
       res.status(200).json({ success: true, message: 'Login successful', username });
     }
   });
-}); */
+}); 
 
 // Profile Route
 app.get('/api/profile/:username', (req, res) => {
