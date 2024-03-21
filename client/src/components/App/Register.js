@@ -4,7 +4,7 @@ import Firebase from '../Firebase';
 const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [confirmEmail, setConfirmEmail] = useState(''); // Added confirm email state
+  const [confirmEmail, setConfirmEmail] = useState('');
   const [password, setPassword] = useState('');
   const [full_name, setFullName] = useState('');
   const [university_name, setUniversityName] = useState('');
@@ -100,7 +100,7 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const formData = { username, email, confirmEmail, password, full_name, university_name, program_of_study, age, bio }; // Include confirmEmail in formData
+    const formData = { username, email, confirmEmail, password, full_name, university_name, program_of_study, age, bio };
     const errors = validateForm(formData);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -124,7 +124,7 @@ const Register = () => {
             university_name: university_name,
             program_of_study: program_of_study,
             age: age,
-            bio: bio
+            bio: bio,
           })
         });
 
@@ -165,7 +165,7 @@ const Register = () => {
           {formErrors.email && <p>{formErrors.email}</p>}
         </div>
         <div>
-          <label>Confirm Email:</label> {/* Added Confirm Email field */}
+          <label>Confirm Email:</label>
           <input
             type="email"
             name="confirmEmail"

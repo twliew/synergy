@@ -40,10 +40,11 @@ db.connect((err) => {
 app.post('/register', (req, res) => {
   const { uid, username, email, password, full_name, university_name, program_of_study, age, bio } = req.body;
   const sql = `
-    INSERT INTO user (id, username, email, password, full_name, university_name, program_of_study, age, bio)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO user (id, username, email, password, full_name, university_name, program_of_study, age, bio, availability)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
-  db.query(sql, [uid, username, email, password, full_name, university_name, program_of_study, age, bio], (err, result) => {
+
+  db.query(sql, [uid, username, email, password, full_name, university_name, program_of_study, age, bio, 1], (err, result) => {
     if (err) {
       console.error('Error inserting user:', err);
       res.status(500).json({ error: 'Internal Server Error' });

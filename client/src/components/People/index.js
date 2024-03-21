@@ -96,9 +96,11 @@ const People = () => {
 
     const toggleViewLikes = () => { //takes you to view likes page
         setViewLikes(!viewLikes);
-        fetchAllUsers();
+        if (!viewLikes) {
+            fetchAllUsers();
+        }
     };
-    
+
     const backToPeople = () => { //takes you back to people page
         setViewLikes(false);
         fetchAllUsers();
@@ -122,14 +124,9 @@ const People = () => {
                             onUndoSearch={undoSearch}
                         />
                     )}
-                    <Button onClick={toggleViewLikes} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
+                    <Button onClick={viewLikes ? backToPeople : toggleViewLikes} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
                         {viewLikes ? 'Back to People' : 'View Likes'}
                     </Button>
-                    {!viewLikes && (
-                        <Button onClick={backToPeople} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
-                            Back to People
-                        </Button>
-                    )}
                 </Box>
                 <Box sx={{ overflow: 'auto' }}>
                     {viewLikes ? (
