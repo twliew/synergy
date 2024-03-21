@@ -54,32 +54,29 @@ app.post('/register', (req, res) => {
   });
 });
 
-// Define the route to handle GET requests to /api/getUsername
 app.get('/api/getUsername', (req, res) => {
-  const { email } = req.query.email; // Extract email from query parameters
+  const email = req.query.email; // Get email from query parameters
 
-  // Query the database to retrieve the username based on the email
-  const query = `SELECT username FROM user WHERE email = ?`;
-  connection.query(query, [email], (error, results) => {
+  // Query MySQL database to retrieve username based on email
+  const query = `SELECT username FROM user WHERE email = '${email}'`;
+
+  db.query(query, (error, results) => {
     if (error) {
-      console.error('Error querying database:', error);
+      console.error('Error fetching username:', error);
       res.status(500).json({ error: 'Internal server error' });
-      return;
-    }
-
-    if (results.length === 0) {
-      // If no user found with the given email, return a 404 error
-      res.status(404).json({ error: 'User not found' });
     } else {
-      // If user found, return the username
-      const username = results[0].username;
-      res.json({ username });
+      if (results.length > 0) {
+        const username = results[0].username;
+        res.json({ username });
+      } else {
+        res.status(404).json({ error: 'Username not found' });
+      }
     }
   });
 });
 
 
-// Login Route
+/* // Login Route
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const sql = 'SELECT * FROM twliew.user WHERE username = ? AND password = ?';
@@ -103,7 +100,7 @@ app.post('/api/login', (req, res) => {
       res.status(200).json({ success: true, message: 'Login successful', username });
     }
   });
-}); 
+});  */
 
 // Profile Route
 app.get('/api/profile/:username', (req, res) => {
