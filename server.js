@@ -416,18 +416,17 @@ app.get('/api/profile/exclude/:username', (req, res) => {
 });
 
 
-// Search users by hobbies
 app.post('/api/profile/search/:username', (req, res) => {
   const { hobbies, filterLikedUsers } = req.body;
   const signedInUsername = req.params.username;
 
   let sql = `
-    SELECT u.*, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
+    SELECT u.*, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY uh.hobby_id SEPARATOR ', ') AS hobbies,
     GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
-    FROM twliew.user u
-    LEFT JOIN twliew.user_hobbies uh ON u.id = uh.user_id
-    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
-    LEFT JOIN twliew.social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+    FROM user u
+    LEFT JOIN user_hobbies uh ON u.id = uh.user_id
+    LEFT JOIN hobbies h ON uh.hobby_id = h.id
+    LEFT JOIN social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
     WHERE 1=1`;
 
   if (hobbies && hobbies.length > 0) {
@@ -457,12 +456,12 @@ function processUserProfiles(userProfiles, res) {
   const userIds = userProfiles.map(user => user.id);
   const userHobbiesSql = `
     SELECT uh.user_id, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS all_hobbies
-    FROM twliew.user_hobbies uh
-    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
-    WHERE uh.user_id IN (${userIds.join(',')})
+    FROM user_hobbies uh
+    LEFT JOIN hobbies h ON uh.hobby_id = h.id
+    WHERE uh.user_id IN (${userIds.map(() => '?').join(',')})
     GROUP BY uh.user_id`;
 
-  db.query(userHobbiesSql, (userHobbiesErr, userHobbiesResults) => {
+  db.query(userHobbiesSql, userIds, (userHobbiesErr, userHobbiesResults) => {
     if (userHobbiesErr) {
       console.error('Error fetching all hobbies for users:', userHobbiesErr);
       return res.status(500).json({ success: false, message: 'Internal server error' });

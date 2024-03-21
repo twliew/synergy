@@ -95,13 +95,13 @@ const People = () => {
     };
 
     const toggleViewLikes = () => { //takes you to view likes page
-        fetchAllUsers();
         setViewLikes(!viewLikes);
+        fetchAllUsers();
     };
     
     const backToPeople = () => { //takes you back to people page
-        fetchAllUsers();
         setViewLikes(false);
+        fetchAllUsers();
     };
 
     useEffect(() => {
