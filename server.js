@@ -54,50 +54,8 @@ app.post('/register', (req, res) => {
   });
 });
 
-/* // Register Route
-app.post('/api/register', async (req, res) => {
-  const userData = req.body;
 
-  try {
-    // Check if username already exists
-    const [usernameResults] = await db.execute('SELECT * FROM twliew.user WHERE username = ?', [userData.username]);
-    if (usernameResults.length > 0) {
-      return res.status(400).send('Username already exists');
-    }
-
-    // Check if email already exists
-    const [emailResults] = await db.execute('SELECT * FROM twliew.user WHERE email = ?', [userData.email]);
-    if (emailResults.length > 0) {
-      return res.status(400).send('Email already exists');
-    }
-
-    // Validate university email
-    if (!isUniversityEmail(userData.email)) {
-      return res.status(400).send('Only university email addresses with valid university domains are allowed');
-    }
-
-    // Insert user data into MySQL database
-    const [result] = await db.execute('INSERT INTO twliew.user SET ?', userData);
-
-    // Handle success response
-    res.status(200).send('User registered successfully');
-    
-  } catch (error) {
-    console.error('Error:', error.message);
-    res.status(500).send('Internal server error');
-  }
-});
-
-// Function to check if email is from a university domain
-const isUniversityEmail = (email) => {
-  const universityDomains = ['uwaterloo.ca', 'mail.utoronto.ca', 'mcmaster.ca', 'wlu.ca'];
-  const domain = email.split('@')[1];
-  return universityDomains.includes(domain);
-}; */
-
-
-
-// Login Route
+/* // Login Route
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const sql = 'SELECT * FROM twliew.user WHERE username = ? AND password = ?';
@@ -121,7 +79,7 @@ app.post('/api/login', (req, res) => {
       res.status(200).json({ success: true, message: 'Login successful', username });
     }
   });
-});
+}); */
 
 // Profile Route
 app.get('/api/profile/:username', (req, res) => {

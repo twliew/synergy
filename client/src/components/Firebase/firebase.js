@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import {
   getAuth,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
 } from 'firebase/auth';
 
 // Your web app's Firebase configuration
@@ -34,6 +35,22 @@ class Firebase {
       .catch((error) => {
         throw error;
       });
+    
+    doSignInWithEmailAndPassword = (email, password) =>
+      signInWithEmailAndPassword(this.auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          return user;
+        })
+        .catch((error) => {
+          throw error;
+        });
+
+    doGetIdToken = (bool) => {
+      return this.auth.currentUser.getIdToken(/* forceRefresh */ bool);
+    }
+      
 }
+
 
 export default Firebase;
