@@ -605,6 +605,63 @@ app.get('/api/like/check/:signedInUsername/:targetUsername', (req, res) => {
   });
 });
 
+// Endpoint to fetch matched user IDs
+app.get('/api/matchedUserIds/:username', (req, res) => {
+  const signedInUsername = req.params.username;
+
+  // Query to fetch the ID of the signed-in user
+  const getUserIdQuery = `
+    SELECT id
+    FROM user
+    WHERE username = ?;
+  `;
+
+  // Execute the query to fetch the ID of the signed-in user
+  db.query(getUserIdQuery, [signedInUsername], (userError, userResults) => {
+    if (userError) {
+      console.error('Error fetching user ID:', userError);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (userResults.length === 0) {
+      console.error('User not found:', signedInUsername);
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Extract the ID of the signed-in user
+    const signedInUserId = userResults[0].id;
+    
+    // Query to fetch matched user IDs using the signed-in user ID
+    const query = `
+      SELECT t1.liked_id AS id
+      FROM likes t1
+      JOIN likes t2 ON t1.liker_id = t2.liked_id AND t1.liked_id = t2.liker_id
+      WHERE t1.liker_id = ?;  
+    `;
+
+    // Execute the query to fetch matched user IDs
+    db.query(query, [signedInUserId], (error, results) => {
+      if (error) {
+        console.error('Error fetching matched user IDs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+
+      // Extract IDs from the results
+      const matchedUserIds = results.map(result => result.id);
+      console.log('Matched user IDs:', matchedUserIds);
+
+      // Send the IDs as a response
+      res.json(matchedUserIds);
+    });
+  });
+});
+
+
+
+
 app.get('/', (req, res) => {
   res.send('Server is running');
 });
