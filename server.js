@@ -605,8 +605,8 @@ app.get('/api/like/check/:signedInUsername/:targetUsername', (req, res) => {
   });
 });
 
-// Endpoint to fetch matched user IDs
-app.get('/api/matchedUserIds/:username', (req, res) => {
+// Endpoint to fetch user profile information based on matched user IDs
+app.get('/api/matchedUserProfiles/:username', (req, res) => {
   const signedInUsername = req.params.username;
 
   // Query to fetch the ID of the signed-in user
@@ -651,16 +651,34 @@ app.get('/api/matchedUserIds/:username', (req, res) => {
 
       // Extract IDs from the results
       const matchedUserIds = results.map(result => result.id);
-      console.log('Matched user IDs:', matchedUserIds);
 
-      // Send the IDs as a response
-      res.json(matchedUserIds);
+      // Query to fetch user profile information based on matched user IDs
+      const userProfileQuery = `
+        SELECT u.id, u.username, u.email, u.age, u.bio, GROUP_CONCAT(DISTINCT h.hobby_name SEPARATOR ', ') AS hobbies,
+              GROUP_CONCAT(DISTINCT sm.platform_name, ': ', sm.sm_username SEPARATOR ', ') AS social_media
+        FROM user u
+        LEFT JOIN user_hobbies uh ON u.id = uh.user_id
+        LEFT JOIN hobbies h ON uh.hobby_id = h.id
+        LEFT JOIN social_media sm ON u.id = sm.user_id
+        WHERE u.id IN (?)
+        GROUP BY u.id;
+      `;
+
+
+      // Execute the query to fetch user profile information
+      db.query(userProfileQuery, [matchedUserIds], (profileError, profileResults) => {
+        if (profileError) {
+          console.error('Error fetching user profiles:', profileError);
+          res.status(500).json({ error: 'Internal server error' });
+          return;
+        }
+
+        // Send the user profiles as a response
+        res.json(profileResults);
+      });
     });
   });
 });
-
-
-
 
 app.get('/', (req, res) => {
   res.send('Server is running');
