@@ -49,7 +49,6 @@ doSignInWithEmailAndPassword = (email, password) =>
 doGetIdToken = (bool) => {
   return this.auth.currentUser.getIdToken(/* forceRefresh */ bool);
 };
-      
 }
 
 
