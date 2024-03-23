@@ -680,6 +680,47 @@ app.get('/api/matchedUserProfiles/:username', (req, res) => {
   });
 });
 
+app.delete('/api/removeLike/:likedUserId', (req, res) => {
+  const signedInUsername = req.body.signedInUsername;
+  const likedUserId = req.params.likedUserId;
+
+  // Query to get the signed-in user ID
+  const getUserIdQuery = 'SELECT id FROM twliew.user WHERE username = ?';
+
+  // Execute the query to get the signed-in user ID
+  db.query(getUserIdQuery, [signedInUsername], (error, userIdResults) => {
+    if (error) {
+      console.error('Error fetching signed-in user ID:', error);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (userIdResults.length === 0) {
+      console.error('Signed-in user not found:', signedInUsername);
+      res.status(404).json({ error: 'Signed-in user not found' });
+      return;
+    }
+
+    const signedInUserId = userIdResults[0].id;
+
+    // Query to remove the like
+    const removeLikeQuery = `
+      DELETE FROM likes
+      WHERE liker_id = ? AND liked_id = ?;
+    `;
+
+    // Execute the query to remove the like
+    db.query(removeLikeQuery, [signedInUserId, likedUserId], (error, results) => {
+      if (error) {
+        console.error('Error removing like:', error);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+      res.status(200).json({ message: 'Like removed successfully' });
+    });
+  });
+});
+
 app.get('/', (req, res) => {
   res.send('Server is running');
 });

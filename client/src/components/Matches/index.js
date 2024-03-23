@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Typography, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { Card, CardContent, Typography, List, ListItem, ListItemText, Divider, Button } from '@mui/material';
 
 function Matches() {
   const [matchedUserProfiles, setMatchedUserProfiles] = useState([]);
@@ -21,6 +21,27 @@ function Matches() {
       console.error('Error fetching matched user profiles:', error);
     }
   };
+
+  const removeLike = async (signedInUsername, likedUserId) => {
+    try {
+      const response = await fetch(`/api/removeLike/${likedUserId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ signedInUsername })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to remove like');
+      }
+      // Refresh matched user profiles after like removal
+      fetchMatchedUserProfiles(signedInUsername);
+    } catch (error) {
+      console.error('Error removing like:', error);
+    }
+  };
+  
+  
 
   return (
     <div>
@@ -52,6 +73,7 @@ function Matches() {
                   </List>
                 </div>
               )}
+              <Button onClick={() => removeLike(username, user.id)} variant="contained" color="secondary">Remove Like</Button>
             </CardContent>
           </Card>
         ))}
