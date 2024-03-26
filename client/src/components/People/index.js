@@ -4,6 +4,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
+import Button from '@mui/material/Button';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SearchPeople from './Search';
 import ViewLikes from './ViewLikes'; 
@@ -21,11 +22,11 @@ const People = () => {
     const [viewLikes, setViewLikes] = useState(false); 
 
     useEffect(() => {
-        fetchAllUsers();
-        fetchHobbies();
+        fetchAllUsers(); //fetch all users
+        fetchHobbies(); //fetch all hobbies
     }, []);
 
-    const fetchAllUsers = () => {
+    const fetchAllUsers = () => { //fetch all users
         const username = localStorage.getItem('username');
         fetch(`/api/profile/exclude/${username}`)
             .then(response => response.json())
@@ -35,7 +36,7 @@ const People = () => {
             .catch(error => console.error('Error fetching users:', error));
     };    
 
-    const fetchHobbies = () => {
+    const fetchHobbies = () => { //fetch all hobbies
         fetch(`/api/hobbies`)
             .then(response => response.json())
             .then(data => {
@@ -44,7 +45,7 @@ const People = () => {
             .catch(error => console.error('Error fetching hobbies:', error));
     };
 
-    const handleSearch = (selectedHobbies) => {
+    const handleSearch = (selectedHobbies) => { //search for users with the selected hobbies
         const username = localStorage.getItem('username');
         fetch(`/api/profile/search/${username}`, {
             method: 'POST',
@@ -61,7 +62,7 @@ const People = () => {
         })
         .then(data => {
             if (data.success) {
-                setUsers(data.profiles); 
+                setUsers(data.profiles.map(profile => ({ ...profile, hobbies: profile.all_hobbies }))); 
                 setIsSearching(true); 
             } else {
                 throw new Error(data.message);
@@ -70,12 +71,12 @@ const People = () => {
         .catch(error => console.error('Error searching users:', error));
     };
 
-    const undoSearch = () => {
-        fetchAllUsers();
+    const undoSearch = () => { //undo the search
+        fetchAllUsers(); //fetch all users
         setIsSearching(false); 
     };
 
-    const handleLike = (likedUserId, likedUsername) => {
+    const handleLike = (likedUserId, likedUsername) => { //like a user
         const signedInUsername = localStorage.getItem('username');
         fetch('/api/like/' + signedInUsername, {
             method: 'POST',
@@ -88,27 +89,44 @@ const People = () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+            fetchAllUsers(); //fetch all users
         })
         .catch(error => console.error('Error liking user:', error));
     };
 
-    const toggleViewLikes = () => {
+    const toggleViewLikes = () => { //takes you to view likes page
         setViewLikes(!viewLikes);
+        if (!viewLikes) {
+            fetchAllUsers();
+        }
     };
 
+    const backToPeople = () => { //takes you back to people page
+        setViewLikes(false);
+        fetchAllUsers();
+    };
+
+    useEffect(() => {
+        if (!viewLikes) { //if not viewing likes, fetch all users
+            fetchAllUsers();
+        }
+    }, [viewLikes]);
+    
     return (
         <ThemeProvider theme={theme}>
             <Container>
                 <Typography variant="h4" gutterBottom>{viewLikes ? 'Profiles of Users who Liked You' : 'People'}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <SearchPeople 
-                        allHobbies={allHobbies}
-                        onSearch={(selectedHobbies) => handleSearch(selectedHobbies)}
-                        onUndoSearch={undoSearch}
-                    />
-                    <button onClick={toggleViewLikes} style={{ marginLeft: '10px' }}>
+                    {!viewLikes && ( // Conditionally render SearchPeople component
+                        <SearchPeople 
+                            allHobbies={allHobbies}
+                            onSearch={(selectedHobbies) => handleSearch(selectedHobbies)}
+                            onUndoSearch={undoSearch}
+                        />
+                    )}
+                    <Button onClick={viewLikes ? backToPeople : toggleViewLikes} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
                         {viewLikes ? 'Back to People' : 'View Likes'}
-                    </button>
+                    </Button>
                 </Box>
                 <Box sx={{ overflow: 'auto' }}>
                     {viewLikes ? (
@@ -116,27 +134,43 @@ const People = () => {
                     ) : ( 
                         <>
                             {users.map(user => (
-                                <Box key={user.id} mb={3}>
-                                    <Card sx={{ minWidth: 275 }}>
-                                        <CardContent>
-                                            <Typography gutterBottom variant="h5" component="h2">{user.full_name}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Username: {user.username}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>University: {user.university_name}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {user.program_of_study}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Age: {user.age}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
-                                            <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {isSearching ? user.all_hobbies : user.hobbies}</Typography>
-                                            <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
-                                            <button onClick={() => handleLike(user.id, user.username)}>Like</button>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
+                                <UserCard key={user.id} user={user} handleLike={handleLike} isSearching={isSearching} />
                             ))}
                         </>
                     )}
                 </Box>
             </Container>
         </ThemeProvider>
+    );
+}
+
+const UserCard = ({ user, handleLike, isSearching }) => {
+    const [isLiked, setIsLiked] = useState(user.is_liked === 1);
+
+    const handleLikeClick = () => {
+        if (!isLiked) {
+            handleLike(user.id, user.username);
+            setIsLiked(true);
+        }
+    };
+
+    return (
+        <Box mb={3}>
+            <Card sx={{ minWidth: 275 }}>
+                <CardContent>
+                    <Typography gutterBottom variant="h5" component="h2">{user.full_name}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Username: {user.username}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>University: {user.university_name}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {user.program_of_study}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Age: {user.age}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {isSearching ? user.all_hobbies : user.hobbies}</Typography>
+                    <Typography variant="body2" color="textSecondary">Public Social Media: {user.public_social_media}</Typography>
+                    <Typography variant="body2" color="textSecondary">Mood: {user.mood}</Typography>
+                    <Button onClick={handleLikeClick} variant="contained" color="primary" disabled={isLiked}>Like</Button>
+                </CardContent>
+            </Card>
+        </Box>
     );
 }
 

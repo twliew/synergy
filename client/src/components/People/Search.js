@@ -9,17 +9,24 @@ import Typography from '@mui/material/Typography';
 
 const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
     const [selectedHobbies, setSelectedHobbies] = useState([]);
+    const [showUndoMessage, setShowUndoMessage] = useState(false);
 
-    const handleHobbiesChange = (event) => {
+    const handleHobbiesChange = (event) => { //handle change in selected hobbies
         setSelectedHobbies(event.target.value);
+        setShowUndoMessage(false); // Reset the undo message when hobbies are selected
     };
 
-    const handleSearch = () => {
-        onSearch(selectedHobbies);
+    const handleSearch = () => { //search for users with the selected hobbies
+        if (selectedHobbies.length === 0) {
+            setShowUndoMessage(true); // Show undo message if no hobbies are selected
+        } else {
+            onSearch(selectedHobbies);
+        }
     };
 
-    const undoSearch = () => {
+    const undoSearch = () => { //undo the search
         onUndoSearch();
+        setSelectedHobbies([]); // Clear selected hobbies
     };
 
     return (
@@ -47,8 +54,13 @@ const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
             </Select>
             <Box mt={2} display="flex" justifyContent="center">
                 <Button onClick={handleSearch} variant="contained" color="primary" style={{ marginLeft: 8 }}>Search</Button>
-                <Button onClick={undoSearch} variant="contained" color="secondary">Undo Search</Button>
+                <Button onClick={undoSearch} variant="contained" color="secondary">Undo Search/Refresh</Button>
             </Box>
+            {showUndoMessage && (
+                <Typography variant="body2" color="error" mt={2}>
+                    Please select hobbies or click "Undo Search/Refresh" to reset.
+                </Typography>
+            )}
         </Box>
     );
 }

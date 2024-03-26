@@ -7,12 +7,19 @@
    - Existing Users: Go to Login tab and use login credentials to access your account.
 2. Overhead Bar
    - Use overhead tabs to navigate to various pages within the system.
-3. Profile
+3. Logout
+   - Logout of your account by selecting Logout in the top right corner of the system.
+4. Profile
    - Edit your profile information in by making changes in textfields and selecting Save Changes. Do not edit the username.
    - Add, edit, and delete social media -> Add social media information such as platform (e.g. instagram), username, url, and visibility (what other users can view these)
    - Add hobbies and interests -> add hobby from existing hobbies within database in the dropdown. If you don't find a hobby, add a new hobby in the below textfield and select Add Hobby. Save Interests to maintain all changes.
-4. Logout
-   - Logout of your account by selecting Logout in the top right corner of the system.
+5. People
+   - Discover other users registered in the system
+   - Scroll through and view other users' profile information
+   - Can filter based on a certain one or multiple hobbies or interests
+   - User can Like another user using a Like button for each user
+   - The View Likes button brings the user to a list of other system users that have liked them
+   - Return to the main People page by clicking on Back to People button
 
 
 # MSci 342 - Project template
