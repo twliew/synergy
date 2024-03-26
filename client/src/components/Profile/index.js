@@ -3,6 +3,9 @@ import { Typography, TextField, Button, Paper, Grid, Snackbar, FormControl, Inpu
 import Interests from './Interests';
 import SocialMedia from './SocialMedia';
 import Firebase from '../Firebase';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 const Profile = () => {
     const [editedProfileData, setEditedProfileData] = useState({
@@ -15,7 +18,11 @@ const Profile = () => {
         age: '',
         bio: '',
         availability: '',
-        mood: '' 
+        mood: '',
+        uni_visibility: '',
+        program_visibility: '',
+        age_visibility: '',
+
     });
     const [hobbies, setHobbies] = useState([]);
     const [selectedHobbies, setSelectedHobbies] = useState([]);
@@ -170,6 +177,12 @@ const Profile = () => {
         setSnackbarOpen(false);
     };
 
+    const handleUniVisible = () => {
+        if (editedProfileData.uni_visibility) {
+
+        }
+    }
+
     return (
         <div>
             <Typography variant="h4" gutterBottom>
@@ -201,14 +214,23 @@ const Profile = () => {
                 <Grid item xs={12}>
                     <TextField label="University Name" name="university_name" value={editedProfileData.university_name} onChange={handleChange} fullWidth
                     />
+                    <FormGroup>
+                        <FormControlLabel control={<Switch checked={editedProfileData.uni_visibility}/>} label="Make University Name Public" onChange={handleUniVisible}/>
+                    </FormGroup>
                 </Grid>
                 <Grid item xs={12}>
                     <TextField label="Program of Study" name="program_of_study" value={editedProfileData.program_of_study} onChange={handleChange} fullWidth
                     />
+                    <FormGroup>
+                        <FormControlLabel control={<Switch />} label="Make Program Public" />
+                    </FormGroup>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField label="Age" name="age" value={editedProfileData.age} onChange={handleChange} fullWidth
                     />
+                    <FormGroup>
+                        <FormControlLabel control={<Switch />} label="Make Age Public" />
+                    </FormGroup>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField label="Bio" name="bio" value={editedProfileData.bio} onChange={handleChange} fullWidth
