@@ -178,10 +178,25 @@ const Profile = () => {
     };
 
     const handleUniVisible = () => {
-        if (editedProfileData.uni_visibility) {
+        setEditedProfileData(prevState => ({
+            ...prevState,
+            uni_visible: !prevState.uni_visible
+        }));
+    };
 
-        }
-    }
+    const handleProgramVisible = () => {
+        setEditedProfileData(prevState => ({
+            ...prevState,
+            program_visible: !prevState.program_visible
+        }));
+    };
+
+    const handleAgeVisible = () => {
+        setEditedProfileData(prevState => ({
+            ...prevState,
+            age_visible: !prevState.age_visible
+        }));
+    };
 
     return (
         <div>
@@ -222,14 +237,14 @@ const Profile = () => {
                     <TextField label="Program of Study" name="program_of_study" value={editedProfileData.program_of_study} onChange={handleChange} fullWidth
                     />
                     <FormGroup>
-                        <FormControlLabel control={<Switch checked={editedProfileData.program_visible}/>} label="Make Program Public" />
+                        <FormControlLabel control={<Switch checked={editedProfileData.program_visible}/>} label="Make Program Public" onChange={handleProgramVisible}/>
                     </FormGroup>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField label="Age" name="age" value={editedProfileData.age} onChange={handleChange} fullWidth
                     />
                     <FormGroup>
-                        <FormControlLabel control={<Switch checked={editedProfileData.age_visible}/>} label="Make Age Public" />
+                        <FormControlLabel control={<Switch checked={editedProfileData.age_visible}/>} label="Make Age Public" onChange={handleAgeVisible}/>
                     </FormGroup>
                 </Grid>
                 <Grid item xs={12} sm={6}>
