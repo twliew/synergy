@@ -19,10 +19,9 @@ const Profile = () => {
         bio: '',
         availability: '',
         mood: '',
-        uni_visibility: '',
-        program_visibility: '',
-        age_visibility: '',
-
+        uni_visible: '',
+        program_visible: '',
+        age_visible: ''
     });
     const [hobbies, setHobbies] = useState([]);
     const [selectedHobbies, setSelectedHobbies] = useState([]);
@@ -45,6 +44,7 @@ const Profile = () => {
         
                 const profileData = await profileResponse.json();
                 const interestsData = await interestsResponse.json();
+                console.log(profileData)
         
                 setEditedProfileData(profileData.userProfile);
                 setSelectedInterests(interestsData.selectedInterests);
@@ -212,24 +212,24 @@ const Profile = () => {
                     />
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField label="University Name" name="university_name" value={editedProfileData.university_name} onChange={handleChange} fullWidth
+                    <TextField label="Univerity Name" name="university_name" value={editedProfileData.university_name} onChange={handleChange} fullWidth
                     />
                     <FormGroup>
-                        <FormControlLabel control={<Switch checked={editedProfileData.uni_visibility}/>} label="Make University Name Public" onChange={handleUniVisible}/>
+                        <FormControlLabel control={<Switch checked={editedProfileData.uni_visible}/>} label="Make University Name Public" onChange={handleUniVisible}/>
                     </FormGroup>
                 </Grid>
                 <Grid item xs={12}>
                     <TextField label="Program of Study" name="program_of_study" value={editedProfileData.program_of_study} onChange={handleChange} fullWidth
                     />
                     <FormGroup>
-                        <FormControlLabel control={<Switch />} label="Make Program Public" />
+                        <FormControlLabel control={<Switch checked={editedProfileData.program_visible}/>} label="Make Program Public" />
                     </FormGroup>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField label="Age" name="age" value={editedProfileData.age} onChange={handleChange} fullWidth
                     />
                     <FormGroup>
-                        <FormControlLabel control={<Switch />} label="Make Age Public" />
+                        <FormControlLabel control={<Switch checked={editedProfileData.age_visible}/>} label="Make Age Public" />
                     </FormGroup>
                 </Grid>
                 <Grid item xs={12} sm={6}>
