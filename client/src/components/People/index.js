@@ -163,17 +163,17 @@ const UserCard = ({ user, handleLike, isSearching }) => {
                     {user.uni_visible ? (
                         <Typography variant="body2" color="textSecondary" gutterBottom>University: {user.university_name}</Typography>
                     ):(
-                        <Typography variant="body2" color="textSecondary" gutterBottom>University Name Hidden</Typography>
+                        <Typography variant="body2" color="textSecondary" gutterBottom>University Name: Hidden</Typography>
                     )}
                     {user.program_visible ? (
                         <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {user.program_of_study}</Typography>
                     ):(
-                        <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study Hidden</Typography>
+                        <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: Hidden</Typography>
                     )}
                     {user.age_visible ? (
                         <Typography variant="body2" color="textSecondary" gutterBottom>Age: {user.age}</Typography>
                     ):(
-                        <Typography variant="body2" color="textSecondary" gutterBottom>Age Hidden</Typography>
+                        <Typography variant="body2" color="textSecondary" gutterBottom>Age: Hidden</Typography>
                     )}
                     <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {user.bio}</Typography>
                     <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {isSearching ? user.all_hobbies : user.hobbies}</Typography>
