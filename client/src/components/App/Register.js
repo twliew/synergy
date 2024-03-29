@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Firebase from '../Firebase';
+import { TextField, Button, Typography } from '@mui/material';
 
 const Register = () => {
   const [username, setUsername] = useState('');
