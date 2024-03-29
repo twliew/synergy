@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'; // Import Firebase authentication methods
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Login = ({ onLogin }) => {
     const [formData, setFormData] = useState({

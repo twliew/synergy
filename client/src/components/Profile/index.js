@@ -187,11 +187,11 @@ const Profile = () => {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField label="Email" name="email" value={editedProfileData.email} onChange={handleChange} fullWidth
+                        <TextField label="Email" name="email" value={editedProfileData.email} onChange={handleChange} disabled={true} fullWidth
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField label="Password" name="password" value={editedProfileData.password} onChange={handleChange} fullWidth
+                        <TextField label="Password" name="password" value={editedProfileData.password} onChange={handleChange} disabled={true} fullWidth 
                         />
                     </Grid>
                     <Grid item xs={12}>

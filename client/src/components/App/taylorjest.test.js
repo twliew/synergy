@@ -4,6 +4,13 @@ import '@testing-library/jest-dom/extend-expect';
 import Register from './Register';
 import Profile from '../Profile';
 
+// Mocking firebase/auth module
+jest.mock('firebase/auth', () => ({
+  getAuth: jest.fn(() => ({
+      signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ user: {} })),
+  })),
+}));
+
 describe('Registration component', () => {
     //sprint 1
     test('renders Register button correctly', () => {
@@ -17,20 +24,20 @@ describe('Registration component', () => {
       expect(screen.getByText('Social Media')).toBeInTheDocument();
     });
 
-    //sprint 2
-    test('availability dropdown render and functionality in register component', async () => {
-      render(<Register />);
+  //   //sprint 2 commented this test out as we are changing the registration fields
+  //   test('availability dropdown render and functionality in register component', async () => {
+  //     render(<Register />);
 
-      const availDropdown = screen.getByRole('combobox', { name: 'Availability' });
-      fireEvent.mouseDown(availDropdown);
+  //     const availDropdown = screen.getByRole('combobox', { name: 'Availability' });
+  //     fireEvent.mouseDown(availDropdown);
 
-      await screen.findByRole('option', { name: 'Available' });
+  //     await screen.findByRole('option', { name: 'Available' });
 
-      const optionAvailable = screen.getByRole('option', { name: 'Available' });
-      fireEvent.click(optionAvailable);
+  //     const optionAvailable = screen.getByRole('option', { name: 'Available' });
+  //     fireEvent.click(optionAvailable);
 
-      expect(optionAvailable).toHaveAttribute('aria-selected', 'true');
-    });
+  //     expect(optionAvailable).toHaveAttribute('aria-selected', 'true');
+  //   });
   });
 
 describe('Profile component', () => {
@@ -61,7 +68,7 @@ describe('Profile component', () => {
       const availDropdown = screen.getByRole('combobox', { name: 'Availability' });
       fireEvent.mouseDown(availDropdown);
 
-      //wait for options to laod
+      //wait for options to load
       await screen.findByRole('option', { name: 'Available' });
 
       const optionAvailable = screen.getByRole('option', { name: 'Available' });
