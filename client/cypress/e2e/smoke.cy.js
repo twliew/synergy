@@ -26,8 +26,6 @@ describe('render login and navigate to profile page as well as people page', () 
         cy.contains('Profile').click();
         cy.get('input[name="full_name"]').type('Taylor Liew');
         cy.get('input[name="username"]').type('tliew');
-        cy.get('input[name="email"]').type('tliew@gmail.com');
-        cy.get('input[name="password"]').type('Synergy1234!!');
         cy.get('input[name="university_name"]').type('University of Waterloo');
         cy.get('input[name="program_of_study"]').type('Management Engineering');
         cy.get('input[name="age"]').type('20');

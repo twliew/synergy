@@ -605,6 +605,122 @@ app.get('/api/like/check/:signedInUsername/:targetUsername', (req, res) => {
   });
 });
 
+// Endpoint to fetch user profile information based on matched user IDs
+app.get('/api/matchedUserProfiles/:username', (req, res) => {
+  const signedInUsername = req.params.username;
+
+  // Query to fetch the ID of the signed-in user
+  const getUserIdQuery = `
+    SELECT id
+    FROM user
+    WHERE username = ?;
+  `;
+
+  // Execute the query to fetch the ID of the signed-in user
+  db.query(getUserIdQuery, [signedInUsername], (userError, userResults) => {
+    if (userError) {
+      console.error('Error fetching user ID:', userError);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (userResults.length === 0) {
+      console.error('User not found:', signedInUsername);
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Extract the ID of the signed-in user
+    const signedInUserId = userResults[0].id;
+    
+    // Query to fetch matched user IDs using the signed-in user ID
+    const query = `
+      SELECT t1.liked_id AS id
+      FROM likes t1
+      JOIN likes t2 ON t1.liker_id = t2.liked_id AND t1.liked_id = t2.liker_id
+      WHERE t1.liker_id = ?;  
+    `;
+
+    // Execute the query to fetch matched user IDs
+    db.query(query, [signedInUserId], (error, results) => {
+      if (error) {
+        console.error('Error fetching matched user IDs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+
+      // Extract IDs from the results
+      const matchedUserIds = results.map(result => result.id);
+
+      // Query to fetch user profile information based on matched user IDs
+      const userProfileQuery = `
+        SELECT u.id, u.username, u.email, u.age, u.bio, GROUP_CONCAT(DISTINCT h.hobby_name SEPARATOR ', ') AS hobbies,
+              GROUP_CONCAT(DISTINCT sm.platform_name, ': ', sm.sm_username SEPARATOR ', ') AS social_media
+        FROM user u
+        LEFT JOIN user_hobbies uh ON u.id = uh.user_id
+        LEFT JOIN hobbies h ON uh.hobby_id = h.id
+        LEFT JOIN social_media sm ON u.id = sm.user_id
+        WHERE u.id IN (?)
+        GROUP BY u.id;
+      `;
+
+
+      // Execute the query to fetch user profile information
+      db.query(userProfileQuery, [matchedUserIds], (profileError, profileResults) => {
+        if (profileError) {
+          console.error('Error fetching user profiles:', profileError);
+          res.status(500).json({ error: 'Internal server error' });
+          return;
+        }
+
+        // Send the user profiles as a response
+        res.json(profileResults);
+      });
+    });
+  });
+});
+
+app.delete('/api/removeLike/:likedUserId', (req, res) => {
+  const signedInUsername = req.body.signedInUsername;
+  const likedUserId = req.params.likedUserId;
+
+  // Query to get the signed-in user ID
+  const getUserIdQuery = 'SELECT id FROM twliew.user WHERE username = ?';
+
+  // Execute the query to get the signed-in user ID
+  db.query(getUserIdQuery, [signedInUsername], (error, userIdResults) => {
+    if (error) {
+      console.error('Error fetching signed-in user ID:', error);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (userIdResults.length === 0) {
+      console.error('Signed-in user not found:', signedInUsername);
+      res.status(404).json({ error: 'Signed-in user not found' });
+      return;
+    }
+
+    const signedInUserId = userIdResults[0].id;
+
+    // Query to remove the like
+    const removeLikeQuery = `
+      DELETE FROM likes
+      WHERE liker_id = ? AND liked_id = ?;
+    `;
+
+    // Execute the query to remove the like
+    db.query(removeLikeQuery, [signedInUserId, likedUserId], (error, results) => {
+      if (error) {
+        console.error('Error removing like:', error);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+      res.status(200).json({ message: 'Like removed successfully' });
+    });
+  });
+});
+
 app.get('/', (req, res) => {
   res.send('Server is running');
 });
