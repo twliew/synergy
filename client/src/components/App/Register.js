@@ -140,108 +140,110 @@ const Register = () => {
 
   return (
     <div>
-      <h2>Register</h2>
+      <Typography variant="h4" gutterBottom>Register</Typography>
       <form onSubmit={handleRegister}>
         <div>
-          <label>Username:</label>
-          <input
+          <TextField
+            label="Username"
             type="text"
             name="username"
             value={username}
             onChange={handleInputChange}
-            required
+            required fullWidth
           />
-          {formErrors.username && <p>{formErrors.username}</p>}
+          {formErrors.username && <Typography variant="body2">{formErrors.username}</Typography>}
         </div>
         <div>
-          <label>Email:</label>
-          <input
+          <TextField
+            label="Email"
             type="email"
             name="email"
             value={email}
             onChange={handleInputChange}
-            required
+            required fullWidth
           />
-          {formErrors.email && <p>{formErrors.email}</p>}
+          {formErrors.email && <Typography variant="body2">{formErrors.email}</Typography>}
         </div>
         <div>
-          <label>Confirm Email:</label>
-          <input
+          <TextField
+            label="Confirm Email"
             type="email"
             name="confirmEmail"
             value={confirmEmail}
             onChange={handleInputChange}
-            required
+            required fullWidth
           />
-          {formErrors.confirmEmail && <p>{formErrors.confirmEmail}</p>}
+          {formErrors.confirmEmail && <Typography variant="body2">{formErrors.confirmEmail}</Typography>}
         </div>
         <div>
-          <label>Password:</label>
-          <input
+          <TextField
+            label="Password"
             type="password"
             name="password"
             value={password}
             onChange={handleInputChange}
-            required
+            required fullWidth
           />
-          {formErrors.password && <p>{formErrors.password}</p>}
+          {formErrors.password && <Typography variant="body2">{formErrors.password}</Typography>}
         </div>
         <div>
-          <label>Full Name:</label>
-          <input
+          <TextField
+            label="Full Name"
             type="text"
             name="full_name"
             value={full_name}
             onChange={handleInputChange}
-            required
+            required fullWidth
           />
-          {formErrors.full_name && <p>{formErrors.full_name}</p>}
+          {formErrors.full_name && <Typography variant="body2">{formErrors.full_name}</Typography>}
         </div>
         <div>
-          <label>University Name:</label>
-          <input
+          <TextField
+            label="University Name"
             type="text"
             name="university_name"
             value={university_name}
             onChange={handleInputChange}
-            required
+            required fullWidth
           />
-          {formErrors.university_name && <p>{formErrors.university_name}</p>}
+          {formErrors.university_name && <Typography variant="body2">{formErrors.university_name}</Typography>}
         </div>
         <div>
-          <label>Program of Study:</label>
-          <input
+          <TextField
+            label="Program of Study"
             type="text"
             name="program_of_study"
             value={program_of_study}
             onChange={handleInputChange}
-            required
+            required fullWidth
           />
-          {formErrors.program_of_study && <p>{formErrors.program_of_study}</p>}
+          {formErrors.program_of_study && <Typography variant="body2">{formErrors.program_of_study}</Typography>}
         </div>
         <div>
-          <label>Age:</label>
-          <input
+          <TextField
+            label="Age"
             type="number"
             name="age"
             value={age}
             onChange={handleInputChange}
-            required
+            required fullWidth
           />
-          {formErrors.age && <p>{formErrors.age}</p>}
+          {formErrors.age && <Typography variant="body2">{formErrors.age}</Typography>}
         </div>
         <div>
-          <label>Bio:</label>
-          <textarea
+          <TextField
+            label="Bio"
+            multiline
+            rows={4}
             name="bio"
             value={bio}
             onChange={handleInputChange}
-            required
+            required fullWidth
           />
-          {formErrors.bio && <p>{formErrors.bio}</p>}
+          {formErrors.bio && <Typography variant="body2">{formErrors.bio}</Typography>}
         </div>
-        <button type="submit">Register</button>
-        {error && <p>{error}</p>}
+        <Button type="submit" variant="contained" color="primary">Register</Button>
+        {error && <Typography variant="body2">{error}</Typography>}
       </form>
     </div>
   );

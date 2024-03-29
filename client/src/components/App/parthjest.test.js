@@ -3,9 +3,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import Login from './Login';
 import Profile from '../Profile';
-import People from '../People';
 import Search from '../People/Search';
-import ViewLikes from '../People/ViewLikes';
+
+// Mocking firebase/auth module
+jest.mock('firebase/auth', () => ({
+    getAuth: jest.fn(() => ({
+        signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ user: {} })),
+    })),
+}));
 
 describe('Login component', () => {
     test('renders login button correctly', () => {
@@ -31,7 +36,7 @@ describe('Profile component', () => {
         fireEvent.click(addSocialMediaButton);
         await waitFor(() => {
             expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
-        });   
+        });
     });
 
     test('renders add hobby button when edit interests button is clicked', async () => {
@@ -41,11 +46,8 @@ describe('Profile component', () => {
         await waitFor(() => {
             expect(screen.getByRole('button', { name: 'Add Hobby' })).toBeInTheDocument();
         });
-      });
+    });
 });
-
-//sprint 2
-global.fetch = jest.fn();
 
 describe('Search component', () => {
     test('renders search button', () => {
@@ -83,7 +85,7 @@ describe('Search component', () => {
                 onUndoSearch={onUndoSearchMock}
             />
         );
-        expect(screen.getByRole('button', { name: 'Undo Search' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Undo Search/Refresh' })).toBeInTheDocument();
     });
 
     test('renders Select Hobbies text', () => {
