@@ -3,6 +3,9 @@ import { Typography, TextField, Button, Paper, Grid, Snackbar, FormControl, Inpu
 import Interests from './Interests';
 import SocialMedia from './SocialMedia';
 import Firebase from '../Firebase';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 const Profile = () => {
     const [editedProfileData, setEditedProfileData] = useState({
@@ -15,7 +18,10 @@ const Profile = () => {
         age: '',
         bio: '',
         availability: '',
-        mood: '' 
+        mood: '',
+        uni_visible: '',
+        program_visible: '',
+        age_visible: ''
     });
     const [hobbies, setHobbies] = useState([]);
     const [selectedHobbies, setSelectedHobbies] = useState([]);
@@ -38,6 +44,7 @@ const Profile = () => {
         
                 const profileData = await profileResponse.json();
                 const interestsData = await interestsResponse.json();
+                console.log(profileData)
         
                 setEditedProfileData(profileData.userProfile);
                 setSelectedInterests(interestsData.selectedInterests);
@@ -170,6 +177,27 @@ const Profile = () => {
         setSnackbarOpen(false);
     };
 
+    const handleUniVisible = () => {
+        setEditedProfileData(prevState => ({
+            ...prevState,
+            uni_visible: !prevState.uni_visible
+        }));
+    };
+
+    const handleProgramVisible = () => {
+        setEditedProfileData(prevState => ({
+            ...prevState,
+            program_visible: !prevState.program_visible
+        }));
+    };
+
+    const handleAgeVisible = () => {
+        setEditedProfileData(prevState => ({
+            ...prevState,
+            age_visible: !prevState.age_visible
+        }));
+    };
+
     return (
         <div>
             <Typography variant="h4" gutterBottom>
@@ -199,16 +227,25 @@ const Profile = () => {
                     />
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField label="University Name" name="university_name" value={editedProfileData.university_name} onChange={handleChange} fullWidth
+                    <TextField label="Univerity Name" name="university_name" value={editedProfileData.university_name} onChange={handleChange} fullWidth
                     />
+                    <FormGroup>
+                        <FormControlLabel control={<Switch checked={editedProfileData.uni_visible}/>} label="Make University Name Public" onChange={handleUniVisible}/>
+                    </FormGroup>
                 </Grid>
                 <Grid item xs={12}>
                     <TextField label="Program of Study" name="program_of_study" value={editedProfileData.program_of_study} onChange={handleChange} fullWidth
                     />
+                    <FormGroup>
+                        <FormControlLabel control={<Switch checked={editedProfileData.program_visible}/>} label="Make Program Public" onChange={handleProgramVisible}/>
+                    </FormGroup>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField label="Age" name="age" value={editedProfileData.age} onChange={handleChange} fullWidth
                     />
+                    <FormGroup>
+                        <FormControlLabel control={<Switch checked={editedProfileData.age_visible}/>} label="Make Age Public" onChange={handleAgeVisible}/>
+                    </FormGroup>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField label="Bio" name="bio" value={editedProfileData.bio} onChange={handleChange} fullWidth
