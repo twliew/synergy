@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 import Login from './Login';
 import Profile from '../Profile';
 import Search from '../People/Search';
+import Matches from '../Matches';
 
 // Mocking firebase/auth module
 jest.mock('firebase/auth', () => ({
@@ -89,7 +90,6 @@ describe('Search component', () => {
     });
 
     test('renders Select Hobbies text', () => {
-        // Mock props
         const allHobbies = [
             { id: 1, hobby_name: 'Reading' },
             { id: 2, hobby_name: 'Gaming' },
@@ -106,4 +106,57 @@ describe('Search component', () => {
         );
         expect(screen.getByText('Select Hobbies:')).toBeInTheDocument();
     });
+});
+
+const mockedUserProfiles = [
+  {
+    id: 1,
+    username: 'testUser1',
+    email: 'testuser1@example.com',
+    age: 25,
+    bio: 'Lorem ipsum dolor sit amet',
+    hobbies: 'Reading, Cooking',
+    social_media: 'Twitter, Instagram'
+  },
+  {
+    id: 2,
+    username: 'testUser2',
+    email: 'testuser2@example.com',
+    age: 30,
+    bio: 'Consectetur adipiscing elit',
+    hobbies: 'Gaming, Photography',
+    social_media: 'Facebook, LinkedIn'
+  }
+];
+
+describe('Matches component', () => {
+  beforeEach(() => {
+    // Mock fetch function
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockedUserProfiles),
+    });
+  });
+
+  test('renders user cards correctly', async () => {
+    render(<Matches />);
+    
+    // Wait for the component to finish rendering with the mock data
+    await waitFor(() => {
+      expect(screen.getByText('Username: testUser1')).toBeInTheDocument();
+      expect(screen.getByText('Username: testUser2')).toBeInTheDocument();
+    });
+  });
+
+  test('renders "Remove Like" button correctly within user card', async () => {
+    render(<Matches />);
+    
+    // Wait for the component to finish rendering with the mock data
+    await waitFor(() => {
+      // Check if the "Remove Like" button is present within the user card
+      const userCard = screen.getByText('Username: testUser1').closest('.user-card');
+      expect(userCard).toBeInTheDocument(); // Assert user card is present
+      expect(userCard).toHaveTextContent('Remove Like'); // Assert "Remove Like" button is present within the user card
+    });
+  });
 });
