@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter as Router } from 'react-router-dom'; // Import BrowserRouter
 import '@testing-library/jest-dom/extend-expect';
 import Login from './Login';
 import Profile from '../Profile';
@@ -15,7 +16,11 @@ jest.mock('firebase/auth', () => ({
 
 describe('Login component', () => {
     test('renders login button correctly', () => {
-        render(<Login />);
+        render(
+            <Router> {/* Wrap your component with Router */}
+                <Login />
+            </Router>
+        );
         expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
     });
 });
@@ -108,6 +113,7 @@ describe('Search component', () => {
     });
 });
 
+//Sprint 3
 const mockedUserProfiles = [
   {
     id: 1,

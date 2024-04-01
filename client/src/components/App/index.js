@@ -38,7 +38,7 @@ function App() {
                             <>
                                 {/* Home Link */}
                                 <Typography variant="h6" component="div">
-                                    <Link id="Home" to="/" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Home</Link>
+                                    <Link id="Home" to="/Home" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>Home</Link>
                                 </Typography>
                                 {/* Profile Link */}
                                 <Typography variant="h6" component="div">
@@ -72,7 +72,7 @@ function App() {
                 <Routes>
                     {isLoggedIn ? (
                         <>
-                            <Route path="/" element={<HomePage />} />
+                            <Route path="/Home" element={<HomePage />} />
                             <Route path="/Profile" element={<Profile />} />
                             <Route path="/People" element={<People />} />
                             <Route path="/Matches" element={<Matches />} />
@@ -81,7 +81,7 @@ function App() {
                         <>
                             <Route path="/Register" element={<Register />} />
                             <Route path="/Login" element={<Login onLogin={handleLogin} />} />
-                            <Route path="/*" element={<Navigate to="/Login" />} />
+                            <Route path="/*" element={<Navigate to="/Home" />} />
                         </>
                     )}
                 </Routes>
