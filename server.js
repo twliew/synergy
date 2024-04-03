@@ -721,6 +721,33 @@ app.delete('/api/removeLike/:likedUserId', (req, res) => {
   });
 });
 
+app.get('/api/profile/viewNumberLikes/:username', (req, res) => {
+  const likedUsername = req.params.username;
+  const sql = `SELECT COUNT(*) AS likeCount FROM likes WHERE liked_id = (SELECT id FROM users WHERE username = ?)`;
+  
+  connection.query(sql, [likedUsername], (error, results) => {
+    if (error) {
+      console.error('Error executing SQL query: ' + error.message);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const likeCount = results[0].likeCount;
+    console.log({ likeCount });
+    res.json({ likeCount });
+  });
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
 app.get('/', (req, res) => {
   res.send('Server is running');
 });

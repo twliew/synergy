@@ -6,6 +6,7 @@ import ViewLikes from '../People/ViewLikes';
 const HomePage = () => {
     const [showViewLikes, setShowViewLikes] = useState(false);
     const [showDetailedInfo, setShowDetailedInfo] = useState(false);
+    const [numberOfLikes, setNumnerOfLikes] = useState(0);
 
     const handleViewLikes = () => {
         setShowViewLikes(true);
@@ -22,6 +23,12 @@ const HomePage = () => {
     const handleShowLess = () => {
         setShowDetailedInfo(false);
     };
+
+    
+
+    useEffect(() => {
+        getNumberOfLikes();
+    }, []);
 
     return (
         <div style={{ padding: '20px' }}>
@@ -68,6 +75,7 @@ const HomePage = () => {
                         <p>View your Matches!</p>
                         <ul>
                             <li>Matches are a list of users who you have liked, and have liked you back.</li>
+                            <li>Change your mind? You're free to remove your like from a profile.</li>
                             <li>You can view all profile information and connect with them outside of Synergy!</li>
                         </ul>
                     </Typography>
