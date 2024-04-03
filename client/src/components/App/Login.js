@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'; // Import Firebase authentication methods
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 
 const Login = ({ onLogin }) => {
+    const navigate = useNavigate(); // Initialize useNavigate hook
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -29,6 +31,7 @@ const Login = ({ onLogin }) => {
                 if (data.username) {
                     localStorage.setItem('username', data.username); // Store fetched username in local storage
                     onLogin();
+                    navigate('/home'); // Navigate to /home on successful login
                 } else {
                     throw new Error('Failed to fetch username');
                 }

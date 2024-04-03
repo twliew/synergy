@@ -96,7 +96,7 @@ const ViewLikes = () => {
                                     {profile.uni_visible ? (
                                         <Typography variant="body2" color="textSecondary" gutterBottom>University: {profile.university_name}</Typography>
                                     ):(
-                                        <Typography variant="body2" color="textSecondary" gutterBottom>University Nam: Hidden</Typography>
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>University Name: Hidden</Typography>
                                     )}
                                     {profile.program_visible ? (
                                         <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {profile.program_of_study}</Typography>
