@@ -24,12 +24,6 @@ const HomePage = () => {
         setShowDetailedInfo(false);
     };
 
-    
-
-    useEffect(() => {
-        getNumberOfLikes();
-    }, []);
-
     return (
         <div style={{ padding: '20px' }}>
             <Typography variant="h2" gutterBottom>Welcome to Synergy!</Typography>

@@ -17,6 +17,7 @@ admin.initializeApp({
 
 const app = express();
 const port = process.env.PORT || 5001;
+//const port = 3001
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
@@ -743,7 +744,7 @@ app.get('/api/profile/viewNumberLikes/:username', (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
