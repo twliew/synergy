@@ -122,7 +122,7 @@ const People = () => {
     return (
         <ThemeProvider theme={theme}>
             <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-                <Typography variant="h4" gutterBottom>{viewLikes ? 'Profiles of Users who Liked You' : 'People'}</Typography>
+                <Typography variant="h2" align="center" sx={{ fontWeight: 'bold' }}>{viewLikes ? 'Profiles of Users who Liked You' : 'People'}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {!viewLikes && ( // Conditionally render SearchPeople component
                         <SearchPeople 
