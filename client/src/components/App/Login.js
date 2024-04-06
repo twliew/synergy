@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography } from '@mui/material';
+import { TextField, Button, Typography, Container } from '@mui/material';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -60,14 +60,16 @@ const Login = ({ onLogin }) => {
     return (
         <div>
             <ThemeProvider theme={theme}>
-            <Typography variant="h4" gutterBottom>
-                Login
-            </Typography>
-            <form onSubmit={handleSubmit}>
-                <TextField type="email" name="email" label="Email" value={formData.email} onChange={handleChange} required fullWidth />
-                <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth />
-                <Button type="submit" variant="contained" color="primary">Login</Button>
-            </form>
+                <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+                    <Typography variant="h4" gutterBottom>
+                        Login
+                    </Typography>
+                    <form onSubmit={handleSubmit}>
+                        <TextField type="email" name="email" label="Email" value={formData.email} onChange={handleChange} required fullWidth />
+                        <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth />
+                        <Button type="submit" variant="contained" color="primary">Login</Button>
+                    </form>
+                </Container>
             </ThemeProvider>
         </div>
     );

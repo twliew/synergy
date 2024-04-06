@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Firebase from '../Firebase';
-import { TextField, Button, Typography } from '@mui/material';
+import { TextField, Button, Typography, Container } from '@mui/material';
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 
 const Register = () => {
@@ -153,6 +153,7 @@ const Register = () => {
   return (
     <div>
       <ThemeProvider theme={theme}>
+      <Container maxWidth="md" style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
       <Typography variant="h4" gutterBottom>Register</Typography>
       <form onSubmit={handleRegister}>
         <div>
@@ -258,6 +259,7 @@ const Register = () => {
         <Button type="submit" variant="contained" color="primary">Register</Button>
         {error && <Typography variant="body2">{error}</Typography>}
       </form>
+      </Container>
       </ThemeProvider>
     </div>
   );
