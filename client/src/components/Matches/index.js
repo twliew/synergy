@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Typography, List, ListItem, ListItemText, Divider, Button } from '@mui/material';
+import { Card, CardContent, Typography, List, ListItem, ListItemText, Divider, Button, Container } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 function Matches() {
   const [matchedUserProfiles, setMatchedUserProfiles] = useState([]);
   const username = localStorage.getItem('username');
+
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#7487cc',
+        light: '#e0c8d2',
+        background: '#eeeeee'
+      },
+      secondary: {
+        main: '#c5ceed',
+      },
+    },
+  });
 
   useEffect(() => {
     fetchMatchedUserProfiles(username);
@@ -45,7 +59,10 @@ function Matches() {
 
   return (
     <div>
-      <h1>Matches</h1>
+      <ThemeProvider theme={theme}>
+      <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <Typography variant="h2" align="center" sx={{ fontWeight: 'bold', color: '#54555c' }}>Matches</Typography>
+      <Typography variant="h6" align="center">View users who you've matched with to begin your new friendship!</Typography>
       <div className="user-cards-container">
         {matchedUserProfiles.map(user => (
           <Card key={user.id} className="user-card" style={{ marginBottom: '20px' }}>
@@ -73,11 +90,13 @@ function Matches() {
                   </List>
                 </div>
               )}
-              <Button onClick={() => removeLike(username, user.id)} variant="contained" color="secondary">Remove Like</Button>
+              <Button onClick={() => removeLike(username, user.id)} variant="contained" color="primary">Remove Like</Button>
             </CardContent>
           </Card>
         ))}
       </div>
+      </Container>
+      </ThemeProvider>
     </div>
   );
 }

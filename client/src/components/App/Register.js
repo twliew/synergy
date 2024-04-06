@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Firebase from '../Firebase';
-import { TextField, Button, Typography } from '@mui/material';
+import { TextField, Button, Typography, Container } from '@mui/material';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -14,6 +15,19 @@ const Register = () => {
   const [bio, setBio] = useState('');
   const [error, setError] = useState(null);
   const [formErrors, setFormErrors] = useState({});
+
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#7487cc',
+        light: '#e0c8d2',
+        background: '#eeeeee'
+      },
+      secondary: {
+        main: '#c5ceed',
+      },
+    },
+  });
 
   const validateForm = (data) => { // Validate form data
     const errors = {};
@@ -141,7 +155,9 @@ const Register = () => {
 
   return (
     <div>
-      <Typography variant="h4" gutterBottom>Register</Typography>
+      <ThemeProvider theme={theme}>
+      <Container maxWidth="md" style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#54555c' }}>Register</Typography>
       <form onSubmit={handleRegister}>
         <div>
           <TextField
@@ -246,6 +262,8 @@ const Register = () => {
         <Button type="submit" variant="contained" color="primary">Register</Button>
         {error && <Typography variant="body2">{error}</Typography>}
       </form>
+      </Container>
+      </ThemeProvider>
     </div>
   );
 };

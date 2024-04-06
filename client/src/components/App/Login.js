@@ -1,12 +1,28 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography } from '@mui/material';
+import { TextField, Button, Typography, Container } from '@mui/material';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const Login = ({ onLogin }) => {
+    const navigate = useNavigate(); // Initialize useNavigate hook
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
+
+    const theme = createTheme({
+        palette: {
+          primary: {
+            main: '#7487cc',
+            light: '#e0c8d2',
+            background: '#eeeeee'
+          },
+          secondary: {
+            main: '#c5ceed',
+          },
+        },
+      });
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,6 +45,7 @@ const Login = ({ onLogin }) => {
                 if (data.username) {
                     localStorage.setItem('username', data.username); // Store fetched username in local storage
                     onLogin();
+                    navigate('/home'); // Navigate to /home on successful login
                 } else {
                     throw new Error('Failed to fetch username');
                 }
@@ -45,14 +62,18 @@ const Login = ({ onLogin }) => {
 
     return (
         <div>
-            <Typography variant="h4" gutterBottom>
-                Login
-            </Typography>
-            <form onSubmit={handleSubmit}>
-                <TextField type="email" name="email" label="Email" value={formData.email} onChange={handleChange} required fullWidth />
-                <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth />
-                <Button type="submit" variant="contained" color="primary">Login</Button>
-            </form>
+            <ThemeProvider theme={theme}>
+                <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+                    <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#54555c' }}>
+                        Login
+                    </Typography>
+                    <form onSubmit={handleSubmit}>
+                        <TextField type="email" name="email" label="Email" value={formData.email} onChange={handleChange} required fullWidth />
+                        <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth />
+                        <Button type="submit" variant="contained" color="primary">Login</Button>
+                    </form>
+                </Container>
+            </ThemeProvider>
         </div>
     );
 };

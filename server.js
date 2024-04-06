@@ -389,7 +389,7 @@ app.get('/api/profile/exclude/:username', (req, res) => {
     SELECT 
       u.*, 
       GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
-      GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media,
+      GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.sm_username) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media,
       CASE 
         WHEN l.liked_id IS NOT NULL THEN 1 
         ELSE 0 
@@ -423,7 +423,7 @@ app.post('/api/profile/search/:username', (req, res) => {
 
   let sql = `
     SELECT u.*, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY uh.hobby_id SEPARATOR ', ') AS hobbies,
-    GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+    GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.sm_username) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
     FROM user u
     LEFT JOIN user_hobbies uh ON u.id = uh.user_id
     LEFT JOIN hobbies h ON uh.hobby_id = h.id
@@ -533,7 +533,7 @@ app.get('/api/profile/viewLikes/:username', (req, res) => {
   const sql = `
       SELECT u.*, 
           GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
-          GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+          GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.sm_username) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
       FROM user AS u
       INNER JOIN likes AS l ON u.id = l.liker_id
       LEFT JOIN user_hobbies AS uh ON u.id = uh.user_id
@@ -718,6 +718,28 @@ app.delete('/api/removeLike/:likedUserId', (req, res) => {
       }
       res.status(200).json({ message: 'Like removed successfully' });
     });
+  });
+});
+
+app.get('/api/viewNumberLikes/:username', (req, res) => {
+  const username = req.params.username;
+
+  const sql = 'SELECT COUNT(*) AS likeCount FROM likes WHERE liked_id = (SELECT id FROM user WHERE username = ?)';
+
+  db.query(sql, [username], (err, result) => {
+    if (err) {
+      console.error('Error fetching number of likes data:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, message: 'User profile not found' });
+    }
+
+    const userProfile = result[0];
+    console.log(userProfile)
+    let string = JSON.stringify(userProfile);
+		res.send({ express: string });
   });
 });
 
