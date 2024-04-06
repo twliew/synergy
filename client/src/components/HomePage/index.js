@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import Typography from "@mui/material/Typography";
 import Button from '@mui/material/Button';
 import ViewLikes from '../People/ViewLikes';
@@ -23,6 +23,30 @@ const HomePage = () => {
     const handleShowLess = () => {
         setShowDetailedInfo(false);
     };
+
+    const fetchNumberOfLikes = () => {
+        const username = localStorage.getItem('username');
+        fetch(`/api/viewNumberLikes/${username}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                //parse the nested JSON string
+                const nestedData = JSON.parse(data.express);
+                const likeCount = nestedData.likeCount;
+                setNumnerOfLikes(likeCount);
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+    };
+
+    useEffect(() => {
+        fetchNumberOfLikes();
+    }, []);
 
     return (
         <div style={{ padding: '20px' }}>
@@ -81,7 +105,7 @@ const HomePage = () => {
             
             {/* "View Likes" button */}
             <Button onClick={handleViewLikes} variant="contained" color="primary" style={{ margin: '10px' }}>
-                View Likes
+                View Likes: {numberOfLikes}
             </Button>
             
             {/* "Hide Likes" button */}

@@ -722,24 +722,25 @@ app.delete('/api/removeLike/:likedUserId', (req, res) => {
   });
 });
 
-app.get('/api/profile/viewNumberLikes/:username', (req, res) => {
-  const likedUsername = req.params.username;
-  const sql = `SELECT COUNT(*) AS likeCount FROM likes WHERE liked_id = (SELECT id FROM users WHERE username = ?)`;
-  
-  connection.query(sql, [likedUsername], (error, results) => {
-    if (error) {
-      console.error('Error executing SQL query: ' + error.message);
-      res.status(500).json({ error: 'Internal server error' });
-      return;
-    }
-    if (results.length === 0) {
-      res.status(404).json({ error: 'User not found' });
-      return;
+app.get('/api/viewNumberLikes/:username', (req, res) => {
+  const username = req.params.username;
+
+  const sql = 'SELECT COUNT(*) AS likeCount FROM likes WHERE liked_id = (SELECT id FROM user WHERE username = ?)';
+
+  db.query(sql, [username], (err, result) => {
+    if (err) {
+      console.error('Error fetching number of likes data:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 
-    const likeCount = results[0].likeCount;
-    console.log({ likeCount });
-    res.json({ likeCount });
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, message: 'User profile not found' });
+    }
+
+    const userProfile = result[0];
+    console.log(userProfile)
+    let string = JSON.stringify(userProfile);
+		res.send({ express: string });
   });
 });
 
