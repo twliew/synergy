@@ -16,7 +16,7 @@ admin.initializeApp({
 });
 
 const app = express();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
@@ -718,6 +718,28 @@ app.delete('/api/removeLike/:likedUserId', (req, res) => {
       }
       res.status(200).json({ message: 'Like removed successfully' });
     });
+  });
+});
+
+app.get('/api/viewNumberLikes/:username', (req, res) => {
+  const username = req.params.username;
+
+  const sql = 'SELECT COUNT(*) AS likeCount FROM likes WHERE liked_id = (SELECT id FROM user WHERE username = ?)';
+
+  db.query(sql, [username], (err, result) => {
+    if (err) {
+      console.error('Error fetching number of likes data:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, message: 'User profile not found' });
+    }
+
+    const userProfile = result[0];
+    console.log(userProfile)
+    let string = JSON.stringify(userProfile);
+		res.send({ express: string });
   });
 });
 
