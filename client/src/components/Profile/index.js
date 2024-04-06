@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, TextField, Button, Paper, Grid, Snackbar, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Typography, TextField, Button, Paper, Grid, Snackbar, FormControl, InputLabel, Select, MenuItem, Container } from '@mui/material';
 import Interests from './Interests';
 import SocialMedia from './SocialMedia';
 import Firebase from '../Firebase';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const Profile = () => {
     const [editedProfileData, setEditedProfileData] = useState({
@@ -31,6 +32,19 @@ const Profile = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const username = localStorage.getItem('username');
+
+    const theme = createTheme({
+        palette: {
+          primary: {
+            main: '#7487cc',
+            light: '#e0c8d2',
+            background: '#eeeeee'
+          },
+          secondary: {
+            main: '#c5ceed',
+          },
+        },
+      });
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -200,13 +214,15 @@ const Profile = () => {
 
     return (
         <div>
+            <ThemeProvider theme={theme}>
+            <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
             <Typography variant="h4" gutterBottom>
                 Profile
             </Typography>
             <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
                 <Grid container spacing={2}>
                 <Grid container spacing={2}>
-    <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={6}>
                 <TextField
                     label="Full Name" name="full_name" value={editedProfileData.full_name} onChange={handleChange} fullWidth
                 />
@@ -350,6 +366,8 @@ const Profile = () => {
                 onClose={handleSnackbarClose}
                 message={snackbarMessage}
             />
+            </Container>
+            </ThemeProvider>
         </div>
     );
 };

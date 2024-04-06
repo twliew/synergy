@@ -119,22 +119,21 @@ describe('HomePage component', () => {
     expect(screen.getByText('Profile')).toBeInTheDocument();
     expect(screen.getByText('People')).toBeInTheDocument();
     expect(screen.getByText('Matches')).toBeInTheDocument();
-});
+  });
 
-test('hides detailed information when "Show Less" button is clicked', () => {
-    render(<HomePage />);
-    fireEvent.click(screen.getByRole('button', { name: 'What does it do?' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Show Less' }));
-    expect(screen.queryByText('Overhead Bar')).toBeNull();
-    expect(screen.queryByText('Logout')).toBeNull();
-    expect(screen.queryByText('Profile')).toBeNull();
-    expect(screen.queryByText('People')).toBeNull();
-    expect(screen.queryByText('Matches')).toBeNull();
-});
+  test('hides detailed information when "Show Less" button is clicked', () => {
+      render(<HomePage />);
+      fireEvent.click(screen.getByRole('button', { name: 'What does it do?' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Show Less' }));
+      expect(screen.queryByText('Overhead Bar')).toBeNull();
+      expect(screen.queryByText('Logout')).toBeNull();
+      expect(screen.queryByText('Profile')).toBeNull();
+      expect(screen.queryByText('People')).toBeNull();
+      expect(screen.queryByText('Matches')).toBeNull();
+  });
 
-test('renders "View Likes" button initially', () => {
-    render(<HomePage />);
-    expect(screen.getByRole('button', { name: 'View Likes' })).toBeInTheDocument();
-});
-});
-  
+  test('renders "View Likes" button initially', () => {
+      render(<HomePage />);
+      expect(screen.getByRole('button', { name: 'View Likes' })).toBeInTheDocument();
+  });
+}); 

@@ -32,9 +32,12 @@ function App() {
     const theme = createTheme({
         palette: {
           primary: {
-            main: '#4180bf',
+            main: '#7487cc',
             light: '#e0c8d2',
             background: '#eeeeee'
+          },
+          secondary: {
+            main: '#c5ceed',
           },
         },
       });

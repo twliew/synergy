@@ -11,9 +11,16 @@ import ViewLikes from './ViewLikes';
 
 const theme = createTheme({
     palette: {
-        mode: 'light',
+      primary: {
+        main: '#7487cc',
+        light: '#e0c8d2',
+        background: '#eeeeee'
+      },
+      secondary: {
+        main: '#c5ceed',
+      },
     },
-});
+  });
 
 const People = () => {
     const [users, setUsers] = useState([]);
@@ -114,7 +121,7 @@ const People = () => {
     
     return (
         <ThemeProvider theme={theme}>
-            <Container>
+            <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
                 <Typography variant="h4" gutterBottom>{viewLikes ? 'Profiles of Users who Liked You' : 'People'}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {!viewLikes && ( // Conditionally render SearchPeople component
