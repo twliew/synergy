@@ -54,7 +54,7 @@ const Search = ({ allHobbies, onSearch, onUndoSearch }) => {
             </Select>
             <Box mt={2} display="flex" justifyContent="center">
                 <Button onClick={handleSearch} variant="contained" color="primary" style={{ marginLeft: 8 }}>Search</Button>
-                <Button onClick={undoSearch} variant="contained" color="secondary">Undo Search</Button>
+                <Button onClick={undoSearch} variant="contained" color="secondary">Undo Search/Refresh</Button>
             </Box>
             {showUndoMessage && (
                 <Typography variant="body2" color="error" mt={2}>

@@ -28,7 +28,7 @@ describe('Login component', () => {
 describe('Profile component', () => {
     test('renders Interests and Hobbies on page correctly', () => {
         render(<Profile />);
-        expect(screen.getByText('Interests/Hobbies')).toBeInTheDocument();
+        expect(screen.getByText('Interests and Hobbies')).toBeInTheDocument();
     });
 
     test('renders add social media button correctly', () => {
