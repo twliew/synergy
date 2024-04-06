@@ -1,12 +1,22 @@
 import React, { useState, useEffect} from 'react';
-import Typography from "@mui/material/Typography";
-import Button from '@mui/material/Button';
+import { Button, Typography, Container, Divider } from '@mui/material';
 import ViewLikes from '../People/ViewLikes';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const HomePage = () => {
     const [showViewLikes, setShowViewLikes] = useState(false);
     const [showDetailedInfo, setShowDetailedInfo] = useState(false);
     const [numberOfLikes, setNumnerOfLikes] = useState(0);
+
+    const theme = createTheme({
+        palette: {
+          primary: {
+            main: '#4180bf',
+            light: '#e0c8d2',
+            background: '#eeeeee'
+          },
+        },
+      });
 
     const handleViewLikes = () => {
         setShowViewLikes(true);
@@ -50,7 +60,9 @@ const HomePage = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            <Typography variant="h2" gutterBottom>Welcome to Synergy!</Typography>
+            <ThemeProvider theme={theme}>
+            <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+            <Typography Typography variant="h1" align="center" sx={{ color: 'grey',fontWeight: 'bold' }}>Welcome to Synergy!</Typography>
             
             {/* Summary of what Synergy is */}
             <Typography variant="body1" gutterBottom>
@@ -97,26 +109,30 @@ const HomePage = () => {
                             <li>You can view all profile information and connect with them outside of Synergy!</li>
                         </ul>
                     </Typography>
-                    <Button onClick={handleShowLess} variant="contained" color="secondary" style={{ margin: '10px' }}>
+                    <Button onClick={handleShowLess} variant="contained" color="primary" style={{ margin: '10px' }}>
                         Show Less
                     </Button>
                 </div>
             )}
-            
+            <Divider component="li" />
             {/* "View Likes" button */}
-            <Button onClick={handleViewLikes} variant="contained" color="primary" style={{ margin: '10px' }}>
+            <Typography variant='h6' sx={{ fontWeight: 'bold' }}>Quick View</Typography>
+            <Typography>Preview Users Who Like You</Typography>
+            <Button onClick={handleViewLikes} variant="contained" style={{ margin: '10px' }}>
                 View Likes: {numberOfLikes}
             </Button>
             
             {/* "Hide Likes" button */}
             {showViewLikes && (
-                <Button onClick={handleHideLikes} variant="contained" color="secondary" style={{ margin: '10px' }}>
+                <Button onClick={handleHideLikes} variant="contained" style={{ margin: '10px' }}>
                     Hide Likes
                 </Button>
             )}
             
             {/* Render the ViewLikes component only if showViewLikes is true */}
             {showViewLikes && <ViewLikes />}
+            </Container>
+            </ThemeProvider>
         </div>
     );
 }
