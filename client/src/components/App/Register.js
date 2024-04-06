@@ -157,7 +157,7 @@ const Register = () => {
     <div>
       <ThemeProvider theme={theme}>
       <Container maxWidth="md" style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-      <Typography variant="h4" gutterBottom>Register</Typography>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#54555c' }}>Register</Typography>
       <form onSubmit={handleRegister}>
         <div>
           <TextField

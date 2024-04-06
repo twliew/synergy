@@ -61,7 +61,7 @@ function Matches() {
     <div>
       <ThemeProvider theme={theme}>
       <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-      <Typography variant="h2" align="center" sx={{ fontWeight: 'bold' }}>Matches</Typography>
+      <Typography variant="h2" align="center" sx={{ fontWeight: 'bold', color: '#54555c' }}>Matches</Typography>
       <Typography variant="h6" align="center">View users who you've matched with to begin your new friendship!</Typography>
       <div className="user-cards-container">
         {matchedUserProfiles.map(user => (

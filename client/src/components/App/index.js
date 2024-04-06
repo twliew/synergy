@@ -87,7 +87,7 @@ function App() {
 
                 {!isLoggedIn && 
                     <>
-                        <Typography variant="h1" align="center" sx={{ color: 'grey',fontWeight: 'bold' }}>SYNERGY</Typography>
+                        <Typography variant="h1" align="center" sx={{ fontWeight: 'bold', color: '#54555c' }}>SYNERGY</Typography>
                         <Divider variant="middle" component="li" />
                         <Typography variant="h6" align="center">Are you a university student?</Typography>
                         <Typography variant="h6" align="center">Do you want to make new friends?</Typography>

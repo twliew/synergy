@@ -216,7 +216,7 @@ const Profile = () => {
         <div>
             <ThemeProvider theme={theme}>
             <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-            <Typography variant="h2" align="center" sx={{ fontWeight: 'bold' }}>Profile</Typography>
+            <Typography variant="h2" align="center" sx={{ fontWeight: 'bold', color: '#54555c' }}>Profile</Typography>
             <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
                 <Grid container spacing={0}>
                     <Grid container spacing={2}>

@@ -4,6 +4,8 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SearchPeople from './Search';
@@ -122,8 +124,8 @@ const People = () => {
     return (
         <ThemeProvider theme={theme}>
             <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-                <Typography variant="h2" align="center" sx={{ fontWeight: 'bold' }}>{viewLikes ? 'Profiles of Users who Liked You' : 'People'}</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="h2" align="center" sx={{ fontWeight: 'bold', color: '#54555c' }}>{viewLikes ? 'Profiles of Users who Liked You' : 'People'}</Typography>
+                <Paper elevation={3} style={{ padding: '20px', marginBottom: '20px' }}>
                     {!viewLikes && ( // Conditionally render SearchPeople component
                         <SearchPeople 
                             allHobbies={allHobbies}
@@ -131,10 +133,12 @@ const People = () => {
                             onUndoSearch={undoSearch}
                         />
                     )}
-                    <Button onClick={viewLikes ? backToPeople : toggleViewLikes} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
-                        {viewLikes ? 'Back to People' : 'View Likes'}
-                    </Button>
-                </Box>
+                    <Grid container justifyContent="center" sx={{ margin: '10px 0' }}>
+                        <Button onClick={viewLikes ? backToPeople : toggleViewLikes} variant="outlined" color="primary" sx={{ marginLeft: '10px' }}>
+                            {viewLikes ? 'Back to People' : 'View Likes'}
+                        </Button>
+                    </Grid>
+                </Paper>
                 <Box sx={{ overflow: 'auto' }}>
                     {viewLikes ? (
                         <ViewLikes />

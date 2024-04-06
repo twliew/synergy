@@ -64,7 +64,7 @@ const Login = ({ onLogin }) => {
         <div>
             <ThemeProvider theme={theme}>
                 <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-                    <Typography variant="h4" gutterBottom>
+                    <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#54555c' }}>
                         Login
                     </Typography>
                     <form onSubmit={handleSubmit}>

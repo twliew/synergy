@@ -65,7 +65,7 @@ const HomePage = () => {
         <div style={{ padding: '20px' }}>
             <ThemeProvider theme={theme}>
                 <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-                <Typography Typography variant="h1" align="center" sx={{ color: 'grey',fontWeight: 'bold' }}>Welcome to Synergy!</Typography>
+                <Typography Typography variant="h1" align="center" sx={{ fontWeight: 'bold', color: '#54555c' }}>Welcome to Synergy!</Typography>
                 
                 {/* Summary of what Synergy is */}
                 <Typography variant="body1" gutterBottom>
