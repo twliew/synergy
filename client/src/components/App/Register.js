@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Firebase from '../Firebase';
 import { TextField, Button, Typography } from '@mui/material';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -14,6 +15,16 @@ const Register = () => {
   const [bio, setBio] = useState('');
   const [error, setError] = useState(null);
   const [formErrors, setFormErrors] = useState({});
+
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#4180bf',
+        light: '#e0c8d2',
+        background: '#eeeeee'
+      },
+    },
+  });
 
   const validateForm = (data) => { // Validate form data
     const errors = {};
@@ -141,6 +152,7 @@ const Register = () => {
 
   return (
     <div>
+      <ThemeProvider theme={theme}>
       <Typography variant="h4" gutterBottom>Register</Typography>
       <form onSubmit={handleRegister}>
         <div>
@@ -246,6 +258,7 @@ const Register = () => {
         <Button type="submit" variant="contained" color="primary">Register</Button>
         {error && <Typography variant="body2">{error}</Typography>}
       </form>
+      </ThemeProvider>
     </div>
   );
 };

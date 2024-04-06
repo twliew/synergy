@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const Login = ({ onLogin }) => {
     const navigate = useNavigate(); // Initialize useNavigate hook
@@ -9,6 +10,16 @@ const Login = ({ onLogin }) => {
         email: '',
         password: ''
     });
+
+    const theme = createTheme({
+        palette: {
+          primary: {
+            main: '#4180bf',
+            light: '#e0c8d2',
+            background: '#eeeeee'
+          },
+        },
+      });
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,6 +59,7 @@ const Login = ({ onLogin }) => {
 
     return (
         <div>
+            <ThemeProvider theme={theme}>
             <Typography variant="h4" gutterBottom>
                 Login
             </Typography>
@@ -56,6 +68,7 @@ const Login = ({ onLogin }) => {
                 <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth />
                 <Button type="submit" variant="contained" color="primary">Login</Button>
             </form>
+            </ThemeProvider>
         </div>
     );
 };
