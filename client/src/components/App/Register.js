@@ -1,51 +1,33 @@
 import React, { useState } from 'react';
-import { Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import Firebase from '../Firebase';
+import { TextField, Button, Typography, Container } from '@mui/material';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 
 const Register = () => {
-  const [formData, setFormData] = useState({ // Initialize form data
-    username: '',
-    email: '',
-    confirmEmail: '',
-    password: '',
-    full_name: '',
-    university_name: '',
-    program_of_study: '',
-    age: '',
-    bio: '',
-    availability: ''
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [confirmEmail, setConfirmEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [full_name, setFullName] = useState('');
+  const [university_name, setUniversityName] = useState('');
+  const [program_of_study, setProgramOfStudy] = useState('');
+  const [age, setAge] = useState('');
+  const [bio, setBio] = useState('');
+  const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#7487cc',
+        light: '#e0c8d2',
+        background: '#eeeeee'
+      },
+      secondary: {
+        main: '#c5ceed',
+      },
+    },
   });
-  const [errors, setErrors] = useState({});
-
-  const handleChange = (e) => { // Update form data when input changes
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => { // Handle form submission
-    e.preventDefault();
-    const { confirmEmail, ...userDataWithoutConfirm } = formData;
-    const validationErrors = validateForm(formData);
-    if (Object.keys(validationErrors).length === 0) {
-      try {
-        const response = await fetch('/api/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(userDataWithoutConfirm) //
-        });
-  
-        if (!response.ok) {
-          throw new Error('Failed to register user');
-        }
-  
-      } catch (error) {
-        console.error('Error:', error.message);
-        setErrors({ submit: error.message });
-      }
-    } else {
-      setErrors(validationErrors);
-    }
-  };
 
   const validateForm = (data) => { // Validate form data
     const errors = {};
@@ -58,11 +40,11 @@ const Register = () => {
       errors.email = 'Invalid email address';
     } else if (!isUniversityEmail(data.email)) {
       errors.email = 'Only university email addresses are allowed';
-    } else if (data.email !== data.confirmEmail) {
-      errors.confirmEmail = 'Emails do not match';
     }
     if (!data.confirmEmail.trim()) {
       errors.confirmEmail = 'Please confirm your email';
+    } else if (data.email !== data.confirmEmail) {
+      errors.confirmEmail = 'Emails do not match';
     }
     if (!data.password.trim()) {
       errors.password = 'Password is required';
@@ -86,53 +68,205 @@ const Register = () => {
     if (!data.bio.trim()) {
       errors.bio = 'Bio is required';
     }
-    if (!data.availability.trim()) {
-      //error handling for availability
-      errors.availability = 'Availability is required';
-    }
     return errors;
   };
 
-  const isUniversityEmail = (email) => { // Check if email is from a university domain
+  const isUniversityEmail = (email) => {
     const universityDomains = ['uwaterloo.ca', 'mail.utoronto.ca', 'mcmaster.ca', 'wlu.ca'];
     const domain = email.split('@')[1];
     return universityDomains.includes(domain);
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormErrors({ ...formErrors, [name]: '' });
+    switch (name) {
+      case 'username':
+        setUsername(value);
+        break;
+      case 'email':
+        setEmail(value);
+        break;
+      case 'confirmEmail': // Added case for confirm email
+        setConfirmEmail(value);
+        break;
+      case 'password':
+        setPassword(value);
+        break;
+      case 'full_name':
+        setFullName(value);
+        break;
+      case 'university_name':
+        setUniversityName(value);
+        break;
+      case 'program_of_study':
+        setProgramOfStudy(value);
+        break;
+      case 'age':
+        setAge(value);
+        break;
+      case 'bio':
+        setBio(value);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const formData = { username, email, confirmEmail, password, full_name, university_name, program_of_study, age, bio };
+    const errors = validateForm(formData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+    } else {
+      try {
+        const firebase = new Firebase();
+        const firebaseUser = await firebase.doCreateUserWithEmailAndPassword(email, password);
+
+        // Register user in your backend
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            uid: firebaseUser.uid,
+            username: username,
+            email: email,
+            password: password,
+            full_name: full_name,
+            university_name: university_name,
+            program_of_study: program_of_study,
+            age: age,
+            bio: bio,
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Error registering user');
+        }
+
+      } catch (error) {
+        setError(error.message);
+      }
+    }
+  };
+
   return (
     <div>
-      <Typography variant="h6" gutterBottom>
-        Register
-      </Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField type="text" name="username" label="Username" value={formData.username} onChange={handleChange} required fullWidth error={!!errors.username} helperText={errors.username} />
-        <TextField type="email" name="email" label="Email" value={formData.email} onChange={handleChange} required fullWidth error={!!errors.email} helperText={errors.email} />
-        <TextField type="email" name="confirmEmail" label="Confirm Email" value={formData.confirmEmail} onChange={handleChange} required fullWidth error={!!errors.confirmEmail} helperText={errors.confirmEmail} />
-        <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth error={!!errors.password} helperText={errors.password} />
-        <TextField type="text" name="full_name" label="Full Name" value={formData.full_name} onChange={handleChange} fullWidth />
-        <TextField type="text" name="university_name" label="University Name" value={formData.university_name} onChange={handleChange} fullWidth />
-        <TextField type="text" name="program_of_study" label="Program of Study" value={formData.program_of_study} onChange={handleChange} fullWidth />
-        <TextField type="number" name="age" label="Age" value={formData.age} onChange={handleChange} fullWidth />
-        <TextField name="bio" label="Bio" value={formData.bio} onChange={handleChange} multiline fullWidth />
-        <FormControl fullWidth>
-                            <InputLabel id="availability-label">Availability</InputLabel>
-                            <Select
-                                labelId="availability-label"
-                                id="availability"
-                                name="availability"
-                                value={formData.availability}
-                                onChange={handleChange}
-                            >
-                                <MenuItem value={1}>Available</MenuItem>
-                                <MenuItem value={0}>Unavailable</MenuItem>
-                            </Select>
-                        </FormControl>
-        {errors.submit && <Typography color="error">{errors.submit}</Typography>}
+      <ThemeProvider theme={theme}>
+      <Container maxWidth="md" style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#54555c' }}>Register</Typography>
+      <form onSubmit={handleRegister}>
+        <div>
+          <TextField
+            label="Username"
+            type="text"
+            name="username"
+            value={username}
+            onChange={handleInputChange}
+            required fullWidth
+          />
+          {formErrors.username && <Typography variant="body2">{formErrors.username}</Typography>}
+        </div>
+        <div>
+          <TextField
+            label="Email"
+            type="email"
+            name="email"
+            value={email}
+            onChange={handleInputChange}
+            required fullWidth
+          />
+          {formErrors.email && <Typography variant="body2">{formErrors.email}</Typography>}
+        </div>
+        <div>
+          <TextField
+            label="Confirm Email"
+            type="email"
+            name="confirmEmail"
+            value={confirmEmail}
+            onChange={handleInputChange}
+            required fullWidth
+          />
+          {formErrors.confirmEmail && <Typography variant="body2">{formErrors.confirmEmail}</Typography>}
+        </div>
+        <div>
+          <TextField
+            label="Password"
+            type="password"
+            name="password"
+            value={password}
+            onChange={handleInputChange}
+            required fullWidth
+          />
+          {formErrors.password && <Typography variant="body2">{formErrors.password}</Typography>}
+        </div>
+        <div>
+          <TextField
+            label="Full Name"
+            type="text"
+            name="full_name"
+            value={full_name}
+            onChange={handleInputChange}
+            required fullWidth
+          />
+          {formErrors.full_name && <Typography variant="body2">{formErrors.full_name}</Typography>}
+        </div>
+        <div>
+          <TextField
+            label="University Name"
+            type="text"
+            name="university_name"
+            value={university_name}
+            onChange={handleInputChange}
+            required fullWidth
+          />
+          {formErrors.university_name && <Typography variant="body2">{formErrors.university_name}</Typography>}
+        </div>
+        <div>
+          <TextField
+            label="Program of Study"
+            type="text"
+            name="program_of_study"
+            value={program_of_study}
+            onChange={handleInputChange}
+            required fullWidth
+          />
+          {formErrors.program_of_study && <Typography variant="body2">{formErrors.program_of_study}</Typography>}
+        </div>
+        <div>
+          <TextField
+            label="Age"
+            type="number"
+            name="age"
+            value={age}
+            onChange={handleInputChange}
+            required fullWidth
+          />
+          {formErrors.age && <Typography variant="body2">{formErrors.age}</Typography>}
+        </div>
+        <div>
+          <TextField
+            label="Bio"
+            multiline
+            rows={4}
+            name="bio"
+            value={bio}
+            onChange={handleInputChange}
+            required fullWidth
+          />
+          {formErrors.bio && <Typography variant="body2">{formErrors.bio}</Typography>}
+        </div>
         <Button type="submit" variant="contained" color="primary">Register</Button>
+        {error && <Typography variant="body2">{error}</Typography>}
       </form>
+      </Container>
+      </ThemeProvider>
     </div>
   );
 };
 
-export default Register; 
 
+export default Register;

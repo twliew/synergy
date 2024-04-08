@@ -1,55 +1,79 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography } from '@mui/material';
+import { TextField, Button, Typography, Container } from '@mui/material';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const Login = ({ onLogin }) => { // Pass onLogin function as a prop
+const Login = ({ onLogin }) => {
+    const navigate = useNavigate(); // Initialize useNavigate hook
     const [formData, setFormData] = useState({
-        username: '',
+        email: '',
         password: ''
     });
 
-    const handleChange = (e) => { // Update form data when input changes
+    const theme = createTheme({
+        palette: {
+          primary: {
+            main: '#7487cc',
+            light: '#e0c8d2',
+            background: '#eeeeee'
+          },
+          secondary: {
+            main: '#c5ceed',
+          },
+        },
+      });
+
+    const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleLogin = async () => { // Handle login form submission
+    const handleLogin = async () => {
         try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+            const auth = getAuth(); // Get Firebase authentication instance
+            const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password); // Sign in with email and password
 
-            if (!response.ok) {
-                throw new Error('Failed to login');
+            // If sign-in is successful
+            if (userCredential.user) {
+                const idToken = await userCredential.user.getIdToken(); // Retrieve ID token
+                localStorage.setItem('token', idToken); // Store ID token in local storage
+
+                const email = formData.email;
+                const response = await fetch(`/api/getUsername?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+                
+                if (data.username) {
+                    localStorage.setItem('username', data.username); // Store fetched username in local storage
+                    onLogin();
+                    navigate('/home'); // Navigate to /home on successful login
+                } else {
+                    throw new Error('Failed to fetch username');
+                }
             }
-
-            const { token, username } = await response.json(); // Get token and username from response
-            localStorage.setItem('token', token); // Store token in local storage
-            localStorage.setItem('username', username); // Store username in local storage
-            onLogin();
-
         } catch (error) {
             console.error('Error:', error.message);
         }
     };
 
-    const handleSubmit = (e) => { // Handle form submission
+    const handleSubmit = (e) => {
         e.preventDefault();
         handleLogin();
     };
 
     return (
         <div>
-            <Typography variant="h4" gutterBottom>
-                Login
-            </Typography>
-            <form onSubmit={handleSubmit}>
-                <TextField type="text" name="username" label="Username" value={formData.username} onChange={handleChange} required fullWidth />
-                <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth />
-                <Button type="submit" variant="contained" color="primary">Login</Button>
-            </form>
+            <ThemeProvider theme={theme}>
+                <Container style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+                    <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#54555c' }}>
+                        Login
+                    </Typography>
+                    <form onSubmit={handleSubmit}>
+                        <TextField type="email" name="email" label="Email" value={formData.email} onChange={handleChange} required fullWidth />
+                        <TextField type="password" name="password" label="Password" value={formData.password} onChange={handleChange} required fullWidth />
+                        <Button type="submit" variant="contained" color="primary">Login</Button>
+                    </form>
+                </Container>
+            </ThemeProvider>
         </div>
     );
 };

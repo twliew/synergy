@@ -93,9 +93,21 @@ const ViewLikes = () => {
                                 <CardContent>
                                     <Typography gutterBottom variant="h5" component="h2">{profile.full_name}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Username: {profile.username}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>University: {profile.university_name}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {profile.program_of_study}</Typography>
-                                    <Typography variant="body2" color="textSecondary" gutterBottom>Age: {profile.age}</Typography>
+                                    {profile.uni_visible ? (
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>University: {profile.university_name}</Typography>
+                                    ):(
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>University Name: Hidden</Typography>
+                                    )}
+                                    {profile.program_visible ? (
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: {profile.program_of_study}</Typography>
+                                    ):(
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>Program of Study: Hidden</Typography>
+                                    )}
+                                    {profile.age_visible ? (
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>Age: {profile.age}</Typography>
+                                    ):(
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>Age: Hidden</Typography>
+                                    )}
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Bio: {profile.bio}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Hobbies: {profile.hobbies}</Typography>
                                     <Typography variant="body2" color="textSecondary" gutterBottom>Public Social Media: {profile.public_social_media}</Typography>

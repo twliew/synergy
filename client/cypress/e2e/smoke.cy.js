@@ -8,7 +8,7 @@ describe('render login and navigate to profile page as well as people page', () 
     it('login', () => {
         cy.visit('/Login');
 
-        cy.get('input[name="username"]').type('Twliew');
+        cy.get('input[name="email"]').type('twliew@uwaterloo.ca');
         cy.get('input[name="password"]').type('Synergy1234!!');
 
         cy.get('form').submit();
@@ -26,8 +26,6 @@ describe('render login and navigate to profile page as well as people page', () 
         cy.contains('Profile').click();
         cy.get('input[name="full_name"]').type('Taylor Liew');
         cy.get('input[name="username"]').type('tliew');
-        cy.get('input[name="email"]').type('tliew@gmail.com');
-        cy.get('input[name="password"]').type('Synergy1234!!');
         cy.get('input[name="university_name"]').type('University of Waterloo');
         cy.get('input[name="program_of_study"]').type('Management Engineering');
         cy.get('input[name="age"]').type('20');
@@ -35,4 +33,19 @@ describe('render login and navigate to profile page as well as people page', () 
         cy.get('#availability-label').should('be.visible');
         cy.get('#mood-label').should('be.visible');
     });
+
+    it("should display user card with 'Remove Like' button", () => {
+        cy.get('#Home').should('be.visible');
+        cy.contains('Home').click();
+        
+        // Introduce a delay of 2 seconds before clicking the "View Likes" button
+        cy.wait(2000);
+        cy.contains('View Likes').click();
+    
+        // Introduce a delay of 2 seconds before clicking the "Hide Likes" button
+        cy.wait(2000);
+        cy.contains('Hide Likes').click();
+    });
+    
+    
 });

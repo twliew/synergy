@@ -1,16 +1,26 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import mysql from 'mysql';
+import admin from 'firebase-admin';
+import serviceAccount from './serviceAccountKey.json' assert {type: 'json'};
 import { fileURLToPath } from 'url';
 import path from 'path';
+import cors from 'cors';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://msci342---project-ffa77-default-rtdb.firebaseio.com"
+});
+
 const app = express();
 const port = process.env.PORT || 5000;
+
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(cors()); // Use CORS middleware
 
 const db = mysql.createConnection({
   host: 'ec2-3-137-65-169.us-east-2.compute.amazonaws.com',
@@ -26,68 +36,48 @@ db.connect((err) => {
   console.log('Connected to MySQL Database');
 });
 
-// Register Route
-app.post('/api/register', (req, res) => {
-  const userData = req.body;
 
-  const userDataWithoutConfirm = { ...userData };
-  delete userDataWithoutConfirm.confirmEmail;
+app.post('/register', (req, res) => {
+  const { uid, username, email, password, full_name, university_name, program_of_study, age, bio } = req.body;
+  const sql = `
+    INSERT INTO user (id, username, email, password, full_name, university_name, program_of_study, age, bio, availability)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
-  // Check if username already exists
-  const checkUsernameQuery = 'SELECT * FROM twliew.user WHERE username = ?';
-  db.query(checkUsernameQuery, [userData.username], (err, usernameResults) => {
+  db.query(sql, [uid, username, email, password, full_name, university_name, program_of_study, age, bio, 1], (err, result) => {
     if (err) {
-      return res.status(500).send('Internal server error');
+      console.error('Error inserting user:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      console.log('User inserted into MySQL:', result);
+      res.status(200).json({ message: 'User registered successfully' });
     }
-
-    if (usernameResults.length > 0) {
-      return res.status(400).send('Username already exists');
-    }
-
-    // Check if email already exists
-    const checkEmailQuery = 'SELECT * FROM twliew.user WHERE email = ?';
-    db.query(checkEmailQuery, [userData.email], (err, emailResults) => {
-      if (err) {
-        return res.status(500).send('Internal server error');
-      }
-
-      if (emailResults.length > 0) {
-        return res.status(400).send('Email already exists');
-      }
-
-      if (!isUniversityEmail(userData.email)) {
-        return res.status(400).send('Only university email addresses with valid university domains are allowed');
-      }
-
-      // Implement password strength criteria validation
-      const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
-      if (!passwordRegex.test(userData.password)) {
-        return res.status(400).send('Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character');
-      }
-
-      // If all validations pass, proceed with user registration
-      const sql = 'INSERT INTO twliew.user SET ?';
-      db.query(sql, userData, (err, result) => {
-        if (err) {
-          return res.status(400).send('Failed to register user');
-        }
-        // Handle success response
-        res.status(200).send('User registered successfully');
-      });
-    });
   });
 });
 
-// Check if email is from an accepted university domain
-const isUniversityEmail = (email) => {
-  const universityDomains = ['uwaterloo.ca', 'mail.utoronto.ca', 'mcmaster.ca', 'wlu.ca'];
-  const domain = email.split('@')[1];
-  return universityDomains.includes(domain);
-};
+app.get('/api/getUsername', (req, res) => {
+  const email = req.query.email; // Get email from query parameters
+
+  // Query MySQL database to retrieve username based on email
+  const query = `SELECT username FROM user WHERE email = '${email}'`;
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error('Error fetching username:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      if (results.length > 0) {
+        const username = results[0].username;
+        res.json({ username });
+      } else {
+        res.status(404).json({ error: 'Username not found' });
+      }
+    }
+  });
+});
 
 
-
-// Login Route
+/* // Login Route
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const sql = 'SELECT * FROM twliew.user WHERE username = ? AND password = ?';
@@ -111,7 +101,7 @@ app.post('/api/login', (req, res) => {
       res.status(200).json({ success: true, message: 'Login successful', username });
     }
   });
-});
+});  */
 
 // Profile Route
 app.get('/api/profile/:username', (req, res) => {
@@ -399,7 +389,7 @@ app.get('/api/profile/exclude/:username', (req, res) => {
     SELECT 
       u.*, 
       GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
-      GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media,
+      GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.sm_username) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media,
       CASE 
         WHEN l.liked_id IS NOT NULL THEN 1 
         ELSE 0 
@@ -427,18 +417,17 @@ app.get('/api/profile/exclude/:username', (req, res) => {
 });
 
 
-// Search users by hobbies
 app.post('/api/profile/search/:username', (req, res) => {
   const { hobbies, filterLikedUsers } = req.body;
   const signedInUsername = req.params.username;
 
   let sql = `
-    SELECT u.*, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
-    GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
-    FROM twliew.user u
-    LEFT JOIN twliew.user_hobbies uh ON u.id = uh.user_id
-    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
-    LEFT JOIN twliew.social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
+    SELECT u.*, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY uh.hobby_id SEPARATOR ', ') AS hobbies,
+    GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.sm_username) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+    FROM user u
+    LEFT JOIN user_hobbies uh ON u.id = uh.user_id
+    LEFT JOIN hobbies h ON uh.hobby_id = h.id
+    LEFT JOIN social_media sm ON u.id = sm.user_id AND (sm.visibility = 'public' OR sm.visibility IS NULL)
     WHERE 1=1`;
 
   if (hobbies && hobbies.length > 0) {
@@ -468,12 +457,12 @@ function processUserProfiles(userProfiles, res) {
   const userIds = userProfiles.map(user => user.id);
   const userHobbiesSql = `
     SELECT uh.user_id, GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS all_hobbies
-    FROM twliew.user_hobbies uh
-    LEFT JOIN twliew.hobbies h ON uh.hobby_id = h.id
-    WHERE uh.user_id IN (${userIds.join(',')})
+    FROM user_hobbies uh
+    LEFT JOIN hobbies h ON uh.hobby_id = h.id
+    WHERE uh.user_id IN (${userIds.map(() => '?').join(',')})
     GROUP BY uh.user_id`;
 
-  db.query(userHobbiesSql, (userHobbiesErr, userHobbiesResults) => {
+  db.query(userHobbiesSql, userIds, (userHobbiesErr, userHobbiesResults) => {
     if (userHobbiesErr) {
       console.error('Error fetching all hobbies for users:', userHobbiesErr);
       return res.status(500).json({ success: false, message: 'Internal server error' });
@@ -544,7 +533,7 @@ app.get('/api/profile/viewLikes/:username', (req, res) => {
   const sql = `
       SELECT u.*, 
           GROUP_CONCAT(DISTINCT h.hobby_name ORDER BY h.id SEPARATOR ', ') AS hobbies,
-          GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.url) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
+          GROUP_CONCAT(DISTINCT CASE WHEN sm.visibility = 'public' THEN CONCAT(sm.platform_name, ': ', sm.sm_username) ELSE NULL END ORDER BY sm.id SEPARATOR ', ') AS public_social_media
       FROM user AS u
       INNER JOIN likes AS l ON u.id = l.liker_id
       LEFT JOIN user_hobbies AS uh ON u.id = uh.user_id
@@ -613,6 +602,144 @@ app.get('/api/like/check/:signedInUsername/:targetUsername', (req, res) => {
               return res.status(200).json({ success: true, liked });
           });
       });
+  });
+});
+
+// Endpoint to fetch user profile information based on matched user IDs
+app.get('/api/matchedUserProfiles/:username', (req, res) => {
+  const signedInUsername = req.params.username;
+
+  // Query to fetch the ID of the signed-in user
+  const getUserIdQuery = `
+    SELECT id
+    FROM user
+    WHERE username = ?;
+  `;
+
+  // Execute the query to fetch the ID of the signed-in user
+  db.query(getUserIdQuery, [signedInUsername], (userError, userResults) => {
+    if (userError) {
+      console.error('Error fetching user ID:', userError);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (userResults.length === 0) {
+      console.error('User not found:', signedInUsername);
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Extract the ID of the signed-in user
+    const signedInUserId = userResults[0].id;
+    
+    // Query to fetch matched user IDs using the signed-in user ID
+    const query = `
+      SELECT t1.liked_id AS id
+      FROM likes t1
+      JOIN likes t2 ON t1.liker_id = t2.liked_id AND t1.liked_id = t2.liker_id
+      WHERE t1.liker_id = ?;  
+    `;
+
+    // Execute the query to fetch matched user IDs
+    db.query(query, [signedInUserId], (error, results) => {
+      if (error) {
+        console.error('Error fetching matched user IDs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+
+      // Extract IDs from the results
+      const matchedUserIds = results.map(result => result.id);
+
+      // Query to fetch user profile information based on matched user IDs
+      const userProfileQuery = `
+        SELECT u.id, u.username, u.email, u.age, u.bio, GROUP_CONCAT(DISTINCT h.hobby_name SEPARATOR ', ') AS hobbies,
+              GROUP_CONCAT(DISTINCT sm.platform_name, ': ', sm.sm_username SEPARATOR ', ') AS social_media
+        FROM user u
+        LEFT JOIN user_hobbies uh ON u.id = uh.user_id
+        LEFT JOIN hobbies h ON uh.hobby_id = h.id
+        LEFT JOIN social_media sm ON u.id = sm.user_id
+        WHERE u.id IN (?)
+        GROUP BY u.id;
+      `;
+
+
+      // Execute the query to fetch user profile information
+      db.query(userProfileQuery, [matchedUserIds], (profileError, profileResults) => {
+        if (profileError) {
+          console.error('Error fetching user profiles:', profileError);
+          res.status(500).json({ error: 'Internal server error' });
+          return;
+        }
+
+        // Send the user profiles as a response
+        res.json(profileResults);
+      });
+    });
+  });
+});
+
+app.delete('/api/removeLike/:likedUserId', (req, res) => {
+  const signedInUsername = req.body.signedInUsername;
+  const likedUserId = req.params.likedUserId;
+
+  // Query to get the signed-in user ID
+  const getUserIdQuery = 'SELECT id FROM twliew.user WHERE username = ?';
+
+  // Execute the query to get the signed-in user ID
+  db.query(getUserIdQuery, [signedInUsername], (error, userIdResults) => {
+    if (error) {
+      console.error('Error fetching signed-in user ID:', error);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (userIdResults.length === 0) {
+      console.error('Signed-in user not found:', signedInUsername);
+      res.status(404).json({ error: 'Signed-in user not found' });
+      return;
+    }
+
+    const signedInUserId = userIdResults[0].id;
+
+    // Query to remove the like
+    const removeLikeQuery = `
+      DELETE FROM likes
+      WHERE liker_id = ? AND liked_id = ?;
+    `;
+
+    // Execute the query to remove the like
+    db.query(removeLikeQuery, [signedInUserId, likedUserId], (error, results) => {
+      if (error) {
+        console.error('Error removing like:', error);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+      res.status(200).json({ message: 'Like removed successfully' });
+    });
+  });
+});
+
+app.get('/api/viewNumberLikes/:username', (req, res) => {
+  const username = req.params.username;
+
+  const sql = 'SELECT COUNT(*) AS likeCount FROM likes WHERE liked_id = (SELECT id FROM user WHERE username = ?)';
+
+  db.query(sql, [username], (err, result) => {
+    if (err) {
+      console.error('Error fetching number of likes data:', err);
+      return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, message: 'User profile not found' });
+    }
+
+    const userProfile = result[0];
+    console.log(userProfile)
+    let string = JSON.stringify(userProfile);
+		res.send({ express: string });
   });
 });
 
