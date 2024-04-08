@@ -2,24 +2,33 @@
 
 ## Project Description
 1. Register and Login
+   - NOTE: application uses Firebase authentication for log in
    - For new users: go to register tab and input profile information. Then navigate to Login tab and use login credentials to access your account.
-   - If you do not want to make a new user, please use username: Parthdsi and password: Parthdesai1@ to sign in, although we encourage account creation!
+   - If you do not want to make a new user, please use email: Parth.desai@uwaterloo.ca and password: Parthdesai1@ to sign in, although we encourage account creation!
    - Existing Users: Go to Login tab and use login credentials to access your account.
-2. Overhead Bar
+3. Overhead Bar
    - Use overhead tabs to navigate to various pages within the system.
-3. Logout
+4. Logout
    - Logout of your account by selecting Logout in the top right corner of the system.
-4. Profile
+5. Home
+   - General introduction to SYNERGY.
+   - Instructions of use for application.
+   - Preview number of likes and users who like you.
+7. Profile
    - Edit your profile information in by making changes in textfields and selecting Save Changes. Do not edit the username.
+   - Select which personal information to share with other uses using toggles.
    - Add, edit, and delete social media -> Add social media information such as platform (e.g. instagram), username, url, and visibility (what other users can view these)
    - Add hobbies and interests -> add hobby from existing hobbies within database in the dropdown. If you don't find a hobby, add a new hobby in the below textfield and select Add Hobby. Save Interests to maintain all changes.
-5. People
-   - Discover other users registered in the system
-   - Scroll through and view other users' profile information
-   - Can filter based on a certain one or multiple hobbies or interests
-   - User can Like another user using a Like button for each user
-   - The View Likes button brings the user to a list of other system users that have liked them
-   - Return to the main People page by clicking on Back to People button
+8. People
+   - Discover other users registered in the system.
+   - Scroll through and view other users' profile information.
+   - Can filter based on a certain one or multiple hobbies or interests.
+   - User can Like another user using a Like button for each user.
+   - The View Likes button brings the user to a list of other system users that have liked them.
+   - Return to the main People page by clicking on Back to People button.
+9. Matches
+    - View list of users who you matched with along with their details.
+    - Use Remove Like button to um-match with a user.
 
 
 # MSci 342 - Project template
